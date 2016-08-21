@@ -1,9 +1,7 @@
-OpenStack Haproxy Server
-########################
-:tags: openstack, galera, haproxy, cloud, ansible
-:category: \*nix
+OpenStack-Ansible Galera Client
+###############################
 
-contributor guidelines
+Contributor Guidelines
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Filing Bugs
@@ -12,40 +10,69 @@ Filing Bugs
 Bugs should be filed on Launchpad, not GitHub: "https://bugs.launchpad.net/openstack-ansible"
 
 
-When submitting a bug, or working on a bug, please ensure the following criteria are met:
-    * The description clearly states or describes the original problem or root cause of the problem.
+When submitting a bug, or working on a bug, please ensure the following
+criteria are met:
+    * The description clearly states or describes the original problem or root
+      cause of the problem.
     * Include historical information on how the problem was identified.
     * Any relevant logs are included.
-    * The provided information should be totally self-contained. External access to web services/sites should not be needed.
+    * The provided information should be totally self-contained. External
+      access to web services/sites should not be needed.
     * Steps to reproduce the problem if possible.
 
 
 Submitting Code
 ---------------
 
-Changes to the project should be submitted for review via the Gerrit tool, following
-the workflow documented at: "http://docs.openstack.org/infra/manual/developers.html#development-workflow"
+Changes to the project should be submitted for review via the Gerrit tool,
+following the workflow documented at:
+"http://docs.openstack.org/infra/manual/developers.html#development-workflow"
 
-Pull requests submitted through GitHub will be ignored and closed without regard.
+Pull requests submitted through GitHub will be ignored and closed without
+regard.
+
+If you wish to test your changes locally prior to submitting them for review
+you can use the ``Vagrantfile`` included in the root of this repository. It
+aims to replicate the gate check testing that will be done by OpenStack CI
+once your review has been submitted.
+
+To run tests:
+
+.. code-block:: shell-session
+
+        # vagrant up
+
+The Vagrant box will run all tests and report status in the output. If you
+need to iterate through a fix/test cycle, tests can be re-run in a running
+Vagrant box with:
+
+.. code-block:: shell-session
+
+        # vagrant provision
 
 
 Extra
 -----
 
-Tags: 
-    If it's a bug that needs fixing in a branch in addition to Master, add a '\<release\>-backport-potential' tag (eg ``juno-backport-potential``).  There are predefined tags that will autocomplete.
+Tags:
+    If it's a bug that needs fixing in a branch in addition to Master, add a
+    '\<release\>-backport-potential' tag (eg ``juno-backport-potential``).
+    There are predefined tags that will autocomplete.
 
 Status:
     Please leave this alone, it should be New till someone triages the issue.
 
 Importance:
-    Should only be touched if it is a Blocker/Gating issue. If it is, please set to High, and only use Critical if you have found a bug that can take down whole infrastructures.
+    Should only be touched if it is a Blocker/Gating issue. If it is, please
+    set to High, and only use Critical if you have found a bug that can take
+    down whole infrastructures.
 
 
 Style guide
 -----------
 
-When creating tasks and other roles for use in Ansible please create then using the YAML dictionary format. 
+When creating tasks and other roles for use in Ansible please create then
+using the YAML dictionary format.
 
 Example YAML dictionary format:
     .. code-block:: yaml
@@ -69,17 +96,22 @@ Example **NOT** in YAML dictionary format:
             - some-other-tag
 
 
-Usage of the ">" and "|" operators should be limited to Ansible conditionals and command modules such as the ansible ``shell`` module.
+Usage of the ">" and "|" operators should be limited to Ansible conditionals
+and command modules such as the ansible ``shell`` module.
 
 
 Issues
 ------
 
-When submitting an issue, or working on an issue please ensure the following criteria are met:
-    * The description clearly states or describes the original problem or root cause of the problem.
+When submitting an issue, or working on an issue please ensure the following
+criteria are met:
+    * The description clearly states or describes the original problem or root
+      cause of the problem.
     * Include historical information on how the problem was identified.
     * Any relevant logs are included.
-    * If the issue is a bug that needs fixing in a branch other than Master, add the ‘backport potential’ tag TO THE ISSUE (not the PR).
-    * The provided information should be totally self-contained. External access to web services/sites should not be needed.
+    * If the issue is a bug that needs fixing in a branch other than Master,
+      add the ‘backport potential’ tag TO THE ISSUE (not the PR).
+    * The provided information should be totally self-contained. External
+      access to web services/sites should not be needed.
     * If the issue is needed for a hotfix release, add the 'expedite' label.
     * Steps to reproduce the problem if possible.
