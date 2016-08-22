@@ -1,9 +1,13 @@
-=============================
-OpenStack-Ansible Ceph client
-=============================
+================================
+OpenStack-Ansible HAProxy server
+================================
 
-This Ansible role installs the Ceph operating system
-packages used to interact with a Ceph cluster.
+.. toctree::
+   :maxdepth: 2
+
+   configure-haproxy.rst
+
+This Ansible role installs the HAProxy Load Balancer service.
 
 Default variables
 ~~~~~~~~~~~~~~~~~
