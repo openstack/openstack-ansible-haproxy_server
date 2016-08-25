@@ -18,3 +18,5 @@
   connection: local
   roles:
     - role: "{{ rolename | basename }}"
+  vars_files:
+    - test-vars.yml
