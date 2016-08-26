@@ -16,12 +16,12 @@
 ## APT Cache options
 cache_timeout: 600
 
-haproxy_pre_packages:
+haproxy_required_distro_packages:
   - python-software-properties
   - software-properties-common
   - debconf-utils
 
-haproxy_packages:
+haproxy_distro_packages:
   - haproxy
   - rsyslog  # Used for local logging
   - vim-haproxy

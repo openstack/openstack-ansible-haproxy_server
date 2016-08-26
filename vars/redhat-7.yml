@@ -13,6 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-haproxy_packages:
+haproxy_distro_packages:
   - haproxy
   - rsyslog  # Used for local logging

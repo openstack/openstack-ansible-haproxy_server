@@ -25,9 +25,8 @@ haproxy_interval: 12000
 ## Haproxy standard API
 haproxy_repo: {}
 haproxy_gpg_keys: []
-haproxy_pre_packages: []
-haproxy_packages: []
-haproxy_pinned_packages: []
+haproxy_required_distro_packages: []
+haproxy_distro_packages: []
 
 ## Haproxy Stats
 haproxy_stats_enabled: False
