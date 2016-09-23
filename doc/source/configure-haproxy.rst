@@ -141,7 +141,11 @@ provide your own certificates by using the following Ansible variables:
 
 Refer to `Securing services with SSL certificates`_ for more information on
 these configuration options and how you can provide your own
-certificates and keys to use with HAProxy.
+certificates and keys to use with HAProxy. User provided certificates should
+be folded and formatted at 64 characters long. Single line certificates
+will not be accepted by HAProxy and will result in SSL validation failures.
+Please have a look here for information on `converting your certificate to
+various formats <https://search.thawte.com/support/ssl-digital-certificates/index?page=content&actp=CROSSLINK&id=SO26449>`_.
 
 .. _Securing services with SSL certificates: configure-sslcertificates.html
 
