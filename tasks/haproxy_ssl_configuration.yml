@@ -61,7 +61,7 @@
 
 - name: Remove signed certs and keys for regen
   file:
-    dest: "{{ haproxy_ssl_cert }}"
+    dest: "{{ item }}"
     state: "absent"
   with_items:
     - "{{ haproxy_ssl_pem }}"
