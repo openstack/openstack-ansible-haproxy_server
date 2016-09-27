@@ -17,6 +17,6 @@
   hosts: localhost
   connection: local
   roles:
-    - role: "{{ rolename | basename }}"
+    - role: "haproxy_server"
   vars_files:
     - test-vars.yml
