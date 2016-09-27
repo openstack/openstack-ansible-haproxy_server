@@ -28,6 +28,7 @@ openssl-devel     [platform:rpm]
 
 # For SELinux
 libselinux-python [platform:rpm]
+libsemanage-python [platform:rpm]
 
 # For SSL SNI support
 python-pyasn1               [platform:dpkg]

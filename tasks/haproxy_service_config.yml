@@ -27,3 +27,15 @@
   notify: Restart haproxy
   tags:
     - haproxy-service-config
+
+- name: Prevent SELinux from preventing haproxy from binding to arbitrary ports
+  seboolean:
+    name: haproxy_connect_any
+    state: yes
+    persistent: yes
+  tags:
+    - haproxy-service-config
+  notify:
+    - Restart haproxy
+  when:
+    - ansible_pkg_mgr == 'yum'
