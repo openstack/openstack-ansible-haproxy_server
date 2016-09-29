@@ -5,4 +5,5 @@
 .. toctree::
    :maxdepth: 1
 
+   newton
    unreleased
