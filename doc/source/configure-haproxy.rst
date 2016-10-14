@@ -47,7 +47,7 @@ HAProxy in a highly-available manner by installing keepalived.
 
 Edit the ``/etc/openstack_deploy/user_variables.yml`` to skip the deployment
 of keepalived along HAProxy when installing HAProxy on multiple hosts.
-To do this, set the following::
+To do this, set the following:
 
 .. code-block:: yaml
 
