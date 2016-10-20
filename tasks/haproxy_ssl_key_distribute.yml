@@ -13,21 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Gather variables for each operating system
-  include_vars: "{{ item }}"
-  with_first_found:
-    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
-    - "{{ ansible_distribution | lower }}.yml"
-    - "{{ ansible_os_family | lower }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
-    - "{{ ansible_os_family | lower }}.yml"
+- name: Distribute self signed ssl key
+  copy:
+    dest: "{{ haproxy_ssl_key }}"
+    content: "{{ hostvars[groups['haproxy_all'][0]]['haproxy_ssl_key_fact'] | b64decode }}"
+    mode: "0640"
+  notify:
+    - regen pem
   tags:
-    - always
+    - haproxy-ssl
 
-- include: haproxy_pre_install.yml
-
-- include: haproxy_install.yml
-
-- include: haproxy_ssl.yml
-  when: haproxy_ssl | bool
-
-- include: haproxy_post_install.yml
+- name: Distribute self signed ssl cert
+  copy:
+    dest: "{{ haproxy_ssl_cert }}"
+    content: "{{ hostvars[groups['haproxy_all'][0]]['haproxy_ssl_cert_fact'] | b64decode }}"
+    mode: "0640"
+  notify:
+    - regen pem
+  tags:
+    - haproxy-ssl
