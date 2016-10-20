@@ -1,5 +1,5 @@
 ---
-# Copyright 2015, Jean-Philippe Evrard <jean-philippe.evrard@belnet.be>
+# Copyright 2015, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Deploy user provided ssl cert
+- name: Drop user provided ssl cert
   copy:
     src: "{{ haproxy_user_ssl_cert }}"
     dest: "{{ haproxy_ssl_cert }}"
@@ -26,13 +26,13 @@
   tags:
     - haproxy-ssl
 
-- name: Deploy user provided ssl key
+- name: Drop user provided ssl key
   copy:
     src: "{{ haproxy_user_ssl_key }}"
     dest: "{{ haproxy_ssl_key }}"
     owner: "root"
     group: "root"
-    mode: "0600"
+    mode: "0640"
   when: haproxy_user_ssl_key is defined
   notify:
     - regen pem
@@ -47,39 +47,6 @@
     group: "root"
     mode: "0644"
   when: haproxy_user_ssl_ca_cert is defined
-  notify:
-    - regen pem
-  tags:
-    - haproxy-ssl
-
-- name: Ensure the private ssl directory exists
-  file:
-    dest: "/etc/ssl/private"
-    state: "directory"
-  tags:
-    - haproxy-ssl
-
-- name: Remove signed certs and keys for regen
-  file:
-    dest: "{{ item }}"
-    state: "absent"
-  with_items:
-    - "{{ haproxy_ssl_pem }}"
-    - "{{ haproxy_ssl_key }}"
-    - "{{ haproxy_ssl_cert }}"
-  when: haproxy_ssl_self_signed_regen | bool
-  tags:
-    - haproxy-ssl
-
-- name: Create self-signed ssl cert if no certificate exists
-  command: >
-    openssl req -new -nodes -sha256 -x509 -subj
-    "{{ haproxy_ssl_self_signed_subject }}"
-    -days 3650
-    -keyout {{ haproxy_ssl_key }}
-    -out {{ haproxy_ssl_cert }}
-    -extensions v3_ca
-    creates={{ haproxy_ssl_cert }}
   notify:
     - regen pem
   tags:
