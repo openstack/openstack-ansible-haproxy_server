@@ -84,7 +84,7 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set entry = [] %}
 {% set _ = entry.append("server") %}
 {% set _ = entry.append(host_name | string) %}
-{% set _ = entry.append(hostvars[host_name]['ansible_ssh_host'] + ":" + haproxy_backend_port | string) %}
+{% set _ = entry.append(hostvars[host_name]['ansible_host'] + ":" + haproxy_backend_port | string) %}
 {% set _ = entry.append("check") %}
 {% set _ = entry.append("port") %}
 {% set _ = entry.append(haproxy_backend_port | string) %}
@@ -101,7 +101,7 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set entry = [] %}
 {% set _ = entry.append("server") %}
 {% set _ = entry.append(host_name | string) %}
-{% set _ = entry.append(hostvars[host_name]['ansible_ssh_host'] + ":" + haproxy_backend_port | string) %}
+{% set _ = entry.append(hostvars[host_name]['ansible_host'] + ":" + haproxy_backend_port | string) %}
 {% set _ = entry.append("check") %}
 {% set _ = entry.append("port") %}
 {% set _ = entry.append(haproxy_backend_port | string) %}
