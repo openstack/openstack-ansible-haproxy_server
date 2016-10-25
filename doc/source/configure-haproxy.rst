@@ -150,7 +150,7 @@ various formats <https://search.thawte.com/support/ssl-digital-certificates/inde
 .. _Securing services with SSL certificates: configure-sslcertificates.html
 
 Configuring additional services
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Additional haproxy service entries can be configured by setting
 ``haproxy_extra_services`` in ``/etc/openstack_deploy/user_variables.yml``
@@ -169,3 +169,21 @@ An example HTTP service could look like:
           haproxy_ssl: "{{ haproxy_ssl }}"
           haproxy_port: 10000
           haproxy_balance_type: http
+
+
+Adding additional global VIP addresses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In some cases, you might need to add additional internal VIP addresses
+to the load balancer front end. You can use the HAProxy role to add
+additional VIPs to all front ends by setting them in the
+``extra_lb_vip_addresses`` variable.
+
+The following example shows extra VIP addresses defined in the
+``user_variables.yml`` file:
+
+.. code-block:: yaml
+
+   extra_lb_vip_addresses:
+     - 10.0.0.10
+     - 192.168.0.10
