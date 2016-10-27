@@ -19,9 +19,7 @@
 {% endif -%}
 
 {%- if item.service.haproxy_bind is defined %}
-  {% if item.service.haproxy_bind not in vip_binds %}
-    {% set _ = vip_binds.append(item.service.haproxy_bind) %}
-  {% endif %}
+  {% set vip_binds = item.service.haproxy_bind %}
 {% endif -%}
 
 {% for vip_bind in vip_binds %}
