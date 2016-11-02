@@ -95,4 +95,5 @@
   when: add_repos|changed
   tags:
     - haproxy-repos
-
+    # don't trigger ANSIBLE0016
+    - skip_ansible_lint
