@@ -32,5 +32,6 @@
 
 - name: Install HATop
   command: "install -m 755 bin/hatop /usr/local/bin"
+  changed_when: false
   args:
     chdir: "/opt/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
