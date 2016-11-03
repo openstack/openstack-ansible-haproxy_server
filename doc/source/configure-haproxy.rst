@@ -187,3 +187,27 @@ The following example shows extra VIP addresses defined in the
    extra_lb_vip_addresses:
      - 10.0.0.10
      - 192.168.0.10
+
+Adding Access Control Lists to HAProxy front end
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Adding ACL rules in HAProxy is easy. You just need to define haproxy_acls and
+add the rules in the variable
+
+Here is an example that shows how to achieve the goal
+
+.. code-block:: yaml
+
+
+   - service:
+          haproxy_service_name: influxdb-relay
+          haproxy_acls:
+              write_queries:
+                 rule: "path_sub -i write"
+              read_queries:
+                 rule: "path_sub -i query"
+                 backend_name: "influxdb"
+
+This will add two acl rules ``path_sub -i write`` and ``path_sub -i query``  to
+the front end and use the backend specified in the rule. If no backend is specified
+it will use a default ``haproxy_service_name`` backend.

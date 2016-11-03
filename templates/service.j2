@@ -53,6 +53,12 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
     tcp-request content accept if white_list
     tcp-request content reject
 {% endif %}
+{% if item.service.haproxy_acls is defined %}
+{%   for key, value in item.service.haproxy_acls.items() %}
+    acl {{ key }} {{ value.rule }}
+    use_backend {{ value.backend_name | default(item.service.haproxy_service_name) }}-back if {{ key }}
+{%   endfor %}
+{% endif %}
 {% if (item.service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or item.service.haproxy_ssl_all_vips | default(false) | bool) %}
     reqadd X-Forwarded-Proto:\ https
 {% endif %}
