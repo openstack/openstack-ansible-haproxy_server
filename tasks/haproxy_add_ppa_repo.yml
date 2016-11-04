@@ -64,6 +64,7 @@
   apt_repository:
     repo: "{{ haproxy_repo.repo }}"
     state: "{{ haproxy_repo.state }}"
+    update_cache: yes
   when:
     - haproxy_repo.repo is defined
     - haproxy_repo.state is defined
@@ -73,12 +74,3 @@
   delay: 2
   tags:
     - haproxy-repos
-
-- name: Update apt if necessary
-  apt:
-    update_cache: yes
-  when: add_repos|changed
-  tags:
-    - haproxy-repos
-    # don't trigger ANSIBLE0016
-    - skip_ansible_lint
