@@ -22,12 +22,10 @@
   service:
     name: "haproxy"
     state: "restarted"
-    pattern: "haproxy"
     enabled: "yes"
 
 - name: Restart rsyslog
   service:
     name: "rsyslog"
     state: "restarted"
-    pattern: "rsyslog"
     enabled: "yes"

@@ -13,11 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# NOTE(cloudnull) This can be removed when we drop 14.04 support
-- include: haproxy_add_ppa_repo.yml
-  when:
-    - ansible_distribution_version | version_compare('16.04', '<')
-
 - name: Install HAProxy Packages
   apt:
     pkg: "{{ item }}"
@@ -31,13 +26,3 @@
   with_items: "{{ haproxy_distro_packages }}"
   tags:
     - haproxy-apt-packages
-
-# NOTE(cloudnull) This can be removed when we drop 14.04 support
-- name: Replace haproxy DEFAULT file
-  copy:
-    src: haproxy.default
-    dest: /etc/default/haproxy
-  when:
-    - ansible_distribution_version | version_compare('16.04', '<')
-  tags:
-    - haproxy-config

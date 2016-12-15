@@ -3,14 +3,6 @@ Vagrant.configure(2) do |config|
     v.memory = 2048
     v.cpus = 2
   end
-  config.vm.define "ubuntu1404" do |trusty|
-    trusty.vm.box = "ubuntu/trusty64"
-    trusty.vm.provision "shell", inline: <<-SHELL
-      sudo su -
-      cd /vagrant
-      apt-get update
-      ./run_tests.sh
-    SHELL
   end
 
   config.vm.define "ubuntu1604" do |xenial|
