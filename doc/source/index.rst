@@ -9,6 +9,9 @@ OpenStack-Ansible HAProxy server
 
 This Ansible role installs the HAProxy Load Balancer service.
 
+To clone or view the source code for this repository, visit the role repository
+for `haproxy_server <https://github.com/openstack/openstack-ansible-haproxy_server>`_.
+
 Default variables
 ~~~~~~~~~~~~~~~~~
 
