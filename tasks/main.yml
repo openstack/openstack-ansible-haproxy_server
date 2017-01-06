@@ -24,10 +24,18 @@
     - always
 
 - include: haproxy_pre_install.yml
+  tags:
+    - haproxy_server-install
 
 - include: haproxy_install.yml
+  tags:
+    - haproxy_server-install
 
 - include: haproxy_ssl.yml
   when: haproxy_ssl | bool
+  tags:
+    - haproxy_server-config
 
 - include: haproxy_post_install.yml
+  tags:
+    - haproxy_server-config
