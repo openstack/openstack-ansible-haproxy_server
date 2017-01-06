@@ -34,4 +34,4 @@
     - { path: "/etc/haproxy" }
     - { path: "/etc/haproxy/conf.d" }
   tags:
-    - haproxy-config
+    - haproxy_server-config

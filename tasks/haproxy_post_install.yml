@@ -21,8 +21,7 @@
     state: present
   when: haproxy_bind_on_non_local | bool
   tags:
-    - haproxy-base-config
-    - haproxy-config
+    - haproxy-non-local-bind-config
 
 - name: Drop base haproxy config
   template:
@@ -31,7 +30,6 @@
   notify: Restart haproxy
   tags:
     - haproxy-base-config
-    - haproxy-config
 
 - name: Drop haproxy logging config
   copy:
@@ -39,10 +37,11 @@
     dest: "/etc/rsyslog.d/99-haproxy-local-logging.conf"
   notify: Restart rsyslog
   tags:
-    - haproxy-base-config
-    - haproxy-config
+    - haproxy-logging-config
 
 - include: haproxy_service_config.yml
+  tags:
+    - haproxy-service-config
 
 - name: Regenerate haproxy configuration
   assemble:
@@ -50,12 +49,11 @@
     dest: "/etc/haproxy/haproxy.cfg"
   notify: Restart haproxy
   tags:
-    - haproxy-base-config
-    - haproxy-config
+    - haproxy-general-config
 
 - name: Enable haproxy services
   service:
     name: "haproxy"
     enabled: "yes"
   tags:
-    - haproxy-config
+    - haproxy-enable-service-config
