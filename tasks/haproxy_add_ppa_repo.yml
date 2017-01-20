@@ -79,6 +79,7 @@
   apt_repository:
     repo: "{{ haproxy_repo.repo }}"
     state: "{{ haproxy_repo.state }}"
+    filename: "{{ haproxy_repo.filename | default(omit) }}"
   when:
     - haproxy_repo.repo is defined
     - haproxy_repo.state is defined
