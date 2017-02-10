@@ -63,6 +63,6 @@ haproxy_ssl_key: /etc/ssl/private/haproxy.key
 haproxy_ssl_pem: /etc/ssl/private/haproxy.pem
 haproxy_ssl_ca_cert: /etc/ssl/certs/haproxy-ca.pem
 haproxy_ssl_self_signed_subject: "/C=US/ST=Texas/L=San Antonio/O=IT/CN={{ external_lb_vip_address }}/subjectAltName=IP.1={{ external_lb_vip_address }}"
-haproxy_ssl_cipher_suite: "{{ ssl_cipher_suite }}"
+haproxy_ssl_cipher_suite: "{{ ssl_cipher_suite | default('ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS') }}"
 
 haproxy_hatop_download_url: "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/hatop/hatop-0.7.7.tar.gz"
