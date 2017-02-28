@@ -14,10 +14,12 @@
 # limitations under the License.
 
 - name: Download HATop
-  get_url:
+  local_action:
+    module: get_url
     url: "{{ haproxy_hatop_download_url }}"
     dest: "/var/cache/{{ haproxy_hatop_download_url | basename }}"
     force: yes
+  run_once: True
 
 - name: Create HATop directory
   file:
@@ -28,7 +30,6 @@
   unarchive:
     src: "/var/cache/{{ haproxy_hatop_download_url | basename }}"
     dest: "/opt"
-    copy: "no"
 
 - name: Install HATop
   command: "install -m 755 bin/hatop /usr/local/bin"
