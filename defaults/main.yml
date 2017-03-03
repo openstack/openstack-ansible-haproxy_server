@@ -67,3 +67,6 @@ haproxy_ssl_cipher_suite: "{{ ssl_cipher_suite | default('ECDH+AESGCM:DH+AESGCM:
 haproxy_ssl_bind_options: "no-sslv3"
 
 haproxy_hatop_download_url: "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/hatop/hatop-0.7.7.tar.gz"
+
+## haproxy default timeouts
+haproxy_http_request_timeout: "5s"
