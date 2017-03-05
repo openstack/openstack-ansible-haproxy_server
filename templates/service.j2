@@ -83,6 +83,11 @@ backend {{ item.service.haproxy_service_name }}-back
 {% for option in backend_options %}
     option {{ option }}
 {% endfor %}
+{% set backend_httpcheck_options = item.service.haproxy_backend_httpcheck_options|default([]) %}
+{% for option in backend_httpcheck_options %}
+    http-check {{ option }}
+{% endfor %}
+
 
 {% for host_name in item.service.haproxy_backend_nodes %}
 {% set entry = [] %}
