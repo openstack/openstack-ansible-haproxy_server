@@ -73,3 +73,17 @@ haproxy_hatop_download_url: "https://storage.googleapis.com/google-code-archive-
 
 ## haproxy default timeouts
 haproxy_http_request_timeout: "5s"
+
+## haproxy tuning params
+haproxy_maxconn: 4096
+
+# Parameters below should only be specified if necessary, defaults are programmed in the template
+#haproxy_tuning_params:
+#  nbproc: 1
+#  bufsize: 384000
+#  chksize: 16384
+#  comp_maxlevel: 1
+#  http_maxhdr: 101
+#  http_maxaccept: 64
+#  ssl_cachesize: 20000
+#  ssl_lifetime: 300
