@@ -7,8 +7,17 @@ global
         user haproxy
         group haproxy
         daemon
-        maxconn 4096
-        tune.bufsize 384000
+        maxconn {{ haproxy_maxconn }}
+        tune.bufsize {{ haproxy_bufsize }}
+{% if haproxy_tuning_params is defined %}
+        nbproc {{ haproxy_tuning_params.nbproc | default('1') }}
+        tune.chksize {{ haproxy_tuning_params.chksize | default('16384') }}
+        tune.comp.maxlevel {{ haproxy_tuning_params.comp_maxlevel | default('1') }}
+        tune.http.maxhdr {{ haproxy_tuning_params.http_maxhdr | default('101') }}
+        tune.http.maxaccept{{ haproxy_tuning_params.http_maxaccept | default('64') }}
+        tune.ssl.cachesize {{ haproxy_tuning_params.ssl_cachesize | default('20000') }}
+        tune.ssl.lifetime {{ haproxy_tuning_params.ssl_lifetime | default('300') }}
+{% endif %}
         stats socket /var/run/haproxy.stat level admin mode 600
         {% if haproxy_ssl | bool %}
         ssl-default-bind-options {{ haproxy_ssl_bind_options }}
