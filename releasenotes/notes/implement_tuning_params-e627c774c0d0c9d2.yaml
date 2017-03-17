@@ -5,3 +5,6 @@ features:
     config files, mentioning those which have to be changed (defaults for the
     remaining ones are programmed in the template). Also "maxconn" global option
     made to be tunable.
+upgrade:
+  - The ``haproxy_bufsize`` variable has been removed and made a part of the
+    ``haproxy_tuning_params`` dictionary.
