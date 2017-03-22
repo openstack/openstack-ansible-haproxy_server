@@ -23,6 +23,11 @@
   tags:
     - install-yum
 
+- include: haproxy_install_zypper.yml
+  when: ansible_pkg_mgr == 'zypper'
+  tags:
+    - install-zypper
+
 - include: haproxy_install_hatop.yml
 
 - name: Create haproxy conf.d dir
