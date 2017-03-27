@@ -12,4 +12,14 @@ Vagrant.configure(2) do |config|
       ./run_tests.sh
     SHELL
   end
+
+  config.vm.define "opensuse421" do |leap421|
+    leap421.vm.box = "opensuse/openSUSE-42.1-x86_64"
+    leap421.vm.provision "shell", inline: <<-SHELL
+      sudo su -
+      cd /vagrant
+      ./run_tests.sh
+    SHELL
+  end
+
 end

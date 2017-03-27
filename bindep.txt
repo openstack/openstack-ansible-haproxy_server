@@ -18,25 +18,34 @@ libffi-dev        [platform:dpkg]
 python2.7         [platform:dpkg]
 python-dev        [platform:dpkg]
 
-# Base requirements for CentOS
+# Base requirements for RPM distros
 gcc               [platform:rpm]
 gcc-c++           [platform:rpm]
-git               [platform:rpm]
 python-devel      [platform:rpm]
-libffi-devel      [platform:rpm]
-openssl-devel     [platform:rpm]
+
+# Base requirements for CentOS
+git               [platform:centos]
+libffi-devel      [platform:centos]
+openssl-devel     [platform:centos]
+
+# Base requirements for openSUSE Leap 42.1
+git-core          [platform:suselinux]
+libffi-devel-gcc5 [platform:suselinux]
+libopenssl-devel  [platform:suselinux]
 
 # For SELinux
-libselinux-python [platform:rpm]
-libsemanage-python [platform:rpm]
+libselinux-python [platform:centos]
+libsemanage-python [platform:centos]
 
 # For SSL SNI support
 python-pyasn1               [platform:dpkg]
 python-openssl              [platform:dpkg]
 python-ndg-httpsclient      [platform:ubuntu]
-python2-pyasn1              [platform:rpm]
-python2-pyOpenSSL           [platform:rpm]
-python-ndg_httpsclient      [platform:rpm]
+python2-pyasn1              [platform:rpm !platform:suselinux]
+python-pyasn1               [platform:suselinux]
+python2-pyOpenSSL           [platform:rpm !platform:suselinux]
+python-pyOpenSSL            [platform:suselinux]
+python-ndg_httpsclient      [platform:rpm !platform:suselinux]
 
 # Required for compressing collected log files in CI
 gzip
