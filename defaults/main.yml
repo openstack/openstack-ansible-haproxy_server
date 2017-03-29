@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Validate Certificates when downloading hatop. May be set to "no" when proxy server
+# is intercepting the certificates.
+haproxy_hatop_download_validate_certs: yes
+
 # Set the package install state for distribution packages
 # Options are 'present' and 'latest'
 haproxy_package_state: "latest"
