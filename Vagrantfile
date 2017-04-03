@@ -22,4 +22,13 @@ Vagrant.configure(2) do |config|
     SHELL
   end
 
+  config.vm.define "centos7" do |centos7|
+    centos7.vm.box = "centos/7"
+    centos7.vm.provision "shell", inline: <<-SHELL
+      sudo su -
+      cd /vagrant
+      ./run_tests.sh
+    SHELL
+  end
+
 end

@@ -3,12 +3,24 @@
 #
 # See the following for details:
 #  - http://docs.openstack.org/infra/bindep/
-#  - https://github.com/openstack-infra/bindep
+#  - https://git.openstack.org/cgit/openstack-infra/bindep
 #
 # Even if the role does not make use of this facility, it
 # is better to have this file empty, otherwise OpenStack-CI
 # will fall back to installing its default packages which
 # will potentially be detrimental to the tests executed.
+#
+# Note:
+# This file is maintained in the openstack-ansible-tests repository.
+# https://git.openstack.org/cgit/openstack/openstack-ansible-tests/tree/bindep.txt
+# If you need to remove or add extra dependencies, you should modify
+# the central file instead and once your change is accepted then update
+# this file as well. The purpose of this file is to ensure that Python and
+# Ansible have all their necessary binary requirements on the test host before
+# tox executes. Any binary requirements needed by services/roles should be
+# installed by those roles in their applicable package install tasks, not through
+# using this file.
+#
 
 # Base requirements for Ubuntu
 build-essential   [platform:dpkg]
@@ -21,31 +33,23 @@ python-dev        [platform:dpkg]
 # Base requirements for RPM distros
 gcc               [platform:rpm]
 gcc-c++           [platform:rpm]
+git               [platform:rpm]
+libffi-devel      [platform:rpm]
+openssl-devel     [platform:rpm]
 python-devel      [platform:rpm]
-
-# Base requirements for CentOS
-git               [platform:centos]
-libffi-devel      [platform:centos]
-openssl-devel     [platform:centos]
-
-# Base requirements for openSUSE Leap 42.1
-git-core          [platform:suselinux]
-libffi-devel-gcc5 [platform:suselinux]
-libopenssl-devel  [platform:suselinux]
 
 # For SELinux
 libselinux-python [platform:centos]
 libsemanage-python [platform:centos]
 
 # For SSL SNI support
-python-pyasn1               [platform:dpkg]
-python-openssl              [platform:dpkg]
+python-pyasn1               [platform:dpkg platform:suselinux]
+python-openssl              [platform:dpkg platform:suselinux]
 python-ndg-httpsclient      [platform:ubuntu]
-python2-pyasn1              [platform:rpm !platform:suselinux]
-python-pyasn1               [platform:suselinux]
-python2-pyOpenSSL           [platform:rpm !platform:suselinux]
+python2-pyasn1              [platform:centos]
+python2-pyOpenSSL           [platform:centos]
 python-pyOpenSSL            [platform:suselinux]
-python-ndg_httpsclient      [platform:rpm !platform:suselinux]
+python-ndg_httpsclient      [platform:centos]
 
 # Required for compressing collected log files in CI
 gzip
