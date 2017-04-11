@@ -36,3 +36,4 @@
   command: "install -m 755 bin/hatop /usr/local/bin"
   args:
     chdir: "/opt/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
+    creates: "/usr/local/bin/hatop"
