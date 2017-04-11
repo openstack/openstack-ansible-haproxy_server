@@ -43,17 +43,10 @@
   tags:
     - haproxy-user
 
-- name: Test for log directory or link
-  shell: |
-    if [ -h "/var/log/haproxy"  ]; then
-      chown -h haproxy:adm "/var/log/haproxy"
-      chown -R haproxy:adm "$(readlink /var/log/haproxy)"
-    else
-      exit 1
-    fi
+- name: Stat haproxy log dir
+  stat:
+    path: "/var/log/haproxy"
   register: log_dir
-  failed_when: false
-  changed_when: log_dir.rc != 0
   tags:
     - haproxy-dirs
     - haproxy-logs
@@ -61,9 +54,25 @@
 - name: Create haproxy log dir
   file:
     path: "/var/log/haproxy"
-    state: directory
+    state: "{{ (log_dir.stat.islnk is defined and log_dir.stat.islnk) | ternary('link', 'directory') }}"
+    src: "{{ (log_dir.stat.islnk is defined and log_dir.stat.islnk) | ternary(log_dir.stat.lnk_source, omit) }}"
+    owner: haproxy
+    group: adm
     mode: "0755"
-  when: log_dir | changed
+  tags:
+    - haproxy-dirs
+    - haproxy-logs
+
+- name: Change ownership of haproxy log dir link source
+  file:
+    path: "{{ log_dir.stat.lnk_source }}"
+    state: directory
+    owner: haproxy
+    group: adm
+    recurse: yes
+  when:
+    - log_dir.stat.islnk is defined
+    - log_dir.stat.islnk
   tags:
     - haproxy-dirs
     - haproxy-logs

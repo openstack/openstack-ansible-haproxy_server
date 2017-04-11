@@ -17,13 +17,11 @@
   slurp:
     src: "{{ haproxy_ssl_cert }}"
   register: _haproxy_ssl_cert
-  changed_when: false
 
 - name: Store ssl key
   slurp:
     src: "{{ haproxy_ssl_key }}"
   register: _haproxy_ssl_key
-  changed_when: false
 
 - name: Register a fact for the cert and key
   set_fact:
