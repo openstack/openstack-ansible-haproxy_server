@@ -59,6 +59,7 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
 {% endfor %}
 
 {% set backend_options = item.service.haproxy_backend_options|default([]) %}
+{% set backend_arguments = item.service.haproxy_backend_arguments|default([]) %}
 
 backend {{ item.service.haproxy_service_name }}-back
     mode {{ item.service.haproxy_balance_type }}
@@ -76,6 +77,9 @@ backend {{ item.service.haproxy_service_name }}-back
 {% endif %}
 {% for option in backend_options %}
     option {{ option }}
+{% endfor %}
+{% for argument in backend_arguments %}
+    {{ argument }}
 {% endfor %}
 {% set backend_httpcheck_options = item.service.haproxy_backend_httpcheck_options|default([]) %}
 {% for option in backend_httpcheck_options %}
