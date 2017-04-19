@@ -17,7 +17,7 @@
   local_action:
     module: get_url
     url: "{{ haproxy_hatop_download_url }}"
-    dest: "/var/cache/{{ haproxy_hatop_download_url | basename }}"
+    dest: "/tmp/{{ haproxy_hatop_download_url | basename }}"
     force: yes
     validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
   run_once: True
@@ -29,7 +29,7 @@
 
 - name: Unarchive HATop
   unarchive:
-    src: "/var/cache/{{ haproxy_hatop_download_url | basename }}"
+    src: "/tmp/{{ haproxy_hatop_download_url | basename }}"
     dest: "/opt"
 
 - name: Install HATop
