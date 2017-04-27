@@ -1,5 +1,5 @@
 [all]
-localhost ansible_connection=local ansible_become=True
+localhost
 
 [haproxy_all]
 localhost

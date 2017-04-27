@@ -16,6 +16,8 @@
 - name: Playbook for role testing
   hosts: localhost
   connection: local
+  user: root
+  become: true
   roles:
     - role: "haproxy_server"
   vars_files:
