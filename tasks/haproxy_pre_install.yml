@@ -76,3 +76,9 @@
   tags:
     - haproxy-dirs
     - haproxy-logs
+
+- name: Create haproxy conf.d dir
+  file:
+    path: "/etc/haproxy/conf.d"
+    state: directory
+    mode: "0755"

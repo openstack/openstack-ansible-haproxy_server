@@ -18,7 +18,7 @@ galaxy_info:
   description: Installation and setup of HAProxy
   company: Rackspace
   license: Apache2
-  min_ansible_version: 1.9.0
+  min_ansible_version: 2.2
   platforms:
     - name: Ubuntu
       versions:
