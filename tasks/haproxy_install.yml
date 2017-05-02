@@ -13,30 +13,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: haproxy_install_apt.yml
-  when: ansible_pkg_mgr == 'apt'
-  tags:
-    - install-apt
+- name: Install HAProxy Packages
+  package:
+    name: "{{ haproxy_distro_packages }}"
+    state: "{{ haproxy_package_state }}"
+    update_cache: "{{ (ansible_pkg_mgr == 'apt') | ternary('yes', omit) }}"
+    cache_valid_time: "{{ (ansible_pkg_mgr == 'apt') | ternary(cache_timeout, omit) }}"
+  register: install_packages
+  until: install_packages|success
+  retries: 5
+  delay: 2
 
-- include: haproxy_install_yum.yml
-  when: ansible_pkg_mgr == 'yum'
-  tags:
-    - install-yum
+- name: Download HATop
+  local_action:
+    module: get_url
+    url: "{{ haproxy_hatop_download_url }}"
+    dest: "/tmp/{{ haproxy_hatop_download_url | basename }}"
+    force: yes
+    validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
+  run_once: True
 
-- include: haproxy_install_zypper.yml
-  when: ansible_pkg_mgr == 'zypper'
-  tags:
-    - install-zypper
-
-- include: haproxy_install_hatop.yml
-
-- name: Create haproxy conf.d dir
+- name: Create HATop directory
   file:
-    path: "{{ item.path }}"
+    path: "/opt/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
     state: directory
-    mode: "0755"
-  with_items:
-    - { path: "/etc/haproxy" }
-    - { path: "/etc/haproxy/conf.d" }
-  tags:
-    - haproxy_server-config
+
+- name: Unarchive HATop
+  unarchive:
+    src: "/tmp/{{ haproxy_hatop_download_url | basename }}"
+    dest: "/opt"
+
+- name: Install HATop
+  command: "install -m 755 bin/hatop /usr/local/bin"
+  args:
+    chdir: "/opt/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
+    creates: "/usr/local/bin/hatop"

@@ -83,3 +83,9 @@
     state: absent
   with_items:
     - "{{ haproxy_distro_packages_remove }}"
+
+- name: Create haproxy conf.d dir
+  file:
+    path: "/etc/haproxy/conf.d"
+    state: directory
+    mode: "0755"

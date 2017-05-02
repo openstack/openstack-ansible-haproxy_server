@@ -42,10 +42,3 @@
 - include: haproxy_service_config.yml
   tags:
     - haproxy-service-config
-
-- name: Enable haproxy services
-  service:
-    name: "haproxy"
-    enabled: "yes"
-  tags:
-    - haproxy-enable-service-config
