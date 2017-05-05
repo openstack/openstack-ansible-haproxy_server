@@ -15,5 +15,5 @@
             - "forwardfor"
             - "httpchk"
             - "httplog"
-          haproxy_backend_aguments:
+          haproxy_backend_arguments:
             - 'http-check expect string OK'
