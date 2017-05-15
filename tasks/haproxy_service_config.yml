@@ -24,6 +24,6 @@
       (item.service.haproxy_backup_nodes is defined and
       item.service.haproxy_backup_nodes | length > 0)
     - item.service.haproxy_service_enabled | default('True') | bool
-  notify: Restart haproxy
+  notify: Regenerate haproxy configuration
   tags:
     - haproxy-service-config
