@@ -23,6 +23,7 @@ haproxy_required_distro_packages:
 
 haproxy_distro_packages:
   - haproxy
+  - netcat # Used for the Ansible haproxy module
+  - psmisc
   - rsyslog  # Used for local logging
   - vim-haproxy
-  - psmisc

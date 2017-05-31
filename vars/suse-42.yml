@@ -15,6 +15,7 @@
 
 haproxy_distro_packages:
   - haproxy
+  - netcat # Used for the Ansible haproxy module
   - rsyslog  # Used for local logging
 
 haproxy_distro_packages_remove:
