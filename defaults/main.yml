@@ -75,8 +75,18 @@ haproxy_ssl_bind_options: "no-sslv3"
 
 haproxy_hatop_download_url: "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/hatop/hatop-0.7.7.tar.gz"
 
-## haproxy default timeouts
+## haproxy default
+# Set the number of retries to perform on a server after a connection failure
+haproxy_retries: "3"
+# Set the maximum inactivity time on the client side
+haproxy_client_timeout: "50s"
+# Set the maximum time to wait for a connection attempt to a server to succeed
+haproxy_connect_timeout: "10s"
+# Set the maximum allowed time to wait for a complete HTTP request
 haproxy_http_request_timeout: "5s"
+# Set the maximum inactivity time on the server side
+haproxy_server_timeout: "50s"
+
 
 ## haproxy tuning params
 haproxy_maxconn: 4096
