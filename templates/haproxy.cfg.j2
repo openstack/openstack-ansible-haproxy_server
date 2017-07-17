@@ -33,7 +33,7 @@ defaults
         timeout connect {{ haproxy_connect_timeout }}
         timeout http-request {{ haproxy_http_request_timeout }}
         timeout server {{ haproxy_server_timeout }}
-        maxconn 4096
+        maxconn {{ haproxy_maxconn }}
 
 {% if haproxy_stats_enabled | bool %}
 listen stats
