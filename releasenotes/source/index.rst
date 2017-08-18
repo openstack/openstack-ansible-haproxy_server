@@ -5,6 +5,7 @@
 .. toctree::
    :maxdepth: 1
 
-   newton
    unreleased
+   pike
    ocata
+   newton
