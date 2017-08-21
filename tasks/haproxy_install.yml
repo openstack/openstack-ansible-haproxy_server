@@ -13,14 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: haproxy_install_apt.yml
-  when: ansible_pkg_mgr == 'apt'
+- include: "haproxy_install_{{ ansible_pkg_mgr }}.yml"
   tags:
     - install-apt
-
-- include: haproxy_install_yum.yml
-  when: ansible_pkg_mgr == 'yum'
-  tags:
     - install-yum
 
 - include: haproxy_install_hatop.yml
