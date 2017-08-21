@@ -90,6 +90,27 @@
   tags:
     - haproxy-repos
 
+# Find the old sources file in order to remove it in the next task.
+# This helps transition the repo config to a statically named apt
+# sourced file.
+- name: Find old sources
+  find:
+    path: "/etc/apt/sources.list.d/"
+    patterns: "^(?!{{ haproxy_repo.filename | default('haproxy') }})(.+)|(.+)(?<!{{ haproxy_repo.filename | default('haproxy') }})\\.list$"
+    contains: "^.*haproxy-1.5.*$"
+    use_regex: true
+  register: old_sources
+  tags:
+    - haproxy-repos
+
+- name: Remove old sources
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ old_sources.files | default([]) }}"
+  tags:
+    - haproxy-repos
+
 - name: Update apt if necessary
   apt:
     update_cache: yes
