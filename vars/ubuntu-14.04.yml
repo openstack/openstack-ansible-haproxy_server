@@ -17,12 +17,13 @@
 cache_timeout: 600
 
 haproxy_apt_repo_url: "http://ppa.launchpad.net/vbernat/haproxy-1.5/ubuntu"
-haproxy_repo:
+_haproxy_repo:
   repo: "deb {{ haproxy_apt_repo_url }} {{ ansible_distribution_release }} main"
   state: "present"
+  filename: "haproxy"
 
 # Haproxy GPG Keys
-haproxy_gpg_keys:
+_haproxy_gpg_keys:
   - key_name: 'haproxy'
     keyserver: 'hkp://keyserver.ubuntu.com:80'
     fallback_keyserver: 'hkp://p80.pool.sks-keyservers.net:80'

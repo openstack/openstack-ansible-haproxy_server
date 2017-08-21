@@ -27,8 +27,8 @@ haproxy_fall: 3
 haproxy_interval: 12000
 
 ## Haproxy standard API
-haproxy_repo: {}
-haproxy_gpg_keys: []
+haproxy_repo: "{{ _haproxy_repo | default({}) }}"
+haproxy_gpg_keys: "{{ _haproxy_gpg_keys | default([]) }}"
 haproxy_required_distro_packages: []
 haproxy_distro_packages: []
 
