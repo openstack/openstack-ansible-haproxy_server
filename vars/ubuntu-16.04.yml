@@ -16,14 +16,23 @@
 ## APT Cache options
 cache_timeout: 600
 
-haproxy_required_distro_packages:
-  - python-software-properties
-  - software-properties-common
-  - debconf-utils
-
 haproxy_distro_packages:
   - haproxy
   - netcat # Used for the Ansible haproxy module
   - psmisc
   - rsyslog  # Used for local logging
   - vim-haproxy
+
+# This file list is to handle upgrades
+# from previous versions where an apt
+# pinning config file or repo config
+# file was put in place to use a PPA
+# for Newton/Trusty. Unfortunately
+# some file config info was left in
+# place long after Trusty support was
+# removed, so the removal of these
+# files is still necessary.
+haproxy_remove_files:
+  - "/etc/apt/preferences.d/haproxy_pin.pref"
+  - "/etc/apt/sources.list.d/haproxy.list"
+  - "/etc/apt/sources.list.d/ppa_launchpad_net_vbernat_haproxy_1_5_ubuntu.list"
