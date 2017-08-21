@@ -26,12 +26,6 @@ haproxy_rise: 3
 haproxy_fall: 3
 haproxy_interval: 12000
 
-## Haproxy standard API
-haproxy_repo: {}
-haproxy_gpg_keys: []
-haproxy_required_distro_packages: []
-haproxy_distro_packages: []
-
 ## Haproxy Stats
 haproxy_stats_enabled: False
 haproxy_stats_bind_address: 127.0.0.1

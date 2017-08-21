@@ -82,3 +82,12 @@
     path: "/etc/haproxy/conf.d"
     state: directory
     mode: "0755"
+
+- name: Remove old config files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ haproxy_remove_files }}"
+  when:
+    - ansible_pkg_mgr == 'apt'

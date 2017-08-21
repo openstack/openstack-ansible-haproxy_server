@@ -31,11 +31,4 @@ galaxy_info:
     - python
     - development
     - openstack
-dependencies:
-  - role: apt_package_pinning
-    apt_pinned_packages: [{ package: "*", release: LP-PPA-vbernat-haproxy-1.5, priority: "1001" }]
-    apt_package_pinning_file_name: "haproxy_pin.pref"
-    when:
-      - ansible_pkg_mgr == 'apt'
-      - haproxy_ssl | bool
-      - ansible_distribution_version | version_compare('16.04', '<')
+dependencies: []
