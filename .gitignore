@@ -62,9 +62,7 @@ releasenotes/build
 
 # Test temp files
 tests/common
-*.retry
+tests/*.retry
 
 # Vagrant artifacts
 .vagrant
-
-
