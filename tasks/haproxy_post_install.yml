@@ -27,7 +27,7 @@
   template:
     src: "haproxy.cfg.j2"
     dest: "/etc/haproxy/conf.d/00-haproxy"
-  notify: Restart haproxy
+  notify: Regenerate haproxy configuration
   tags:
     - haproxy-base-config
 
