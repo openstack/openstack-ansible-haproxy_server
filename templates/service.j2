@@ -6,6 +6,11 @@
 {% else %}
   {% set haproxy_backend_port = item.service.haproxy_backend_port %}
 {% endif -%}
+{% if item.service.haproxy_check_port is not defined %}
+  {% set haproxy_check_port = haproxy_backend_port %}
+{% else %}
+  {% set haproxy_check_port = item.service.haproxy_check_port %}
+{% endif -%}
 
 {% set vip_binds = [external_lb_vip_address] -%}
 {%- if internal_lb_vip_address not in vip_binds %}
@@ -100,7 +105,7 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append(hostvars[host_name]['ansible_host'] + ":" + haproxy_backend_port | string) %}
 {% set _ = entry.append("check") %}
 {% set _ = entry.append("port") %}
-{% set _ = entry.append(haproxy_backend_port | string) %}
+{% set _ = entry.append(haproxy_check_port | string) %}
 {% set _ = entry.append("inter") %}
 {% set _ = entry.append(haproxy_interval | string) %}
 {% set _ = entry.append("rise") %}
@@ -117,7 +122,7 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append(hostvars[host_name]['ansible_host'] + ":" + haproxy_backend_port | string) %}
 {% set _ = entry.append("check") %}
 {% set _ = entry.append("port") %}
-{% set _ = entry.append(haproxy_backend_port | string) %}
+{% set _ = entry.append(haproxy_check_port | string) %}
 {% set _ = entry.append("inter") %}
 {% set _ = entry.append(haproxy_interval | string) %}
 {% set _ = entry.append("rise") %}
