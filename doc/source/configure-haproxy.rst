@@ -167,6 +167,25 @@ An example HTTP service could look like:
           haproxy_port: 10000
           haproxy_balance_type: http
 
+Additionally, you can specify haproxy services that are not managed
+in the Ansible inventory by manually specifying their hostnames/IP Addresses:
+
+.. code-block:: yaml
+
+    haproxy_extra_services:
+      - service:
+          haproxy_service_name: extra-non-inventory-service
+          haproxy_backend_nodes:
+            - name: nonInvHost01
+              ip_addr: 172.0.1.1
+            - name: nonInvHost02
+              ip_addr: 172.0.1.2
+            - name: nonInvHost03
+              ip_addr: 172.0.1.3
+          haproxy_ssl: "{{ haproxy_ssl }}"
+          haproxy_port: 10001
+          haproxy_balance_type: http
+
 
 Adding additional global VIP addresses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

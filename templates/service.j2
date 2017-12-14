@@ -99,10 +99,13 @@ backend {{ item.service.haproxy_service_name }}-back
 
 
 {% for host_name in item.service.haproxy_backend_nodes %}
+{% if hostvars[host_name] is defined %}
+{%   set ip_addr = hostvars[host_name]['ansible_host'] %}
+{% endif %}
 {% set entry = [] %}
 {% set _ = entry.append("server") %}
-{% set _ = entry.append(host_name | string) %}
-{% set _ = entry.append(hostvars[host_name]['ansible_host'] + ":" + haproxy_backend_port | string) %}
+{% set _ = entry.append((host_name.name | default(host_name)) | string) %}
+{% set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + haproxy_backend_port | string) %}
 {% set _ = entry.append("check") %}
 {% set _ = entry.append("port") %}
 {% set _ = entry.append(haproxy_check_port | string) %}
@@ -116,10 +119,13 @@ backend {{ item.service.haproxy_service_name }}-back
 {% endfor %}
 
 {% for host_name in item.service.haproxy_backup_nodes|default([]) %}
+{% if hostvars[host_name] is defined %}
+{%   set ip_addr = hostvars[host_name]['ansible_host'] %}
+{% endif %}
 {% set entry = [] %}
 {% set _ = entry.append("server") %}
-{% set _ = entry.append(host_name | string) %}
-{% set _ = entry.append(hostvars[host_name]['ansible_host'] + ":" + haproxy_backend_port | string) %}
+{% set _ = entry.append((host_name.name | default(host_name)) | string) %}
+{% set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + haproxy_backend_port | string) %}
 {% set _ = entry.append("check") %}
 {% set _ = entry.append("port") %}
 {% set _ = entry.append(haproxy_check_port | string) %}
