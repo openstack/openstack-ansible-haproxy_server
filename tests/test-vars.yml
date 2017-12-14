@@ -1,2 +1,24 @@
 ---
 external_lb_vip_address: 127.0.0.1
+internal_lb_vip_address: 127.0.0.1
+haproxy_service_configs:
+  - service:
+      haproxy_service_name: test_group
+      haproxy_backend_nodes: "{{ groups['haproxy_all'] | default([]) }}"
+      haproxy_port: 8180
+      haproxy_backend_port: 22
+      haproxy_ssl: False
+      haproxy_balance_type: tcp
+      haproxy_backend_options:
+        - tcp-check
+  - service:
+      haproxy_service_name: test_list
+      haproxy_backend_nodes:
+        - name: "localhost"
+          ip_addr: "127.0.0.1"
+      haproxy_port: 8181
+      haproxy_backend_port: 22
+      haproxy_ssl: False
+      haproxy_balance_type: tcp
+      haproxy_backend_options:
+        - tcp-check
