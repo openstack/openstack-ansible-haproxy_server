@@ -21,6 +21,8 @@
     force: yes
     validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
   run_once: True
+  vars:
+    ansible_python_interpreter: "/usr/bin/python"
 
 - name: Create HATop directory
   file:
