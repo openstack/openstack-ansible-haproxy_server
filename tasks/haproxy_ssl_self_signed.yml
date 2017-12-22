@@ -14,10 +14,10 @@
 # limitations under the License.
 
 - include: haproxy_ssl_key_create.yml
-  when: inventory_hostname == groups['haproxy_all'][0]
+  when: inventory_hostname == ansible_play_hosts[0]
 
 - include: haproxy_ssl_key_store.yml
-  when: inventory_hostname == groups['haproxy_all'][0]
+  when: inventory_hostname == ansible_play_hosts[0]
 
 - include: haproxy_ssl_key_distribute.yml
-  when: inventory_hostname != groups['haproxy_all'][0]
+  when: inventory_hostname != ansible_play_hosts[0]
