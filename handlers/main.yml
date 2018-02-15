@@ -31,11 +31,11 @@
     name: "haproxy"
     state: "restarted"
     enabled: yes
-    daemon_reload: "{{ (ansible_service_mgr == 'systemd') | ternary('yes', omit) }}"
+    daemon_reload: yes
 
 - name: Restart rsyslog
   service:
     name: "rsyslog"
     state: "restarted"
     enabled: yes
-    daemon_reload: "{{ (ansible_service_mgr == 'systemd') | ternary('yes', omit) }}"
+    daemon_reload: yes

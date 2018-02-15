@@ -39,6 +39,6 @@
   tags:
     - haproxy-logging-config
 
-- include: haproxy_service_config.yml
+- include_tasks: haproxy_service_config.yml
   tags:
     - haproxy-service-config

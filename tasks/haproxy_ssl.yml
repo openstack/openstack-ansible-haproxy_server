@@ -20,9 +20,9 @@
   tags:
     - haproxy-ssl
 
-- include: haproxy_ssl_self_signed.yml
+- include_tasks: haproxy_ssl_self_signed.yml
   when:
     - haproxy_ssl | bool
     - haproxy_user_ssl_cert is not defined or haproxy_user_ssl_key is not defined
 
-- include: haproxy_ssl_user_provided.yml
+- include_tasks: haproxy_ssl_user_provided.yml
