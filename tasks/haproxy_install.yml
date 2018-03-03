@@ -24,25 +24,27 @@
   retries: 5
   delay: 2
 
-- name: Download HATop
-  local_action:
-    module: get_url
-    url: "{{ haproxy_hatop_download_url }}"
-    dest: "/tmp/{{ haproxy_hatop_download_url | basename }}"
-    force: yes
-    validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
-  run_once: True
-  vars:
-    ansible_python_interpreter: "/usr/bin/python"
-
-- name: Create HATop directory
+- name: Ensure haproxy_hatop_download_path exists
   file:
-    path: "/opt/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
+    path: "{{ haproxy_hatop_download_path }}"
     state: directory
+  delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', omit) }}"
+
+- name: Download extra package
+  get_url:
+    url: "{{ haproxy_hatop_download_url }}"
+    dest: "{{ haproxy_hatop_download_path }}"
+    validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
+  register: fetch_url
+  until: fetch_url | success
+  retries: 3
+  delay: 10
+  delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', omit) }}"
 
 - name: Unarchive HATop
   unarchive:
-    src: "/tmp/{{ haproxy_hatop_download_url | basename }}"
+    src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
+    remote_src: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('no', 'yes') }}"
     dest: "/opt"
 
 - name: Install HATop
