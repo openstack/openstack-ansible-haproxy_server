@@ -68,7 +68,16 @@ haproxy_ssl_self_signed_subject: "/C=US/ST=Texas/L=San Antonio/O=IT/CN={{ extern
 haproxy_ssl_cipher_suite: "{{ ssl_cipher_suite | default('ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS') }}"
 haproxy_ssl_bind_options: "no-sslv3"
 
+# hatop extra package URL and checksum
 haproxy_hatop_download_url: "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/hatop/hatop-0.7.7.tar.gz"
+haproxy_hatop_download_checksum: "sha256:0b9fc1b84ce4e469a069e3a3c7c1b5eea10e6bb24bc66bd32af453acd54636ab"
+
+# Where the extra package download is executed from.
+# Options are ['deployment-host', 'target-host']
+haproxy_hatop_downloader: "deployment-host"
+
+# The location where the extra packages are downloaded to
+haproxy_hatop_download_path: "/opt/cache/files"
 
 ## haproxy default
 # Set the number of retries to perform on a server after a connection failure
