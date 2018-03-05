@@ -115,6 +115,15 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append(item.service.haproxy_backend_nodes | count | string) %}
 {% set _ = entry.append("fall") %}
 {% set _ = entry.append(item.service.haproxy_backend_nodes | count | string) %}
+{% if item.service.haproxy_backend_ssl | default(False) %}
+{% set _ = entry.append("ssl") %}
+{% if item.service.haproxy_backend_ca %}
+{% set _ = entry.append("ca-file") %}
+{% set _ = entry.append(item.service.haproxy_backend_ca) %}
+{% else %}
+{% set _ = entry.append("verify none") %}
+{% endif %}
+{% endif %}
     {{ entry | join(' ') }}
 {% endfor %}
 
@@ -136,5 +145,14 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append("fall") %}
 {% set _ = entry.append(item.service.haproxy_backup_nodes | count | string) %}
 {% set _ = entry.append("backup") %}
+{% if item.service.haproxy_backend_ssl | default(False) %}
+{% set _ = entry.append("ssl") %}
+{% if item.service.haproxy_backend_ca %}
+{% set _ = entry.append("ca-file") %}
+{% set _ = entry.append(item.service.haproxy_backend_ca) %}
+{% else %}
+{% set _ = entry.append("verify none") %}
+{% endif %}
+{% endif %}
     {{ entry | join(' ') }}
 {% endfor %}
