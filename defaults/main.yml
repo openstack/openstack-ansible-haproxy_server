@@ -40,12 +40,12 @@ haproxy_backup_nodes: []
 
 # haproxy_service_configs:
 #   - service:
-#       hap_service_name: haproxy_all
-#       hap_backend_nodes: "{{ groups['haproxy_all'][0] }}"
-#       # hap_backup_nodes: "{{ groups['haproxy_all'][1:] }}"
-#       hap_port: 80
-#       hap_balance_type: http
-#       hap_backend_options:
+#       haproxy_service_name: haproxy_all
+#       haproxy_backend_nodes: "{{ groups['haproxy_all'][0] }}"
+#       # haproxy_backup_nodes: "{{ groups['haproxy_all'][1:] }}"
+#       haproxy_port: 80
+#       haproxy_balance_type: http
+#       haproxy_backend_options:
 #         - "forwardfor"
 #         - "httpchk"
 #         - "httplog"
