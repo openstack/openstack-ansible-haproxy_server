@@ -38,6 +38,4 @@
   notify:
     - Restart haproxy
   when:
-    - ansible_pkg_mgr == 'yum'
-    - ansible_selinux.status is defined
     - ansible_selinux.status == "enabled"
