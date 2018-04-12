@@ -28,7 +28,7 @@
   file:
     path: "{{ haproxy_hatop_download_path }}"
     state: directory
-  delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', omit) }}"
+  delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', inventory_hostname) }}"
 
 - name: Download extra package
   get_url:
@@ -39,7 +39,7 @@
   until: fetch_url | success
   retries: 3
   delay: 10
-  delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', omit) }}"
+  delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', inventory_hostname) }}"
 
 - name: Unarchive HATop
   unarchive:
