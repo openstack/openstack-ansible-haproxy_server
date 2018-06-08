@@ -14,7 +14,7 @@ global
         tune.chksize {{ haproxy_tuning_params.chksize | default('16384') }}
         tune.comp.maxlevel {{ haproxy_tuning_params.comp_maxlevel | default('1') }}
         tune.http.maxhdr {{ haproxy_tuning_params.http_maxhdr | default('101') }}
-        tune.http.maxaccept{{ haproxy_tuning_params.http_maxaccept | default('64') }}
+        tune.maxaccept {{ haproxy_tuning_params.maxaccept | default('64') }}
         tune.ssl.cachesize {{ haproxy_tuning_params.ssl_cachesize | default('20000') }}
         tune.ssl.lifetime {{ haproxy_tuning_params.ssl_lifetime | default('300') }}
 {% endif %}

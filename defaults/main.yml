@@ -102,6 +102,6 @@ haproxy_maxconn: 4096
 #  chksize: 16384
 #  comp_maxlevel: 1
 #  http_maxhdr: 101
-#  http_maxaccept: 64
+#  maxaccept: 64
 #  ssl_cachesize: 20000
 #  ssl_lifetime: 300
