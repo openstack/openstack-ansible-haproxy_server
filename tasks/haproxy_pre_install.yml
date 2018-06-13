@@ -43,36 +43,13 @@
   tags:
     - haproxy-user
 
-- name: Stat haproxy log dir
-  stat:
-    path: "/var/log/haproxy"
-  register: log_dir
-  tags:
-    - haproxy-dirs
-    - haproxy-logs
-
 - name: Create haproxy log dir
   file:
-    path: "/var/log/haproxy"
-    state: "{{ (log_dir.stat.islnk is defined and log_dir.stat.islnk) | ternary('link', 'directory') }}"
-    src: "{{ (log_dir.stat.islnk is defined and log_dir.stat.islnk) | ternary(log_dir.stat.lnk_source, omit) }}"
-    owner: haproxy
-    group: adm
-    mode: "0755"
-  tags:
-    - haproxy-dirs
-    - haproxy-logs
-
-- name: Change ownership of haproxy log dir link source
-  file:
-    path: "{{ log_dir.stat.lnk_source }}"
+    path: "{{ '/var/log/haproxy' | realpath }}"
     state: directory
     owner: haproxy
     group: adm
-    recurse: yes
-  when:
-    - log_dir.stat.islnk is defined
-    - log_dir.stat.islnk
+    mode: "0755"
   tags:
     - haproxy-dirs
     - haproxy-logs
