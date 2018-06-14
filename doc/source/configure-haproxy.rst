@@ -166,6 +166,11 @@ An example HTTP service could look like:
           haproxy_ssl: "{{ haproxy_ssl }}"
           haproxy_port: 10000
           haproxy_balance_type: http
+          # If backend connections should be secured with SSL (default False)
+          haproxy_backend_ssl: True
+          haproxy_backend_ca: /path/to/ca/cert.pem
+          # Or if certificate validation should be disabled
+          # haproxy_backend_ca: False
 
 Additionally, you can specify haproxy services that are not managed
 in the Ansible inventory by manually specifying their hostnames/IP Addresses:
