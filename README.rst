@@ -14,5 +14,8 @@ OpenStack-Ansible HAProxy server
 Documentation for the project can be found at:
   https://docs.openstack.org/openstack-ansible-haproxy_server/latest
 
+Release notes for the project can be found at:
+  https://docs.openstack.org/releasenotes/openstack-ansible-haproxy_server/
+
 The project home is at:
   https://launchpad.net/openstack-ansible
