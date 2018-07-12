@@ -20,7 +20,7 @@
     update_cache: "{{ (ansible_pkg_mgr == 'apt') | ternary('yes', omit) }}"
     cache_valid_time: "{{ (ansible_pkg_mgr == 'apt') | ternary(cache_timeout, omit) }}"
   register: install_packages
-  until: install_packages|success
+  until: install_packages is success
   retries: 5
   delay: 2
 
@@ -36,7 +36,7 @@
     dest: "{{ haproxy_hatop_download_path }}"
     validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
   register: fetch_url
-  until: fetch_url | success
+  until: fetch_url  is success
   retries: 3
   delay: 10
   delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', inventory_hostname) }}"
