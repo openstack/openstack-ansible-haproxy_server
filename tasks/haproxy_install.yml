@@ -36,7 +36,7 @@
     dest: "{{ haproxy_hatop_download_path }}"
     validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
   register: fetch_url
-  until: fetch_url  is success
+  until: fetch_url is success
   retries: 3
   delay: 10
   delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', inventory_hostname) }}"
