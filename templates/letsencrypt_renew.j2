@@ -1,0 +1,11 @@
+#!/bin/bash
+# renew cert if required and copy to haproxy destination
+
+certbot renew \
+    --standalone \
+    --pre-hook "systemctl stop haproxy" \
+
+cat /etc/letsencrypt/live/{{ external_lb_vip_address }}-0001/{fullchain,privkey}.pem \
+    > /etc/ssl/private/haproxy.pem
+
+systemctl restart haproxy

@@ -143,6 +143,25 @@ be folded and formatted at 64 characters long. Single line certificates
 will not be accepted by HAProxy and will result in SSL validation failures.
 Please have a look here for information on `converting your certificate to
 various formats <https://search.thawte.com/support/ssl-digital-certificates/index?page=content&actp=CROSSLINK&id=SO26449>`_.
+If you want to use `LetsEncrypt SSL Service <https://letsencrypt.org/>`_
+you can activate the feature by providing the following configuration in
+``/etc/openstack_deploy/user_variables.yml``. Note that this requires
+that ``external_lb_vip_address`` in
+``/etc/openstack_deploy/openstack_user_config.yml`` is set to the
+external DNS address.
+
+.. code-block:: yaml
+
+   haproxy_ssl_letsencrypt_enable: true
+   haproxy_ssl_letsencrypt_email: example@example.com
+
+.. warning::
+
+   There is no certificate distribution implementation at this time, so
+   this will only work for a single haproxy-server environment.  The
+   renewal is automatically handled via CRON and currently will shut
+   down haproxy briefly during the certificate renewal.  The
+   haproxy shutdown/restart will result in a brief service interruption.
 
 .. _Securing services with SSL certificates: http://docs.openstack.org/project-deploy-guide/openstack-ansible/draft/app-advanced-config-sslcertificates.html
 

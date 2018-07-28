@@ -23,6 +23,13 @@
 - include_tasks: haproxy_ssl_self_signed.yml
   when:
     - haproxy_ssl | bool
+    - not haproxy_ssl_letsencrypt_enable | bool
+    - haproxy_user_ssl_cert is not defined or haproxy_user_ssl_key is not defined
+
+- include_tasks: haproxy_ssl_letsencrypt.yml
+  when:
+    - haproxy_ssl | bool
+    - haproxy_ssl_letsencrypt_enable | bool
     - haproxy_user_ssl_cert is not defined or haproxy_user_ssl_key is not defined
 
 - include_tasks: haproxy_ssl_user_provided.yml

@@ -1,0 +1,79 @@
+---
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Ensure haproxy_ssl_letsencrypt_install_path exists
+  file:
+    path: "{{ haproxy_ssl_letsencrypt_install_path }}"
+    state: directory
+
+- name: Download certbot
+  get_url:
+    url: "{{ haproxy_ssl_letsencrypt_download_url }}"
+    dest: "{{ haproxy_ssl_letsencrypt_install_path }}"
+    mode: 0755
+  register: fetch_url
+  until: fetch_url is success
+  retries: 3
+  delay: 10
+
+- name: Ensure file permissions certbot-auto
+  file:
+    path: "{{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }}"
+
+- name: Register Letsencrypt data dir
+  stat:
+    path: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}"
+  register: lcdatadir
+
+- name: Stop haproxy for certbot activity
+  service:
+    name: "haproxy"
+    state: "stopped"
+  when: lcdatadir.stat.exists == False
+
+- name: Create ssl cert with certbot
+  command: >
+    {{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }} certonly
+    --standalone
+    --agree-tos
+    --non-interactive
+    --text
+    --rsa-key-size 4096
+    --email {{ haproxy_ssl_letsencrypt_email }}
+    --domains {{ external_lb_vip_address }}
+    creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}/fullchain.pem"
+
+- name: Create new pem file for haproxy
+  assemble:
+    src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}"
+    dest: "/etc/ssl/private/haproxy.pem"
+    regexp: '(privkey|fullchain).pem$'
+  notify:
+    - Restart haproxy
+
+- name: Create letsencrypt_renew file
+  template:
+    src: letsencrypt_renew.j2
+    dest: /usr/local/bin/letsencrypt_renew
+    mode: 0755
+    force: yes
+
+- name: Renew Letsencrypt Cert Cron
+  cron:
+    name: "Renew Letsencrypt Cert"
+    minute: "{{ haproxy_ssl_letsencrypt_cron_minute }}"
+    hour: "{{ haproxy_ssl_letsencrypt_cron_hour }}"
+    weekday: "{{ haproxy_ssl_letsencrypt_cron_weekday }}"
+    job: "/usr/local/bin/letsencrypt_renew"
+    user: "root"
+    state: present
