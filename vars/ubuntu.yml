@@ -36,3 +36,8 @@ haproxy_remove_files:
   - "/etc/apt/preferences.d/haproxy_pin.pref"
   - "/etc/apt/sources.list.d/haproxy.list"
   - "/etc/apt/sources.list.d/ppa_launchpad_net_vbernat_haproxy_1_5_ubuntu.list"
+
+# On Ubuntu 16.04 and 18.04 rsyslog runs as the "syslog" user, so have the
+# HAProxy log directory be owned by the same user so that rsyslog can write
+# HAProxy's logs to that directory.
+haproxy_log_directory_owner: syslog

@@ -31,10 +31,19 @@
   tags:
     - haproxy-base-config
 
+# remove config file from old location (ie releases 14-18)
+- name: Delete prior haproxy logging config
+  file:
+    path: "/etc/rsyslog.d/99-haproxy-local-logging.conf"
+    state: absent
+  notify: Restart rsyslog
+  tags:
+    - haproxy-logging-config
+
 - name: Drop haproxy logging config
   copy:
     src: "haproxy-logging.cfg"
-    dest: "/etc/rsyslog.d/99-haproxy-local-logging.conf"
+    dest: "/etc/rsyslog.d/10-haproxy-local-logging.conf"
   notify: Restart rsyslog
   tags:
     - haproxy-logging-config

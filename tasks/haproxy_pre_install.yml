@@ -47,7 +47,7 @@
   file:
     path: "{{ '/var/log/haproxy' | realpath }}"
     state: directory
-    owner: haproxy
+    owner: "{{ haproxy_log_directory_owner }}"
     group: adm
     mode: "0755"
   tags:
