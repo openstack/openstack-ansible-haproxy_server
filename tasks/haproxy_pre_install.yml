@@ -43,6 +43,15 @@
   tags:
     - haproxy-user
 
+- name: create the system group
+  group:
+    name: "adm"
+    state: "present"
+    system: "yes"
+  tags:
+    - haproxy-dirs
+    - haproxy-logs
+
 - name: Create haproxy log dir
   file:
     path: "{{ '/var/log/haproxy' | realpath }}"
