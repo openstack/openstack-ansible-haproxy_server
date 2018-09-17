@@ -38,6 +38,8 @@ haproxy_stats_refresh_interval: 60
 # defined for each service.
 haproxy_backup_nodes: []
 
+haproxy_service_configs: []
+# Example:
 # haproxy_service_configs:
 #   - service:
 #       hap_service_name: haproxy_all
