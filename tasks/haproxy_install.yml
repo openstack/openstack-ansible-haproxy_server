@@ -52,3 +52,6 @@
   args:
     chdir: "/opt/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
     creates: "/usr/local/bin/hatop"
+
+- include_tasks: haproxy_apparmor.yml
+  when: ansible_pkg_mgr == 'zypper'

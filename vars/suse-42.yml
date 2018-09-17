@@ -14,9 +14,11 @@
 # limitations under the License.
 
 haproxy_distro_packages:
+  - apparmor-parser
+  - apparmor-profiles
+  - apparmor-utils
   - haproxy
   - netcat # Used for the Ansible haproxy module
   - rsyslog  # Used for local logging
-
 haproxy_distro_packages_remove:
   - systemd-logger # conflicts with rsyslog
