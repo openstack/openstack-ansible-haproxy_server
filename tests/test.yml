@@ -18,7 +18,50 @@
   connection: local
   user: root
   become: true
-  roles:
-    - role: "haproxy_server"
   vars_files:
     - test-vars.yml
+  tasks:
+    - name: Create marker file for idempotence
+      copy:
+        content: mark
+        dest: /tmp/haproxy_pass1
+      register: haproxy_pass1
+
+    - name: Set fact for idempotence test
+      set_fact:
+        idempotence_pass_1: "{{ haproxy_pass1 is changed }}"
+
+    - name: Set fact for absent service state
+      set_fact:
+        absent_service_state: "{{ (haproxy_pass1 is changed) | ternary('present', 'absent') }}"
+
+    - name: Run the haproxy_server role
+      include_role:
+        name: "haproxy_server"
+
+    - name: Run role again on first pass
+      when:
+        - "idempotence_pass_1 | bool"
+      block:
+        - name: Ensure the absent service is present
+          stat:
+            path: "/etc/haproxy/conf.d/test_absent_service"
+          register: absent_services
+          failed_when: not absent_services.stat.exists
+
+        - name: Set fact for absent service state
+          set_fact:
+            absent_service_state: "absent"
+
+        - name: Run the haproxy_server role (again)
+          include_role:
+            name: "haproxy_server"
+
+    - name: Ensure the absent service is missing
+      stat:
+        path: "/etc/haproxy/conf.d/test_absent_service"
+      register: absent_services
+      when:
+        - "not (idempotence_pass_1 | bool)"
+      failed_when: absent_services.stat.exists
+
