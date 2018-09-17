@@ -31,3 +31,11 @@ haproxy_service_configs:
       haproxy_backend_ca: False
       haproxy_ssl: False
       haproxy_balance_type: http
+  - service:
+      haproxy_service_name: test_absent_service
+      haproxy_backend_nodes:
+        - name: "localhost"
+          ip_addr: "127.0.0.1"
+      haproxy_port: 65535
+      haproxy_balance_type: tcp
+      state: "{{ absent_service_state }}"

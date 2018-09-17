@@ -13,18 +13,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: "Create haproxy service config files"
+- name: Create haproxy service config files
   template:
     src: service.j2
     dest: "/etc/haproxy/conf.d/{{ item.service.haproxy_service_name }}"
-  with_items: "{{ haproxy_service_configs | default([]) }}"
+  with_items: "{{ haproxy_service_configs }}"
   when:
     - (item.service.haproxy_backend_nodes is defined and
       item.service.haproxy_backend_nodes | length > 0) or
       (item.service.haproxy_backup_nodes is defined and
       item.service.haproxy_backup_nodes | length > 0)
-    - item.service.haproxy_service_enabled | default('True') | bool
+    - (item.service.haproxy_service_enabled | default('True')) | bool
+    - (item.service.state is not defined or item.service.state != 'absent')
   notify: Regenerate haproxy configuration
+  tags:
+    - haproxy-service-config
+
+- name: Remove haproxy service config files for absent services
+  file:
+    path: "/etc/haproxy/conf.d/{{ item.service.haproxy_service_name }}"
+    state: absent
+  notify: Regenerate haproxy configuration
+  with_items: "{{ haproxy_service_configs }}"
+  when:
+    - ((item.service.haproxy_backend_nodes is defined and
+      item.service.haproxy_backend_nodes | length == 0) and
+      (item.service.haproxy_backup_nodes is defined and
+      item.service.haproxy_backup_nodes | length == 0)) or
+      (not ((item.service.haproxy_service_enabled | default('True')) | bool)) or
+      (item.service.state is defined and item.service.state == 'absent')
   tags:
     - haproxy-service-config
 
