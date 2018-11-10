@@ -14,3 +14,5 @@
 # limitations under the License.
 
 haproxy_distro_packages_remove: []
+
+haproxy_log_directory_owner: haproxy
