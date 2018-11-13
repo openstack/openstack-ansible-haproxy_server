@@ -144,7 +144,7 @@ will not be accepted by HAProxy and will result in SSL validation failures.
 Please have a look here for information on `converting your certificate to
 various formats <https://search.thawte.com/support/ssl-digital-certificates/index?page=content&actp=CROSSLINK&id=SO26449>`_.
 
-.. _Securing services with SSL certificates: http://docs.openstack.org/project-deploy-guide/openstack-ansible/draft/app-advanced-config-sslcertificates.html
+.. _Securing services with SSL certificates: https://docs.openstack.org/project-deploy-guide/openstack-ansible/draft/app-advanced-config-sslcertificates.html
 
 Configuring additional services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
