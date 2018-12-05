@@ -51,6 +51,8 @@ haproxy_service_configs: []
 #         - "forwardfor"
 #         - "httpchk"
 #         - "httplog"
+#       haproxy_backend_server_options:
+#         - "inter 3000"                # a contrived example, there are many server config options possible
 #       haproxy_acls:
 #         white_list:
 #           rule: "src 127.0.0.1/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"

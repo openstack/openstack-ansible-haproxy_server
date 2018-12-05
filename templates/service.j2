@@ -124,6 +124,10 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append("verify none") %}
 {% endif %}
 {% endif %}
+{% set backend_server_options = item.service.haproxy_backend_server_options|default([]) %}
+{% for option in backend_server_options %}
+{%  set _ = entry.append(option) %}
+{% endfor %}
     {{ entry | join(' ') }}
 {% endfor %}
 
@@ -154,5 +158,9 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append("verify none") %}
 {% endif %}
 {% endif %}
+{% set backend_server_options = item.service.haproxy_backend_server_options|default([]) %}
+{% for option in backend_server_options %}
+{%  set _ = entry.append(option) %}
+{% endfor %}
     {{ entry | join(' ') }}
 {% endfor %}
