@@ -112,9 +112,9 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append("inter") %}
 {% set _ = entry.append(haproxy_interval | string) %}
 {% set _ = entry.append("rise") %}
-{% set _ = entry.append(item.service.haproxy_backend_nodes | count | string) %}
+{% set _ = entry.append(item.service.backend_rise|default(item.service.haproxy_backend_nodes | count | string)) %}
 {% set _ = entry.append("fall") %}
-{% set _ = entry.append(item.service.haproxy_backend_nodes | count | string) %}
+{% set _ = entry.append(item.service.backend_fall|default(item.service.haproxy_backend_nodes | count | string)) %}
 {% if item.service.haproxy_backend_ssl | default(False) %}
 {% set _ = entry.append("ssl") %}
 {% if item.service.haproxy_backend_ca %}
@@ -145,9 +145,9 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append("inter") %}
 {% set _ = entry.append(haproxy_interval | string) %}
 {% set _ = entry.append("rise") %}
-{% set _ = entry.append(item.service.haproxy_backup_nodes | count | string) %}
+{% set _ = entry.append(item.service.backup_rise|default(item.service.haproxy_backup_nodes | count | string)) %}
 {% set _ = entry.append("fall") %}
-{% set _ = entry.append(item.service.haproxy_backup_nodes | count | string) %}
+{% set _ = entry.append(item.service.backup_fall|default(item.service.haproxy_backup_nodes | count | string)) %}
 {% set _ = entry.append("backup") %}
 {% if item.service.haproxy_backend_ssl | default(False) %}
 {% set _ = entry.append("ssl") %}
