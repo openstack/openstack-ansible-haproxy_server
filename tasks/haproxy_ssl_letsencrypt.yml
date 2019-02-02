@@ -35,6 +35,14 @@
     path: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}"
   register: lcdatadir
 
+- name: Install certbot
+  shell: >
+    PIP_INDEX_URL="https://pypi.org/simple/"
+    {{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }}
+    --install-only
+  args:
+    creates: "{{ haproxy_ssl_letsencrypt_venv }}"
+
 - name: Stop haproxy for certbot activity
   service:
     name: "haproxy"
@@ -51,11 +59,12 @@
     --rsa-key-size 4096
     --email {{ haproxy_ssl_letsencrypt_email }}
     --domains {{ external_lb_vip_address }}
-    creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}/fullchain.pem"
+  args:
+    creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}-0001/fullchain.pem"
 
 - name: Create new pem file for haproxy
   assemble:
-    src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}"
+    src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}-0001"
     dest: "/etc/ssl/private/haproxy.pem"
     regexp: '(privkey|fullchain).pem$'
   notify:

@@ -75,6 +75,7 @@ haproxy_ssl_bind_options: "force-tlsv12"
 haproxy_ssl_letsencrypt_enable: false
 haproxy_ssl_letsencrypt_email: "example@example.com"
 haproxy_ssl_letsencrypt_download_url: "https://dl.eff.org/certbot-auto"
+haproxy_ssl_letsencrypt_venv: "/opt/eff.org/certbot/venv"
 haproxy_ssl_letsencrypt_config_path: "/etc/letsencrypt/live"
 haproxy_ssl_letsencrypt_install_path: "/opt/letsencrypt"
 haproxy_ssl_letsencrypt_cron_minute: "0"
