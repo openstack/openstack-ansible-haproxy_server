@@ -103,6 +103,10 @@ haproxy_connect_timeout: "10s"
 haproxy_http_request_timeout: "5s"
 # Set the maximum inactivity time on the server side
 haproxy_server_timeout: "50s"
+# Set the HTTP keepalive mode to use
+# Disable persistent connections by default because they can cause issues when the server side closes the connection
+# at the same time a request is sent.
+haproxy_keepalive_mode: 'forceclose'
 
 
 ## haproxy tuning params
