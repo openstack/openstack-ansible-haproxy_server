@@ -1,7 +1,7 @@
 #!/bin/bash
 # renew cert if required and copy to haproxy destination
 
-certbot renew \
+{{ haproxy_ssl_letsencrypt_venv }}/bin/certbot renew \
     --standalone \
     --pre-hook "systemctl stop haproxy" \
 
