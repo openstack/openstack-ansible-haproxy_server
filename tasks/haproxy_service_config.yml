@@ -53,6 +53,6 @@
   tags:
     - haproxy-service-config
   notify:
-    - Restart haproxy
+    - Reload haproxy
   when:
     - ansible_selinux.status == "enabled"
