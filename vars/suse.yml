@@ -13,12 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+haproxy_distro_pre_packages:
+  - rsyslog  # Used for local logging
+
 haproxy_distro_packages:
   - apparmor-parser
   - apparmor-profiles
   - apparmor-utils
   - haproxy
   - netcat # Used for the Ansible haproxy module
-  - rsyslog  # Used for local logging
+
 haproxy_distro_packages_remove:
   - systemd-logger # conflicts with rsyslog
