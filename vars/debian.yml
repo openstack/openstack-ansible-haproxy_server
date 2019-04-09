@@ -25,7 +25,7 @@ haproxy_distro_packages:
   - psmisc
   - vim-haproxy
 
-# On Ubuntu 16.04 and 18.04 rsyslog runs as the "syslog" user, so have the
+# On Debian rsyslog runs as the "root" user, so have the
 # HAProxy log directory be owned by the same user so that rsyslog can write
 # HAProxy's logs to that directory.
-haproxy_log_directory_owner: syslog
+haproxy_log_directory_owner: root
