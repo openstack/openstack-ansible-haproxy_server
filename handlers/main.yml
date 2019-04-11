@@ -16,20 +16,20 @@
 - name: regen pem
   shell: >
     cat {{ haproxy_ssl_cert }} {{ haproxy_user_ssl_ca_cert is defined | ternary(haproxy_ssl_ca_cert,'') }} {{ haproxy_ssl_key }} > {{ haproxy_ssl_pem }}
-  notify: Restart haproxy
+  notify: Reload haproxy
 
 - name: Regenerate haproxy configuration
   assemble:
     src: "/etc/haproxy/conf.d"
     dest: "/etc/haproxy/haproxy.cfg"
-  notify: Restart haproxy
+  notify: Reload haproxy
   tags:
     - haproxy-general-config
 
-- name: Restart haproxy
+- name: Reload haproxy
   service:
     name: "haproxy"
-    state: "restarted"
+    state: "reloaded"
     enabled: yes
     daemon_reload: yes
 

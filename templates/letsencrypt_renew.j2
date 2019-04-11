@@ -8,4 +8,4 @@
 cat /etc/letsencrypt/live/{{ external_lb_vip_address }}/{fullchain,privkey}.pem \
     > /etc/ssl/private/haproxy.pem
 
-systemctl restart haproxy
+systemctl reload haproxy

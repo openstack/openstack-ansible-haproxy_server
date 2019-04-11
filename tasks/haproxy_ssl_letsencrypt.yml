@@ -68,7 +68,7 @@
     dest: "/etc/ssl/private/haproxy.pem"
     regexp: '(privkey|fullchain).pem$'
   notify:
-    - Restart haproxy
+    - Reload haproxy
 
 - name: Create letsencrypt_renew file
   template:
