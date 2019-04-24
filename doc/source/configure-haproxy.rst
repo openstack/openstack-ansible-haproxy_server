@@ -163,7 +163,7 @@ external DNS address.
    down haproxy briefly during the certificate renewal.  The
    haproxy shutdown/restart will result in a brief service interruption.
 
-.. _Securing services with SSL certificates: http://docs.openstack.org/project-deploy-guide/openstack-ansible/draft/app-advanced-config-sslcertificates.html
+.. _Securing services with SSL certificates: https://docs.openstack.org/project-deploy-guide/openstack-ansible/draft/app-advanced-config-sslcertificates.html
 
 Configuring additional services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
