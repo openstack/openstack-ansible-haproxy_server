@@ -23,6 +23,20 @@
   tags:
     - haproxy-non-local-bind-config
 
+# NOTE (noonedeadpunk) Debian/Ubuntu haproxy packages configure rsyslog
+# to handle log collection and log file rotation. This is not needed since
+# journald is used for this purpose
+- name: Delete rsyslog and logrotate configs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/rsyslog.d/49-haproxy.conf
+    - /etc/logrotate.d/haproxy
+  notify: Restart rsyslog
+  tags:
+    - haproxy-logging-config
+
 - name: Drop base haproxy config
   template:
     src: "haproxy.cfg.j2"
@@ -30,23 +44,6 @@
   notify: Regenerate haproxy configuration
   tags:
     - haproxy-base-config
-
-# remove config file from old location (ie releases 14-18)
-- name: Delete prior haproxy logging config
-  file:
-    path: "/etc/rsyslog.d/99-haproxy-local-logging.conf"
-    state: absent
-  notify: Restart rsyslog
-  tags:
-    - haproxy-logging-config
-
-- name: Drop haproxy logging config
-  copy:
-    src: "haproxy-logging.cfg"
-    dest: "/etc/rsyslog.d/10-haproxy-local-logging.conf"
-  notify: Restart rsyslog
-  tags:
-    - haproxy-logging-config
 
 - include_tasks: haproxy_service_config.yml
   tags:

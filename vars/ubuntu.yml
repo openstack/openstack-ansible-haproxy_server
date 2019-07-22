@@ -16,16 +16,8 @@
 ## APT Cache options
 cache_timeout: 600
 
-haproxy_distro_pre_packages:
-  - rsyslog  # Used for local logging
-
 haproxy_distro_packages:
   - haproxy
   - netcat # Used for the Ansible haproxy module
   - psmisc
   - vim-haproxy
-
-# On Ubuntu 16.04 and 18.04 rsyslog runs as the "syslog" user, so have the
-# HAProxy log directory be owned by the same user so that rsyslog can write
-# HAProxy's logs to that directory.
-haproxy_log_directory_owner: syslog

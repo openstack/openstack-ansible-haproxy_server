@@ -14,22 +14,6 @@
 # limitations under the License.
 
 # NOTE(cloudnull):
-#  Any packages needed to be installed to support the system will
-#  be installed at this point, as a pre-task. This is done to
-#  ensure application and role assumptions are resolved on all of
-#  our supporting OS's up front.
-- name: Install HAProxy Packages
-  package:
-    name: "{{ haproxy_distro_pre_packages }}"
-    state: "{{ haproxy_package_state }}"
-    update_cache: "{{ (ansible_pkg_mgr == 'apt') | ternary('yes', omit) }}"
-    cache_valid_time: "{{ (ansible_pkg_mgr == 'apt') | ternary(cache_timeout, omit) }}"
-  register: install_pre_packages
-  until: install_pre_packages is success
-  retries: 5
-  delay: 2
-
-# NOTE(cloudnull):
 #  While the haproxy distro packages provide for an haproxy
 #  group this group is being created upfront to support
 #  log aggregation links as well as ensure common user
@@ -58,31 +42,6 @@
     home: "/var/lib/haproxy"
   tags:
     - haproxy-user
-
-- name: create the system group
-  group:
-    name: "adm"
-    state: "present"
-    system: "yes"
-  tags:
-    - haproxy-dirs
-    - haproxy-logs
-
-- name: Create haproxy log dir
-  file:
-    path: "{{ '/var/log/haproxy' | realpath }}"
-    state: directory
-    owner: "{{ haproxy_log_directory_owner }}"
-    group: adm
-    mode: "0755"
-  tags:
-    - haproxy-dirs
-    - haproxy-logs
-
-- name: Remove conflicting distro packages
-  package:
-    name: "{{ haproxy_distro_packages_remove }}"
-    state: absent
 
 - name: Create haproxy conf.d dir
   file:

@@ -26,16 +26,16 @@
   tags:
     - haproxy-general-config
 
-- name: Reload haproxy
-  service:
-    name: "haproxy"
-    state: "reloaded"
-    enabled: yes
-    daemon_reload: yes
-
 - name: Restart rsyslog
   service:
     name: "rsyslog"
     state: "restarted"
+    enabled: yes
+    daemon_reload: yes
+
+- name: Reload haproxy
+  service:
+    name: "haproxy"
+    state: "reloaded"
     enabled: yes
     daemon_reload: yes

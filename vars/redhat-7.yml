@@ -13,9 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-haproxy_distro_pre_packages:
-  - rsyslog  # Used for local logging
-
 haproxy_distro_packages:
   - haproxy
   - nc # Used for the Ansible haproxy module
