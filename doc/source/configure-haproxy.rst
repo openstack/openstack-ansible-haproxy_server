@@ -12,7 +12,7 @@ host in the ``haproxy_hosts`` group.
 
   Ensure you review the services exposed by HAProxy and limit access
   to these services to trusted users and networks only. For more details,
-  refer to the :ref:`least-access-openstack-services` section.
+  refer to the :dev_docs:`Securing network access to OpenStack services <reference/architecture/security.html#securing-network-access-to-openstack-services>` section.
 
 .. note::
 
