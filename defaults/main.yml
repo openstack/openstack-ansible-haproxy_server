@@ -123,3 +123,7 @@ haproxy_maxconn: 4096
 #  maxaccept: 64
 #  ssl_cachesize: 20000
 #  ssl_lifetime: 300
+
+# Make the log socket available to the chrooted filesystem
+haproxy_log_socket: "/dev/log"
+haproxy_log_mount_point: "/var/lib/haproxy/dev/log"

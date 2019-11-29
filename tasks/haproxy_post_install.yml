@@ -48,3 +48,28 @@
 - include_tasks: haproxy_service_config.yml
   tags:
     - haproxy-service-config
+
+- name: Create log directory if it does not exist
+  file:
+    path: "{{ haproxy_log_mount_point | dirname }}"
+    state: directory
+    mode: '0755'
+    owner: 'haproxy'
+    group: 'haproxy'
+
+#NOTE(jrosser) The next task fails on Centos7 without this,
+#an empty directory rather than a file is made and the bind mount fails
+- name: Ensure empty file is availble to bind mount log socket
+  file:
+    state: touch
+    path: "{{ haproxy_log_mount_point }}"
+    access_time: preserve
+    modification_time: preserve
+
+- name: Make log socket available to chrooted filesystem
+  mount:
+    src: "{{ haproxy_log_socket }}"
+    path: "{{ haproxy_log_mount_point }}"
+    opts: bind
+    state: mounted
+    fstype: none
