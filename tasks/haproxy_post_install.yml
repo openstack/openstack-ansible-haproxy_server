@@ -15,11 +15,14 @@
 
 - name: Make haproxy bindable on non local addresses
   sysctl:
-    name: net.ipv4.ip_nonlocal_bind
+    name: "{{ item }}"
     value: 1
     sysctl_set: yes
     state: present
   when: haproxy_bind_on_non_local | bool
+  with_items:
+    - "net.ipv4.ip_nonlocal_bind"
+    - "net.ipv6.ip_nonlocal_bind"
   tags:
     - haproxy-non-local-bind-config
 
