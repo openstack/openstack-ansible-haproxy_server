@@ -23,6 +23,10 @@
 {% endfor %}
 {% endif -%}
 
+{% for vip_address in extra_lb_tls_vip_addresses %}
+  {% set _ = vip_binds.append(vip_address) %}
+{% endfor %}
+
 {%- if item.service.haproxy_bind is defined %}
   {% set vip_binds = item.service.haproxy_bind %}
 {% endif -%}
@@ -39,7 +43,7 @@ bind {{ vip_bind }}:{{ item.service.haproxy_redirect_http_port }}
 {% endif %}
 
 frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
-    bind {{ vip_bind }}:{{ item.service.haproxy_port }} {% if (item.service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or item.service.haproxy_ssl_all_vips | default(false) | bool) %}ssl crt {{ haproxy_ssl_pem }} ciphers {{ haproxy_ssl_cipher_suite }}{% endif %}
+    bind {{ vip_bind }}:{{ item.service.haproxy_port }} {% if (item.service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_bind in extra_lb_tls_vip_addresses or item.service.haproxy_ssl_all_vips | default(false) | bool) %}ssl crt {{ haproxy_ssl_pem }} ciphers {{ haproxy_ssl_cipher_suite }}{% endif %}
 
 {% if request_option == "http" %}
     option httplog

@@ -210,14 +210,13 @@ in the Ansible inventory by manually specifying their hostnames/IP Addresses:
           haproxy_port: 10001
           haproxy_balance_type: http
 
-
 Adding additional global VIP addresses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In some cases, you might need to add additional internal VIP addresses
 to the load balancer front end. You can use the HAProxy role to add
 additional VIPs to all front ends by setting them in the
-``extra_lb_vip_addresses`` variable.
+``extra_lb_vip_addresses`` or ``extra_lb_tls_vip_addresses`` variables.
 
 The following example shows extra VIP addresses defined in the
 ``user_variables.yml`` file:
@@ -225,6 +224,15 @@ The following example shows extra VIP addresses defined in the
 .. code-block:: yaml
 
    extra_lb_vip_addresses:
+     - 10.0.0.10
+     - 192.168.0.10
+
+The following example shows extra VIP addresses with TLS enabled
+defined in the ``user_variables.yml`` file:
+
+.. code-block:: yaml
+
+   extra_lb_tls_vip_addresses:
      - 10.0.0.10
      - 192.168.0.10
 
