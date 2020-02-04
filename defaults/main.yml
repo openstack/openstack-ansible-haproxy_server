@@ -124,7 +124,10 @@ haproxy_maxconn: 4096
 #  ssl_cachesize: 20000
 #  ssl_lifetime: 300
 
-# Add extra TLS VIPs to all servics
+# Add extra VIPs to all services
+extra_lb_vip_addresses: []
+
+# Add extra TLS VIPs to all services
 extra_lb_tls_vip_addresses: []
 
 # Make the log socket available to the chrooted filesystem

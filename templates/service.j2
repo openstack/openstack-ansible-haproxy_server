@@ -17,11 +17,9 @@
   {% set _ = vip_binds.append(internal_lb_vip_address) %}
 {% endif -%}
 
-{%- if extra_lb_vip_addresses is defined %}
 {% for vip_address in extra_lb_vip_addresses %}
   {% set _ = vip_binds.append(vip_address) %}
 {% endfor %}
-{% endif -%}
 
 {% for vip_address in extra_lb_tls_vip_addresses %}
   {% set _ = vip_binds.append(vip_address) %}
