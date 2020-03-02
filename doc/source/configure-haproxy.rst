@@ -236,6 +236,22 @@ defined in the ``user_variables.yml`` file:
      - 10.0.0.10
      - 192.168.0.10
 
+Overriding the address haproxy will bind to
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In some cases you may want to override the default of having haproxy
+bind to the addresses specified in ``external_lb_vip_address`` and
+``internal_lb_vip_address``. For example if those are hostnames and you
+want haproxy to bind to IP addresses while preserving the names for TLS-
+certificates and endpoint URIs.
+
+This can be set in the ``user_variables.yml`` file:
+
+.. code-block:: yaml
+
+   haproxy_bind_external_lb_vip_address: 10.0.0.10
+   haproxy_bind_internal_lb_vip_address: 192.168.0.10
+
 Adding Access Control Lists to HAProxy front end
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

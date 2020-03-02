@@ -130,6 +130,12 @@ extra_lb_vip_addresses: []
 # Add extra TLS VIPs to all services
 extra_lb_tls_vip_addresses: []
 
+# Option to override which address haproxy binds to for external vip.
+haproxy_bind_external_lb_vip_address: "{{ external_lb_vip_address }}"
+
+# Option to override which address haproxy binds to for internal vip.
+haproxy_bind_internal_lb_vip_address: "{{ internal_lb_vip_address }}"
+
 # Make the log socket available to the chrooted filesystem
 haproxy_log_socket: "/dev/log"
 haproxy_log_mount_point: "/var/lib/haproxy/dev/log"
