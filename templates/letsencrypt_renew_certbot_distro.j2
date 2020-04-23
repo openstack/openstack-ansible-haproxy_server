@@ -1,0 +1,7 @@
+#!/bin/bash
+# renew cert if required and copy to haproxy destination
+
+cat /etc/letsencrypt/live/{{ external_lb_vip_address }}/{fullchain,privkey}.pem \
+    > /etc/ssl/private/haproxy.pem
+
+systemctl reload haproxy

@@ -21,3 +21,6 @@ haproxy_distro_packages:
   - netcat # Used for the Ansible haproxy module
   - psmisc
   - vim-haproxy
+
+haproxy_distro_certbot_packages:
+  - certbot
