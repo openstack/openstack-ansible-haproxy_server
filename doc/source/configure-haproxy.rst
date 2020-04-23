@@ -147,6 +147,83 @@ be folded and formatted at 64 characters long. Single line certificates
 will not be accepted by HAProxy and will result in SSL validation failures.
 Please have a look here for information on `converting your certificate to
 various formats <https://search.thawte.com/support/ssl-digital-certificates/index?page=content&actp=CROSSLINK&id=SO26449>`_.
+
+Using Certificates from LetsEncrypt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to use `LetsEncrypt SSL Service <https://letsencrypt.org/>`_
+you can activate the feature by providing the following configuration in
+``/etc/openstack_deploy/user_variables.yml``. Note that this requires
+that ``external_lb_vip_address`` in
+``/etc/openstack_deploy/openstack_user_config.yml`` is set to the
+external DNS address.
+
+The following variables must be set for the haproxy hosts.
+
+.. code-block:: yaml
+
+   haproxy_ssl_letsencrypt_enable: True
+   haproxy_ssl_letsencrypt_install_method: "distro"
+   haproxy_ssl_letsencrypt_setup_extra_params: "--http-01-address {{ ansible_host }} --http-01-port 8888"
+   haproxy_ssl_letsencrypt_email: example@example.com
+   haproxy_interval: 2000
+
+The following variables serve as an example for how to configure a
+single HAProxy providing SSL termination for a service on the same
+host, served from 127.0.0.1:80. An additional HAProxy backend is
+configured which will receive the acme-challenge requests when
+certificates are renewed.
+
+.. code-block:: yaml
+
+  haproxy_service_configs:
+    # the external facing service which serves the apache test site, with a acl for LE requests
+    - service:
+        haproxy_service_name: test
+        haproxy_redirect_http_port: 80                         #redirect port 80 to port ssl
+        haproxy_redirect_scheme: "https if !{ ssl_fc } !{ path_beg /.well-known/acme-challenge/ }"   #redirect all non-ssl traffic to ssl except acme-challenge
+        haproxy_port: 443
+        haproxy_frontend_acls:                                 #use a frontend ACL specify the backend to use for acme-challenge
+          letsencrypt-acl:
+              rule: "path_beg /.well-known/acme-challenge/"
+              backend_name: letsencrypt
+        haproxy_ssl: True
+        haproxy_backend_nodes:                                 #apache is running on locally on 127.0.0.1:80 serving a dummy site
+          - name: local-test-service
+            ip_addr: 127.0.0.1
+        haproxy_balance_type: http
+        haproxy_backend_port: 80
+        haproxy_backend_options:
+          - "httpchk HEAD /"                                   # request to use for health check for the example service
+
+    # an internal only service for acme-challenge whose backend is certbot on the haproxy host
+    - service:
+        haproxy_service_name: letsencrypt
+        haproxy_backend_nodes:
+          - name: localhost
+            ip_addr: {{ ansible_host }}                        #certbot binds to the internal IP
+        backend_rise: 1                                        #quick rise and fall time for multinode deployment to succeed
+        backend_fall: 2
+        haproxy_bind:
+          - 127.0.0.1                                          #bind to 127.0.0.1 as the local internal address  will be used by certbot
+        haproxy_port: 8888                                     #certbot is configured with http-01-port to be 8888
+        haproxy_balance_type: http
+
+
+It is possible to use an HA configuration of HAProxy with certificates
+initialised and renewed using certbot by setting haproxy_backend_nodes
+for the LetsEncrypt service to include all HAProxy internal addresses.
+Each HAProxy instance will be checking for certbot running on its own
+node plus each of the others, and direct any incoming acme-challenge
+requests to the HAProxy instance which is performing a renewal.
+
+It is necessary to configure certbot to bind to the HAproxy node local
+internal IP address via the --http-01-address parameter in a H/A setup
+
+Using Certificates from LetsEncrypt (legacy method)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 If you want to use `LetsEncrypt SSL Service <https://letsencrypt.org/>`_
 you can activate the feature by providing the following configuration in
 ``/etc/openstack_deploy/user_variables.yml``. Note that this requires
