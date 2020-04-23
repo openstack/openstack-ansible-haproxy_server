@@ -57,6 +57,11 @@ haproxy_service_configs: []
 #         white_list:
 #           rule: "src 127.0.0.1/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
 #           backend_name: "mybackend"
+#      haproxy_frontend_acls:
+#          letsencrypt-acl:
+#            rule: "path_beg /.well-known/acme-challenge/"
+#            backend_name: letsencrypt
+
 galera_monitoring_user: monitoring
 haproxy_bind_on_non_local: False
 
