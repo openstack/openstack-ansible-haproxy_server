@@ -39,3 +39,12 @@
 - include_tasks: haproxy_post_install.yml
   tags:
     - haproxy_server-config
+
+  # NOTE(jrosser) we must reload the haproxy config before doing the first time certbot setup to ensure the letsencypt backend is configured
+- meta: flush_handlers
+
+- include_tasks: haproxy_ssl_letsencrypt.yml
+  when:
+    - haproxy_ssl | bool
+    - haproxy_ssl_letsencrypt_enable | bool
+    - haproxy_user_ssl_cert is not defined or haproxy_user_ssl_key is not defined
