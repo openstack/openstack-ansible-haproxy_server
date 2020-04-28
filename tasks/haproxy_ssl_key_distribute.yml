@@ -16,9 +16,9 @@
 - name: Distribute self signed ssl key
   copy:
     dest: "{{ haproxy_ssl_key }}"
-    content: "{{ hostvars[groups['haproxy_all'][0]]['haproxy_ssl_key_fact'] | b64decode }}"
+    content: "{{ hostvars[groups[haproxy_ansible_group_name][0]]['haproxy_ssl_key_fact'] | b64decode }}"
     mode: "0640"
-  when: hostvars[groups['haproxy_all'][0]]['haproxy_ssl_key_fact'] is defined
+  when: hostvars[groups[haproxy_ansible_group_name][0]]['haproxy_ssl_key_fact'] is defined
   notify:
     - regen pem
   tags:
@@ -27,9 +27,9 @@
 - name: Distribute self signed ssl cert
   copy:
     dest: "{{ haproxy_ssl_cert }}"
-    content: "{{ hostvars[groups['haproxy_all'][0]]['haproxy_ssl_cert_fact'] | b64decode }}"
+    content: "{{ hostvars[groups[haproxy_ansible_group_name][0]]['haproxy_ssl_cert_fact'] | b64decode }}"
     mode: "0640"
-  when: hostvars[groups['haproxy_all'][0]]['haproxy_ssl_cert_fact'] is defined
+  when: hostvars[groups[haproxy_ansible_group_name][0]]['haproxy_ssl_cert_fact'] is defined
   notify:
     - regen pem
   tags:
