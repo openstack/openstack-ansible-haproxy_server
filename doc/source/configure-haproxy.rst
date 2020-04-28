@@ -45,14 +45,6 @@ Making HAProxy highly-available
 If multiple hosts are found in the inventory, deploy
 HAProxy in a highly-available manner by installing keepalived.
 
-Edit the ``/etc/openstack_deploy/user_variables.yml`` to skip the deployment
-of keepalived along HAProxy when installing HAProxy on multiple hosts.
-To do this, set the following:
-
-.. code-block:: yaml
-
-   haproxy_use_keepalived: False
-
 To make keepalived work, edit at least the following variables
 in ``user_variables.yml``:
 
@@ -100,6 +92,18 @@ You can adapt keepalived to your environment by either using our override
 mechanisms (per host with userspace ``host_vars``, per group with
 userspace``group_vars``, or globally using the userspace
 ``user_variables.yml`` file)
+
+If you wish to deploy multiple haproxy hosts without keepalived and
+provide your own means for failover between them, edit
+``/etc/openstack_deploy/user_variables.yml`` to skip the deployment
+of keepalived.
+To do this, set the following:
+
+.. code-block:: yaml
+
+   haproxy_use_keepalived: False
+
+
 
 Configuring keepalived ping checks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
