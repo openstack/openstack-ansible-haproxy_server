@@ -82,6 +82,9 @@ haproxy_ssl_letsencrypt_enable: false
 haproxy_ssl_letsencrypt_install_method: "certbot-auto"
 haproxy_ssl_letsencrypt_certbot_auto_binary: "{{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }}"
 haproxy_ssl_letsencrypt_certbot_binary: "{{ (haproxy_ssl_letsencrypt_install_method == 'certbot-auto') | ternary(haproxy_ssl_letsencrypt_certbot_auto_binary, 'certbot') }}"
+haproxy_ssl_letsencrypt_certbot_backend_port: 8888
+haproxy_ssl_letsencrypt_pre_hook_timeout: 5
+haproxy_ssl_letsencrypt_certbot_bind_address: "{{ ansible_host }}"
 haproxy_ssl_letsencrypt_email: "example@example.com"
 haproxy_ssl_letsencrypt_download_url: "https://dl.eff.org/certbot-auto"
 haproxy_ssl_letsencrypt_venv: "/opt/eff.org/certbot/venv"
