@@ -120,7 +120,7 @@ backend {{ item.service.haproxy_service_name }}-back
 {% set _ = entry.append("port") %}
 {% set _ = entry.append(haproxy_check_port | string) %}
 {% set _ = entry.append("inter") %}
-{% set _ = entry.append(haproxy_interval | string) %}
+{% set _ = entry.append(item.service.interval|default(haproxy_interval) | string) %}
 {% set _ = entry.append("rise") %}
 {% set _ = entry.append(item.service.backend_rise|default(item.service.haproxy_backend_nodes | count | string)) %}
 {% set _ = entry.append("fall") %}
