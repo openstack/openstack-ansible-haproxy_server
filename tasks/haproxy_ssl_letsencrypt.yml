@@ -55,6 +55,12 @@
         user: "root"
         state: present
 
+- name: Install certbot from distro package
+  package:
+    name: "{{ haproxy_distro_certbot_packages }}"
+    state: present
+  when: haproxy_ssl_letsencrypt_install_method == 'distro'
+
 - name: Stop haproxy for certbot activity
   service:
     name: "haproxy"
@@ -74,6 +80,13 @@
     {{ haproxy_ssl_letsencrypt_setup_extra_params }}
   args:
     creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}/fullchain.pem"
+
+- name: Create certbot post renewal hook
+  template:
+    src: letsencrypt_renew_certbot_distro.j2
+    dest: /etc/letsencrypt/renewal-hooks/post/haproxy-renew
+    mode: 0755
+  when: haproxy_ssl_letsencrypt_install_method == 'distro'
 
 - name: Create new pem file for haproxy
   assemble:
