@@ -61,12 +61,6 @@
     state: present
   when: haproxy_ssl_letsencrypt_install_method == 'distro'
 
-- name: Stop haproxy for certbot activity
-  service:
-    name: "haproxy"
-    state: "stopped"
-  when: lcdatadir.stat.exists == False
-
 - name: Create first time ssl cert with certbot
   command: >
     {{ haproxy_ssl_letsencrypt_certbot_binary }} certonly
