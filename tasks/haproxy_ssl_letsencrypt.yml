@@ -11,37 +11,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Ensure haproxy_ssl_letsencrypt_install_path exists
-  file:
-    path: "{{ haproxy_ssl_letsencrypt_install_path }}"
-    state: directory
+- name: Install certbot with certbot-auto
+  when: haproxy_ssl_letsencrypt_install_method == 'certbot-auto'
+  block:
 
-- name: Download certbot
-  get_url:
-    url: "{{ haproxy_ssl_letsencrypt_download_url }}"
-    dest: "{{ haproxy_ssl_letsencrypt_install_path }}"
-    mode: 0755
-  register: fetch_url
-  until: fetch_url is success
-  retries: 3
-  delay: 10
+    - name: Ensure haproxy_ssl_letsencrypt_install_path exists
+      file:
+        path: "{{ haproxy_ssl_letsencrypt_install_path }}"
+        state: directory
 
-- name: Ensure file permissions certbot-auto
-  file:
-    path: "{{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }}"
+    - name: Download certbot-auto
+      get_url:
+        url: "{{ haproxy_ssl_letsencrypt_download_url }}"
+        dest: "{{ haproxy_ssl_letsencrypt_install_path }}"
+        mode: 0755
+      register: fetch_url
+      until: fetch_url is success
+      retries: 3
+      delay: 10
 
-- name: Register Letsencrypt data dir
-  stat:
-    path: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}"
-  register: lcdatadir
+    - name: Install certbot with certbot-auto script
+      shell: >
+        PIP_INDEX_URL="https://pypi.org/simple/"
+        {{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }}
+        --install-only
+      args:
+        creates: "{{ haproxy_ssl_letsencrypt_venv }}"
 
-- name: Install certbot
-  shell: >
-    PIP_INDEX_URL="https://pypi.org/simple/"
-    {{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }}
-    --install-only
-  args:
-    creates: "{{ haproxy_ssl_letsencrypt_venv }}"
+    - name: Create letsencrypt_renew file
+      template:
+        src: letsencrypt_renew_certbot_auto.j2
+        dest: /usr/local/bin/letsencrypt_renew
+        mode: 0755
+        force: yes
+
+    - name: Renew Letsencrypt Cert Cron
+      cron:
+        name: "Renew Letsencrypt Cert"
+        minute: "{{ haproxy_ssl_letsencrypt_cron_minute }}"
+        hour: "{{ haproxy_ssl_letsencrypt_cron_hour }}"
+        weekday: "{{ haproxy_ssl_letsencrypt_cron_weekday }}"
+        job: "/usr/local/bin/letsencrypt_renew"
+        user: "root"
+        state: present
 
 - name: Stop haproxy for certbot activity
   service:
@@ -49,9 +61,9 @@
     state: "stopped"
   when: lcdatadir.stat.exists == False
 
-- name: Create ssl cert with certbot
+- name: Create first time ssl cert with certbot
   command: >
-    {{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }} certonly
+    {{ haproxy_ssl_letsencrypt_certbot_binary }} certonly
     --standalone
     --agree-tos
     --non-interactive
@@ -61,29 +73,12 @@
     --domains {{ external_lb_vip_address }}
     {{ haproxy_ssl_letsencrypt_setup_extra_params }}
   args:
-    creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}-0001/fullchain.pem"
+    creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}/fullchain.pem"
 
 - name: Create new pem file for haproxy
   assemble:
-    src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}-0001"
+    src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}"
     dest: "/etc/ssl/private/haproxy.pem"
     regexp: '(privkey|fullchain).pem$'
   notify:
     - Reload haproxy
-
-- name: Create letsencrypt_renew file
-  template:
-    src: letsencrypt_renew.j2
-    dest: /usr/local/bin/letsencrypt_renew
-    mode: 0755
-    force: yes
-
-- name: Renew Letsencrypt Cert Cron
-  cron:
-    name: "Renew Letsencrypt Cert"
-    minute: "{{ haproxy_ssl_letsencrypt_cron_minute }}"
-    hour: "{{ haproxy_ssl_letsencrypt_cron_hour }}"
-    weekday: "{{ haproxy_ssl_letsencrypt_cron_weekday }}"
-    job: "/usr/local/bin/letsencrypt_renew"
-    user: "root"
-    state: present
