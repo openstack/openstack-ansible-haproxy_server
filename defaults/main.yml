@@ -152,3 +152,6 @@ haproxy_bind_internal_lb_vip_address: "{{ internal_lb_vip_address }}"
 # Make the log socket available to the chrooted filesystem
 haproxy_log_socket: "/dev/log"
 haproxy_log_mount_point: "/var/lib/haproxy/dev/log"
+
+# Ansible group name which should be used for distrtibuting self signed SSL Certificates
+haproxy_ansible_group_name: haproxy_all
