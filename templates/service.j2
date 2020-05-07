@@ -36,7 +36,11 @@
 frontend {{ item.service.haproxy_service_name }}-redirect-front-{{ loop.index }}
 bind {{ vip_bind }}:{{ item.service.haproxy_redirect_http_port }}
     mode http
-    redirect scheme https if !{ ssl_fc }
+    redirect scheme {{ item.service.haproxy_redirect_scheme  | default('https if !{ ssl_fc }') }}
+{%   for key, value in item.service.haproxy_frontend_acls.items() %}
+    acl {{ key }} {{ value.rule }}
+    use_backend {{ value.backend_name | default(item.service.haproxy_service_name) }}-back if {{ key }}
+{%   endfor %}
 {% endif %}
 {% endif %}
 
