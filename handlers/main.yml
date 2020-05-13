@@ -26,12 +26,19 @@
   tags:
     - haproxy-general-config
 
+- name: Get package facts
+  package_facts:
+    manager: auto
+  listen: Restart rsyslog
+
 - name: Restart rsyslog
   service:
     name: "rsyslog"
     state: "restarted"
     enabled: yes
     daemon_reload: yes
+  when:
+    - "'rsyslog' in ansible_facts.packages"
 
 - name: Reload haproxy
   service:
