@@ -62,7 +62,10 @@
   when: haproxy_ssl_letsencrypt_install_method == 'distro'
 
 - name: Create first time ssl cert with certbot
-  command: >
+  shell: >
+    timeout {{ haproxy_ssl_letsencrypt_pre_hook_timeout }}
+    python3 -m http.server {{ haproxy_ssl_letsencrypt_certbot_backend_port }}
+    --bind {{ haproxy_ssl_letsencrypt_certbot_bind_address }} || true &&
     {{ haproxy_ssl_letsencrypt_certbot_binary }} certonly
     --standalone
     --agree-tos
