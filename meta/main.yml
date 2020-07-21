@@ -29,7 +29,7 @@ galaxy_info:
         - xenial
     - name: EL
       versions:
-        - 7
+        - 8
     - name: opensuse
       versions:
         - 15
