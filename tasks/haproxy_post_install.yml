@@ -60,7 +60,7 @@
     owner: 'haproxy'
     group: 'haproxy'
 
-#NOTE(jrosser) The next task fails on Centos7 without this,
+#NOTE(jrosser) The next task fails on Centos without this,
 #an empty directory rather than a file is made and the bind mount fails
 - name: Ensure empty file is availble to bind mount log socket
   file:
