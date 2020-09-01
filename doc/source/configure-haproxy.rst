@@ -356,3 +356,16 @@ Here is an example that shows how to achieve the goal
 This will add two acl rules ``path_sub -i write`` and ``path_sub -i query``  to
 the front end and use the backend specified in the rule. If no backend is specified
 it will use a default ``haproxy_service_name`` backend.
+
+If a frontend service directs to multiple backend services using ACLs, and a
+backend service does not require its own corresponding front-end, the
+`haproxy_backend_only` option can be specified:
+
+.. code-block:: yaml
+
+  - service:
+        haproxy_service_name: influxdb
+        haproxy_backend_only: true # Directed by the 'influxdb-relay' service above
+        haproxy_backend_nodes:
+          - name: influxdb-service
+            ip_addr: 10.100.10.10
