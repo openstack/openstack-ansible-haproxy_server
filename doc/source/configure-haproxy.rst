@@ -164,7 +164,6 @@ The following variables must be set for the haproxy hosts.
 
    haproxy_ssl_letsencrypt_enable: True
    haproxy_ssl_letsencrypt_install_method: "distro"
-   haproxy_ssl_letsencrypt_setup_extra_params: "--http-01-address {{ ansible_host }} --http-01-port 8888"
    haproxy_ssl_letsencrypt_email: example@example.com
    haproxy_interval: 2000
 
@@ -218,7 +217,8 @@ node plus each of the others, and direct any incoming acme-challenge
 requests to the HAProxy instance which is performing a renewal.
 
 It is necessary to configure certbot to bind to the HAproxy node local
-internal IP address via the --http-01-address parameter in a H/A setup
+internal IP address via the haproxy_ssl_letsencrypt_certbot_bind_address
+variable in a H/A setup.
 
 Using Certificates from LetsEncrypt (legacy method)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
