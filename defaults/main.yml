@@ -57,10 +57,10 @@ haproxy_service_configs: []
 #         white_list:
 #           rule: "src 127.0.0.1/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
 #           backend_name: "mybackend"
-#      haproxy_frontend_acls:
-#          letsencrypt-acl:
-#            rule: "path_beg /.well-known/acme-challenge/"
-#            backend_name: letsencrypt
+#       haproxy_frontend_acls:
+#         letsencrypt-acl:
+#           rule: "path_beg /.well-known/acme-challenge/"
+#           backend_name: letsencrypt
 
 galera_monitoring_user: monitoring
 haproxy_bind_on_non_local: False
@@ -86,6 +86,7 @@ haproxy_ssl_letsencrypt_certbot_binary: "{{ (haproxy_ssl_letsencrypt_install_met
 haproxy_ssl_letsencrypt_certbot_backend_port: 8888
 haproxy_ssl_letsencrypt_pre_hook_timeout: 5
 haproxy_ssl_letsencrypt_certbot_bind_address: "{{ ansible_host }}"
+haproxy_ssl_letsencrypt_certbot_challenge: "http-01"
 haproxy_ssl_letsencrypt_email: "example@example.com"
 haproxy_ssl_letsencrypt_download_url: "https://dl.eff.org/certbot-auto"
 haproxy_ssl_letsencrypt_venv: "/opt/eff.org/certbot/venv"
@@ -95,6 +96,10 @@ haproxy_ssl_letsencrypt_setup_extra_params: ""
 haproxy_ssl_letsencrypt_cron_minute: "0"
 haproxy_ssl_letsencrypt_cron_hour: "0"
 haproxy_ssl_letsencrypt_cron_weekday: "0"
+haproxy_ssl_letsencrypt_acl:
+  letsencrypt-acl:
+    rule: "path_beg /.well-known/acme-challenge/"
+    backend_name: letsencrypt
 
 # hatop extra package URL and checksum
 haproxy_hatop_download_url: "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/hatop/hatop-0.7.7.tar.gz"
