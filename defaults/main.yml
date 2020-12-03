@@ -102,8 +102,8 @@ haproxy_ssl_letsencrypt_acl:
     backend_name: letsencrypt
 
 # hatop extra package URL and checksum
-haproxy_hatop_download_url: "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/hatop/hatop-0.7.7.tar.gz"
-haproxy_hatop_download_checksum: "sha256:0b9fc1b84ce4e469a069e3a3c7c1b5eea10e6bb24bc66bd32af453acd54636ab"
+haproxy_hatop_download_url: "https://github.com/jhunt/hatop/archive/v0.8.0.tar.gz"
+haproxy_hatop_download_checksum: "sha256:bcdab1664358ec83027957df11bbeb322df1a96d414a3ccc4e211532b82c4ad2"
 
 # Where the extra package download is executed from.
 # Options are ['deployment-host', 'target-host']

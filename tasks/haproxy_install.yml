@@ -26,15 +26,16 @@
 
 - name: Ensure haproxy_hatop_download_path exists
   file:
-    path: "{{ haproxy_hatop_download_path }}"
+    path: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
     state: directory
   delegate_to: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('localhost', inventory_hostname) }}"
 
 - name: Download extra package
   get_url:
     url: "{{ haproxy_hatop_download_url }}"
-    dest: "{{ haproxy_hatop_download_path }}"
+    dest: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
     validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
+    checksum: "{{ haproxy_hatop_download_checksum }}"
   register: fetch_url
   until: fetch_url is success
   retries: 3
@@ -45,12 +46,14 @@
   unarchive:
     src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
     remote_src: "{{ (haproxy_hatop_downloader == 'deployment-host') | ternary('no', 'yes') }}"
-    dest: "/opt"
+    dest: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
+    extra_opts:
+      - --strip-components=1
 
 - name: Install HATop
   command: "install -m 755 bin/hatop /usr/local/bin"
   args:
-    chdir: "/opt/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
+    chdir: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
     creates: "/usr/local/bin/hatop"
 
 - include_tasks: haproxy_apparmor.yml
