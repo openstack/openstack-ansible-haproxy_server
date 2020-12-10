@@ -61,6 +61,18 @@ haproxy_service_configs: []
 #         letsencrypt-acl:
 #           rule: "path_beg /.well-known/acme-challenge/"
 #           backend_name: letsencrypt
+#   - service:
+#       # https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint/
+#       haproxy_service_name: prometheus-metrics
+#       haproxy_port: 8404
+#       haproxy_bind:
+#         - '127.0.0.1'
+#       haproxy_whitelist_networks: "{{ haproxy_whitelist_networks }}"
+#       haproxy_frontend_only: True
+#       haproxy_balance_type: "http"
+#       haproxy_frontend_raw:
+#         - 'http-request use-service prometheus-exporter if { path /metrics }'
+#       haproxy_service_enabled: True
 
 galera_monitoring_user: monitoring
 haproxy_bind_on_non_local: False

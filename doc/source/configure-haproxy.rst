@@ -369,3 +369,25 @@ backend service does not require its own corresponding front-end, the
         haproxy_backend_nodes:
           - name: influxdb-service
             ip_addr: 10.100.10.10
+
+Adding prometheus metrics to haproxy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since haproxy 2.0 it's possible to exposes prometheus metrics.
+https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint/
+if you need to create a frontend for it you can use the `haproxy_frontend_only`
+option:
+
+.. code-block:: yaml
+
+  - service:
+      haproxy_service_name: prometheus-metrics
+      haproxy_port: 8404
+      haproxy_bind:
+        - '127.0.0.1'
+      haproxy_whitelist_networks: "{{ haproxy_whitelist_networks }}"
+      haproxy_frontend_only: True
+      haproxy_frontend_raw:
+        - 'http-request use-service prometheus-exporter if { path /metrics }'
+      haproxy_service_enabled: True
+      haproxy_balance_type: 'http'

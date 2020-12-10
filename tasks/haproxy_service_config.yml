@@ -22,7 +22,8 @@
     - (item.service.haproxy_backend_nodes is defined and
       item.service.haproxy_backend_nodes | length > 0) or
       (item.service.haproxy_backup_nodes is defined and
-      item.service.haproxy_backup_nodes | length > 0)
+      item.service.haproxy_backup_nodes | length > 0) or
+      item.service.haproxy_frontend_only | default('False')
     - (item.service.haproxy_service_enabled | default('True')) | bool
     - (item.service.state is not defined or item.service.state != 'absent')
   notify: Regenerate haproxy configuration

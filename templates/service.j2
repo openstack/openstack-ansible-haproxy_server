@@ -70,17 +70,25 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
 {% if item.service.haproxy_acls is defined %}
 {%   for key, value in item.service.haproxy_acls.items() %}
     acl {{ key }} {{ value.rule }}
+{%     if not item.service.haproxy_frontend_only | default(false) %}
     use_backend {{ value.backend_name | default(item.service.haproxy_service_name) }}-back if {{ key }}
+{%     endif %}
 {%   endfor %}
 {% endif %}
 {% if (item.service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or vip_bind in extra_lb_tls_vip_addresses or item.service.haproxy_ssl_all_vips | default(false) | bool) %}
     reqadd X-Forwarded-Proto:\ https
 {% endif %}
     mode {{ item.service.haproxy_balance_type }}
+{% if not item.service.haproxy_frontend_only | default(false) %}
     default_backend {{ item.service.haproxy_service_name }}-back
+{% endif %}
+{% for entry in item.service.haproxy_raw|default([]) %}
+    {{ entry }}
+{% endfor %}
 {% endfor %}
 {% endif %}
 
+{% if not item.service.haproxy_frontend_only | default(false) %}
 {% set backend_options = item.service.haproxy_backend_options|default([]) %}
 {% set backend_arguments = item.service.haproxy_backend_arguments|default([]) %}
 
@@ -184,3 +192,4 @@ backend {{ item.service.haproxy_service_name }}-back
 {% endfor %}
     {{ entry | join(' ') }}
 {% endfor %}
+{% endif %}
