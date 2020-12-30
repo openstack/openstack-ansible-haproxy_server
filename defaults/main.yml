@@ -117,9 +117,8 @@ haproxy_ssl_letsencrypt_acl:
 haproxy_hatop_download_url: "https://github.com/jhunt/hatop/archive/v0.8.0.tar.gz"
 haproxy_hatop_download_checksum: "sha256:bcdab1664358ec83027957df11bbeb322df1a96d414a3ccc4e211532b82c4ad2"
 
-# Where the extra package download is executed from.
-# Options are ['deployment-host', 'target-host']
-haproxy_hatop_downloader: "deployment-host"
+# Install hatop
+haproxy_hatop_install: true
 
 # The location where the extra packages are downloaded to
 haproxy_hatop_download_path: "/opt/cache/files"
