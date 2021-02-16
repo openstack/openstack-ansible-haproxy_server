@@ -23,20 +23,22 @@
   tags:
     - always
 
-- include_tasks: haproxy_pre_install.yml
+- import_tasks: haproxy_pre_install.yml
   tags:
     - haproxy_server-install
 
-- include_tasks: haproxy_install.yml
+- import_tasks: haproxy_install.yml
   tags:
     - haproxy_server-install
 
 - include_tasks: haproxy_ssl.yml
   when: haproxy_ssl | bool
-  tags:
-    - haproxy_server-config
+  args:
+    apply:
+      tags:
+        - haproxy_server-config
 
-- include_tasks: haproxy_post_install.yml
+- import_tasks: haproxy_post_install.yml
   tags:
     - haproxy_server-config
 
@@ -48,3 +50,8 @@
     - haproxy_ssl | bool
     - haproxy_ssl_letsencrypt_enable | bool
     - haproxy_user_ssl_cert is not defined or haproxy_user_ssl_key is not defined
+  args:
+    apply:
+      tags:
+        - haproxy_server-config
+        - letsencrypt
