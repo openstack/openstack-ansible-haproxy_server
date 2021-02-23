@@ -56,4 +56,4 @@
   notify:
     - Reload haproxy
   when:
-    - ansible_selinux.status == "enabled"
+    - ansible_facts['selinux'].status == "enabled"

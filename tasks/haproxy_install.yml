@@ -17,8 +17,8 @@
   package:
     name: "{{ haproxy_distro_packages }}"
     state: "{{ haproxy_package_state }}"
-    update_cache: "{{ (ansible_pkg_mgr == 'apt') | ternary('yes', omit) }}"
-    cache_valid_time: "{{ (ansible_pkg_mgr == 'apt') | ternary(cache_timeout, omit) }}"
+    update_cache: "{{ (ansible_facts['pkg_mgr'] == 'apt') | ternary('yes', omit) }}"
+    cache_valid_time: "{{ (ansible_facts['pkg_mgr'] == 'apt') | ternary(cache_timeout, omit) }}"
   register: install_packages
   until: install_packages is success
   retries: 5
@@ -59,4 +59,4 @@
   when: haproxy_hatop_install | bool
 
 - include_tasks: haproxy_apparmor.yml
-  when: ansible_pkg_mgr == 'zypper'
+  when: ansible_facts['pkg_mgr'] == 'zypper'
