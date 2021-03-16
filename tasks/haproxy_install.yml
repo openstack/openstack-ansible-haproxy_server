@@ -58,5 +58,3 @@
         remote_src: yes
   when: haproxy_hatop_install | bool
 
-- include_tasks: haproxy_apparmor.yml
-  when: ansible_facts['pkg_mgr'] == 'zypper'
