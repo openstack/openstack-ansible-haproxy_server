@@ -79,9 +79,10 @@ of keepalived. This configuration is stored in
 ``group_vars/haproxy_all/keepalived.yml``. It contains the variables
 needed for the keepalived role (master and backup nodes).
 
-Keepalived pings a public IP address to check its status. The default
-address is ``193.0.14.129``. To change this default,
-set the ``keepalived_ping_address`` variable in the
+Keepalived pings a public and private IP address to check its status. The
+default address is ``193.0.14.129``. To change this default,
+set the ``keepalived_external_ping_address`` and
+``keepalived_internal_ping_address`` variables in the
 ``user_variables.yml`` file.
 
 .. note::
@@ -118,9 +119,10 @@ Ansible variables in ``/etc/openstack_deploy/user_variables.yml``:
 
 .. code-block:: yaml
 
-   keepalived_ping_address:         # IP address to ping
-   keepalived_ping_count:           # ICMP packets to send (per interval)
-   keepalived_ping_interval:        # How often ICMP packets are sent
+   keepalived_external_ping_address:   # Public IP address to ping
+   keepalived_internal_ping_address:   # Private IP address to ping
+   keepalived_ping_count:              # ICMP packets to send (per interval)
+   keepalived_ping_interval:           # How often ICMP packets are sent
 
 By default, OpenStack-Ansible configures keepalived to ping one of the root
 DNS servers operated by RIPE. You can change this IP address to a different
