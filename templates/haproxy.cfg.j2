@@ -18,6 +18,9 @@ global
         tune.ssl.lifetime {{ haproxy_tuning_params.ssl_lifetime | default('300') }}
 {% endif %}
         stats socket /var/run/haproxy.stat level admin mode 600
+{% if haproxy_stats_process is defined %}
+        stats bind-process {{ haproxy_stats_process }}
+{% endif %}
         {% if haproxy_ssl | bool %}
         ssl-default-bind-options {{ haproxy_ssl_bind_options }}
         tune.ssl.default-dh-param {{haproxy_ssl_dh_param}}
@@ -39,6 +42,9 @@ defaults
 listen stats
     bind {{ haproxy_stats_bind_address }}:{{ haproxy_stats_port }} {% if haproxy_ssl | bool %}ssl crt {{ haproxy_ssl_pem }} ciphers {{ haproxy_ssl_cipher_suite }}{% endif %}
 
+{% if haproxy_stats_process is defined %}
+    bind-process {{ haproxy_stats_process }}
+{% endif %}
     mode http
     stats enable
     stats hide-version
