@@ -36,6 +36,7 @@
   with_items:
     - /etc/rsyslog.d/49-haproxy.conf
     - /etc/logrotate.d/haproxy
+    - /etc/rsyslog.d/10-haproxy-local-logging.conf
   notify: Restart rsyslog
   tags:
     - haproxy-logging-config
