@@ -13,18 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Ensure the private ssl directory exists
-  file:
-    dest: "/etc/ssl/private"
-    state: "directory"
-  tags:
-    - haproxy-ssl
-
  #NOTE (jrosser) the self signed certificate is also needed for bootstrapping
  #letsencrypt, as haproxy will not start with ssl config but a missing certificate
-- include_tasks: haproxy_ssl_self_signed.yml
+- name: Create and install SSL certificates
+  include_role:
+     name: pki
+     tasks_from: "{{ openstack_pki_authorities is defined | ternary('main_certs.yml', 'main.yml') }}"
+  vars:
+    pki_setup_host: "{{ haproxy_pki_setup_host }}"
+    pki_dir: "{{ haproxy_pki_dir }}"
+    pki_create_ca: "{{ haproxy_pki_create_ca }}"
+    pki_regen_ca: "{{ haproxy_pki_regen_ca }}"
+    pki_authorities: "{{ haproxy_pki_authorities }}"
+    pki_install_ca: "{{ haproxy_pki_install_ca }}"
+    pki_create_certificates: "{{ haproxy_user_ssl_cert is not defined and haproxy_user_ssl_key is not defined }}"
+    pki_regen_cert: "{{ haproxy_pki_regen_cert }}"
+    pki_certificates: "{{ haproxy_pki_certificates }}"
+    pki_install_certificates: "{{ haproxy_pki_install_certificates }}"
   when:
     - haproxy_ssl | bool
     - haproxy_user_ssl_cert is not defined or haproxy_user_ssl_key is not defined
-
-- include_tasks: haproxy_ssl_user_provided.yml
