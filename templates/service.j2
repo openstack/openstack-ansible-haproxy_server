@@ -76,7 +76,7 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
 {%   endfor %}
 {% endif %}
 {% if (item.service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or vip_bind in extra_lb_tls_vip_addresses or item.service.haproxy_ssl_all_vips | default(false) | bool) %}
-    reqadd X-Forwarded-Proto:\ https
+    http-request add-header X-Forwarded-Proto https
 {% endif %}
     mode {{ item.service.haproxy_balance_type }}
 {% if not item.service.haproxy_frontend_only | default(false) %}
