@@ -17,6 +17,8 @@
   shell: >
     cat {{ haproxy_ssl_cert }} {{ haproxy_user_ssl_ca_cert is defined | ternary(haproxy_ssl_ca_cert,'') }} {{ haproxy_ssl_key }} > {{ haproxy_ssl_pem }}
   notify: Reload haproxy
+  listen:
+    - cert installed
 
 - name: Regenerate haproxy configuration
   assemble:
