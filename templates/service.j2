@@ -62,9 +62,9 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
 {% if item.service.haproxy_timeout_client is defined %}
     timeout client {{ item.service.haproxy_timeout_client }}
 {% endif %}
-{% if item.service.haproxy_whitelist_networks is defined %}
-    acl white_list src 127.0.0.1/8 {{ item.service.haproxy_whitelist_networks | join(' ') }}
-    tcp-request content accept if white_list
+{% if item.service.haproxy_allowlist_networks is defined %}
+    acl allow_list src 127.0.0.1/8 {{ item.service.haproxy_allowlist_networks | join(' ') }}
+    tcp-request content accept if allow_list
     tcp-request content reject
 {% endif %}
 {% if item.service.haproxy_acls is defined %}

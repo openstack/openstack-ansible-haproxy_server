@@ -57,7 +57,7 @@ haproxy_service_configs: []
 #       haproxy_backend_server_options:
 #         - "inter 3000"                # a contrived example, there are many server config options possible
 #       haproxy_acls:
-#         white_list:
+#         allow_list:
 #           rule: "src 127.0.0.1/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
 #           backend_name: "mybackend"
 #       haproxy_frontend_acls:
@@ -70,7 +70,7 @@ haproxy_service_configs: []
 #       haproxy_port: 8404
 #       haproxy_bind:
 #         - '127.0.0.1'
-#       haproxy_whitelist_networks: "{{ haproxy_whitelist_networks }}"
+#       haproxy_allowlist_networks: "{{ haproxy_allowlist_networks }}"
 #       haproxy_frontend_only: True
 #       haproxy_balance_type: "http"
 #       haproxy_frontend_raw:
