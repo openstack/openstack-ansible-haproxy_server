@@ -15,8 +15,9 @@
 
 - name: regen pem
   shell: >
-    cat {{ haproxy_ssl_cert }} {{ haproxy_user_ssl_ca_cert is defined | ternary(haproxy_ssl_ca_cert,'') }} {{ haproxy_ssl_key }} > {{ haproxy_ssl_pem }}
+    cat {{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item  ~ '.crt' }} {{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item  ~ '-ca.crt' }} {{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item  ~ '.key' }} > {{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item  ~ '.pem' }}
   notify: Reload haproxy
+  with_items: "{{ _haproxy_tls_vip_binds }}"
   listen:
     - cert installed
 

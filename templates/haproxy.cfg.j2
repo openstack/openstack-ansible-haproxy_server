@@ -40,7 +40,7 @@ defaults
 
 {% if haproxy_stats_enabled | bool %}
 listen stats
-    bind {{ haproxy_stats_bind_address }}:{{ haproxy_stats_port }} {% if haproxy_ssl | bool %}ssl crt {{ haproxy_ssl_pem }} ciphers {{ haproxy_ssl_cipher_suite }}{% endif %}
+    bind {{ haproxy_stats_bind_address }}:{{ haproxy_stats_port }} {% if haproxy_ssl | bool %}ssl crt {{ haproxy_ssl_cert_path }}/haproxy_{{ ansible_facts['hostname'] }}-{{ haproxy_bind_internal_lb_vip_address }}.pem ciphers {{ haproxy_ssl_cipher_suite }}{% endif %}
 
 {% if haproxy_stats_process is defined %}
     bind-process {{ haproxy_stats_process }}

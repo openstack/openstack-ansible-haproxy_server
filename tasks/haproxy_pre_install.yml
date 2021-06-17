@@ -45,6 +45,9 @@
 
 - name: Create haproxy conf.d dir
   file:
-    path: "/etc/haproxy/conf.d"
+    path: "{{ item }}"
     state: directory
     mode: "0755"
+  with_items:
+    - /etc/haproxy/conf.d
+    - "{{ haproxy_ssl_cert_path }}"

@@ -47,7 +47,6 @@
     pki_install_certificates: "{{ haproxy_pki_install_certificates }}"
   when:
     - haproxy_ssl | bool
-    - haproxy_user_ssl_cert is not defined or haproxy_user_ssl_key is not defined
 
 - import_tasks: haproxy_post_install.yml
   tags:
