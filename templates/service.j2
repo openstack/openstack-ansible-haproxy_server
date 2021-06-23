@@ -98,8 +98,10 @@ backend {{ item.service.haproxy_service_name }}-back
 {% if item.service.haproxy_timeout_server is defined %}
     timeout server {{ item.service.haproxy_timeout_server }}
 {% endif %}
+{% if (item.service.haproxy_stick_table_enabled | default(true) | bool) %}
     stick store-request src
     stick-table type ip size 256k expire 30m
+{% endif %}
 {% if request_option == "http" %}
     option forwardfor
     option httplog
