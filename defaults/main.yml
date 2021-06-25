@@ -84,10 +84,7 @@ haproxy_bind_on_non_local: False
 haproxy_ssl: true
 haproxy_ssl_all_vips: false
 haproxy_ssl_dh_param: 2048
-haproxy_ssl_cert: /etc/ssl/certs/haproxy.cert
-haproxy_ssl_key: /etc/ssl/private/haproxy.key
-haproxy_ssl_pem: /etc/ssl/private/haproxy.pem
-haproxy_ssl_ca_cert: /etc/ssl/certs/haproxy-ca.pem
+haproxy_ssl_cert_path: /etc/haproxy/ssl
 haproxy_ssl_cipher_suite: "{{ ssl_cipher_suite | default('ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS') }}"
 haproxy_ssl_bind_options: "force-tlsv12"
 
@@ -142,30 +139,10 @@ haproxy_pki_certs_path: "{{ haproxy_pki_dir ~ '/certs/certs/' }}"
 haproxy_pki_intermediate_cert_name: "{{ openstack_pki_service_intermediate_cert_name | default('HAProxyIntermediate') }}"
 haproxy_pki_intermediate_cert_path: "{{ haproxy_pki_dir ~ '/roots/' ~ haproxy_pki_intermediate_cert_name ~ '/certs/' ~ haproxy_pki_intermediate_cert_name ~ '.crt' }}"
 haproxy_pki_regen_cert: ''
-haproxy_pki_certificates:
-  - name: "haproxy_{{ ansible_facts['hostname'] }}"
-    provider: ownca
-    cn: "{{ ansible_facts['hostname'] }}"
-    san: "{{ 'DNS:' ~ ansible_facts['hostname'] ~  ',DNS:' ~ ansible_facts['fqdn'] ~ ',IP:' ~ haproxy_bind_external_lb_vip_address }}"
-    signed_by: "{{ haproxy_pki_intermediate_cert_name }}"
+haproxy_pki_certificates: "{{ _haproxy_pki_certificates }}"
 
 # Installation details for SSL certificates
-haproxy_pki_install_certificates:
-  - src: "{{ haproxy_user_ssl_cert | default(haproxy_pki_certs_path ~ 'haproxy_' ~ ansible_facts['hostname'] ~ '.crt') }}"
-    dest: "{{ haproxy_ssl_cert }}"
-    owner: "root"
-    group: "root"
-    mode: "0644"
-  - src: "{{ haproxy_user_ssl_key | default(haproxy_pki_keys_path ~ 'haproxy_' ~ ansible_facts['hostname'] ~ '.key.pem') }}"
-    dest: "{{ haproxy_ssl_key }}"
-    owner: "haproxy"
-    group: "haproxy"
-    mode: "0600"
-  - src: "{{ haproxy_user_ssl_ca_cert | default(haproxy_pki_intermediate_cert_path) }}"
-    dest: "{{ haproxy_ssl_ca_cert }}"
-    owner: "haproxy"
-    group: "haproxy"
-    mode: "0644"
+haproxy_pki_install_certificates: "{{ _haproxy_pki_install_certificates }}"
 
 # activate letsencrypt option
 haproxy_ssl_letsencrypt_enable: false
