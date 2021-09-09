@@ -42,7 +42,9 @@
     pki_create_ca: "{{ haproxy_pki_create_ca }}"
     pki_authorities: "{{ haproxy_pki_authorities }}"
     pki_install_ca: "{{ haproxy_pki_install_ca }}"
+    pki_regen_ca: "{{ haproxy_pki_regen_ca }}"
     pki_create_certificates: "{{ haprpxy_user_ssl_cert is not defined and haproxy_user_ssl_key is not defined }}"
+    pki_regen_cert: "{{ haproxy_pki_regen_cert }}"
     pki_certificates: "{{ haproxy_pki_certificates }}"
     pki_install_certificates: "{{ haproxy_pki_install_certificates }}"
   when:
