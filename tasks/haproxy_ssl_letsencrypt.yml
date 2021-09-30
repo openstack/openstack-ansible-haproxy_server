@@ -75,14 +75,14 @@
     --text
     --rsa-key-size 4096
     --email {{ haproxy_ssl_letsencrypt_email }}
-    --domains {{ external_lb_vip_address }}
+    --domains {{ haproxy_bind_external_lb_vip_address }}
     {% if haproxy_ssl_letsencrypt_certbot_challenge == 'http-01' %}
     --http-01-port {{ haproxy_ssl_letsencrypt_certbot_backend_port }}
     --http-01-address {{ haproxy_ssl_letsencrypt_certbot_bind_address }}
     {% endif %}
     {{ haproxy_ssl_letsencrypt_setup_extra_params }}
   args:
-    creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}/fullchain.pem"
+    creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_bind_external_lb_vip_address }}/fullchain.pem"
 
 - name: Create certbot pre hook
   template:
@@ -102,8 +102,10 @@
 
 - name: Create new pem file for haproxy
   assemble:
-    src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ external_lb_vip_address }}"
-    dest: "/etc/ssl/private/haproxy.pem"
+    src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_bind_external_lb_vip_address }}"
+    dest: "{{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item  ~ '.pem' }}"
     regexp: '(privkey|fullchain).pem$'
+  with_items:
+    - "{{ [ haproxy_bind_external_lb_vip_address ] + extra_lb_tls_vip_addresses }}"
   notify:
     - Reload haproxy
