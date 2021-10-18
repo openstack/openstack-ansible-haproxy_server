@@ -76,6 +76,9 @@
     --rsa-key-size 4096
     --email {{ haproxy_ssl_letsencrypt_email }}
     --domains {{ haproxy_bind_external_lb_vip_address }}
+    {% if haproxy_ssl_letsencrypt_certbot_server is defined %}
+    --server {{ haproxy_ssl_letsencrypt_certbot_server }}
+    {% endif %}
     {% if haproxy_ssl_letsencrypt_certbot_challenge == 'http-01' %}
     --http-01-port {{ haproxy_ssl_letsencrypt_certbot_backend_port }}
     --http-01-address {{ haproxy_ssl_letsencrypt_certbot_bind_address }}
