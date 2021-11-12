@@ -82,7 +82,7 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
 {% if not item.service.haproxy_frontend_only | default(false) %}
     default_backend {{ item.service.haproxy_service_name }}-back
 {% endif %}
-{% for entry in item.service.haproxy_raw|default([]) %}
+{% for entry in item.service.haproxy_frontend_raw|default([]) %}
     {{ entry }}
 {% endfor %}
 {% endfor %}
