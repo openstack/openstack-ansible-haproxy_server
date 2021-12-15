@@ -271,6 +271,8 @@ An example HTTP service could look like:
           # If backend connections should be secured with SSL (default False)
           haproxy_backend_ssl: True
           haproxy_backend_ca: /path/to/ca/cert.pem
+          # Or to use system CA for validation
+          # haproxy_backend_ca: True
           # Or if certificate validation should be disabled
           # haproxy_backend_ca: False
 

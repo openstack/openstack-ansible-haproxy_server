@@ -24,3 +24,6 @@ haproxy_distro_packages:
 
 haproxy_distro_certbot_packages:
   - certbot
+
+# Set system CA store which can be used to verify backends
+haproxy_system_ca: /etc/ssl/certs/ca-certificates.crt
