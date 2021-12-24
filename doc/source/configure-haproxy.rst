@@ -128,6 +128,13 @@ By default, OpenStack-Ansible configures keepalived to ping one of the root
 DNS servers operated by RIPE. You can change this IP address to a different
 external address or another address on your internal network.
 
+If external connectivity fails, it is important that internal services can
+still access an HAProxy instance. In a situation, when ping to some external
+host fails and internal ping is not separated, all keepalived instances enter
+the fault state despite internal connectivity being still available. Separate
+ping check for internal and external connectivity ensures that when one
+instance fails the other VIP remains in operation.
+
 Securing HAProxy communication with SSL certificates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
