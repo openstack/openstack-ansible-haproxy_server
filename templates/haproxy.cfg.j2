@@ -23,7 +23,16 @@ global
 {% endif %}
         {% if haproxy_ssl | bool %}
         ssl-default-bind-options {{ haproxy_ssl_bind_options }}
-        tune.ssl.default-dh-param {{haproxy_ssl_dh_param}}
+        ssl-default-server-options {{ haproxy_ssl_server_options }}
+        {% if haproxy_ssl_cipher_suite_tls13 != "" -%}
+        ssl-default-bind-ciphersuites {{ haproxy_ssl_cipher_suite_tls13 }}
+        ssl-default-server-ciphersuites {{ haproxy_ssl_cipher_suite_tls13 }}
+        {% endif -%}
+        {% if haproxy_ssl_cipher_suite_tls12 != "" -%}
+        ssl-default-bind-ciphers {{ haproxy_ssl_cipher_suite_tls12 }}
+        ssl-default-server-ciphers {{ haproxy_ssl_cipher_suite_tls12 }}
+        {% endif -%}
+        tune.ssl.default-dh-param {{ haproxy_ssl_dh_param }}
         {% endif %}
 
 defaults
@@ -40,7 +49,7 @@ defaults
 
 {% if haproxy_stats_enabled | bool %}
 listen stats
-    bind {{ haproxy_stats_bind_address }}:{{ haproxy_stats_port }} {% if haproxy_ssl | bool %}ssl crt {{ haproxy_ssl_cert_path }}/haproxy_{{ ansible_facts['hostname'] }}-{{ haproxy_bind_internal_lb_vip_address }}.pem ciphers {{ haproxy_ssl_cipher_suite }}{% endif %}
+    bind {{ haproxy_stats_bind_address }}:{{ haproxy_stats_port }} {% if haproxy_ssl | bool %}ssl crt {{ haproxy_ssl_cert_path }}/haproxy_{{ ansible_facts['hostname'] }}-{{ haproxy_bind_internal_lb_vip_address }}.pem{% endif %}
 
 {% if haproxy_stats_process is defined %}
     bind-process {{ haproxy_stats_process }}

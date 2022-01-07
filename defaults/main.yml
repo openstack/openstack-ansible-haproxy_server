@@ -88,8 +88,12 @@ haproxy_ssl: true
 haproxy_ssl_all_vips: false
 haproxy_ssl_dh_param: 2048
 haproxy_ssl_cert_path: /etc/haproxy/ssl
-haproxy_ssl_cipher_suite: "{{ ssl_cipher_suite | default('ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS') }}"
-haproxy_ssl_bind_options: "force-tlsv12"
+haproxy_ssl_bind_options: "ssl-min-ver TLSv1.2 prefer-client-ciphers"
+haproxy_ssl_server_options: "ssl-min-ver TLSv1.2"
+# TLS v1.2 and below
+haproxy_ssl_cipher_suite_tls12: "{{ haproxy_ssl_cipher_suite | default(ssl_cipher_suite_tls12 | default('ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS')) }}"
+# TLS v1.3
+haproxy_ssl_cipher_suite_tls13: "{{ ssl_cipher_suite_tls13 | default('TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256') }}"
 
 # haproxy self signed certificate
 
