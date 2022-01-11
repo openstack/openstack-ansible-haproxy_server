@@ -132,7 +132,7 @@ backend {{ item.service.haproxy_service_name }}-back
 {% endif %}
 {% if item.service.haproxy_backend_ca %}
 {% set _ = entry.append("ca-file") %}
-{% set _ = entry.append(item.service.haproxy_backend_ca) %}
+{% set _ = entry.append(item.service.haproxy_backend_ca is string | ternary(item.service.haproxy_backend_ca, haproxy_system_ca)) %}
 {% else %}
 {% set _ = entry.append("verify none") %}
 {% endif %}
@@ -173,7 +173,7 @@ backend {{ item.service.haproxy_service_name }}-back
 {% endif %}
 {% if item.service.haproxy_backend_ca %}
 {% set _ = entry.append("ca-file") %}
-{% set _ = entry.append(item.service.haproxy_backend_ca) %}
+{% set _ = entry.append(item.service.haproxy_backend_ca is string | ternary(item.service.haproxy_backend_ca, haproxy_system_ca)) %}
 {% else %}
 {% set _ = entry.append("verify none") %}
 {% endif %}
