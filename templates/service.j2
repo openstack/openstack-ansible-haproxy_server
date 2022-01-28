@@ -37,7 +37,7 @@ bind {{ vip_bind }}:{{ item.service.haproxy_redirect_http_port }}
 {% endif %}
 
 frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
-    bind {{ vip_bind }}:{{ item.service.haproxy_port }} {% if (item.service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_bind in extra_lb_tls_vip_addresses or (item.service.haproxy_ssl_all_vips | default(false) | bool and vip_bind not in extra_lb_vip_addresses)) %}ssl crt {{ haproxy_ssl_cert_path }}/haproxy_{{ ansible_facts['hostname'] }}-{{ vip_bind }}.pem ciphers {{ haproxy_ssl_cipher_suite }}{% endif %}
+    bind {{ vip_bind }}:{{ item.service.haproxy_port }} {% if (item.service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_bind in extra_lb_tls_vip_addresses or (item.service.haproxy_ssl_all_vips | default(false) | bool and vip_bind not in extra_lb_vip_addresses)) %}ssl crt {{ haproxy_ssl_cert_path }}/haproxy_{{ ansible_facts['hostname'] }}-{{ vip_bind }}.pem {% endif %}
 
 {% if request_option == "http" %}
     option httplog
