@@ -31,7 +31,7 @@ _haproxy_pki_certificates: |
         'name': 'haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ vip,
         'provider': 'ownca',
         'cn': ansible_facts['hostname'],
-        'san': 'DNS:' ~ ansible_facts['hostname'] ~  ',DNS:' ~ ansible_facts['fqdn'] ~ ',' ~ (vip | ansible.netcommon.ipaddr) | ternary('IP:', 'DNS:') ~ vip,
+        'san': 'DNS:' ~ ansible_facts['hostname'] ~  ',DNS:' ~ ansible_facts['fqdn'] ~ ',' ~ (vip | ansible.utils.ipaddr) | ternary('IP:', 'DNS:') ~ vip,
         'signed_by': haproxy_pki_intermediate_cert_name,
       }
     ) %}
