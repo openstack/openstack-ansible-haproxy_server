@@ -206,13 +206,14 @@ haproxy_maxconn: 4096
 # Parameters below should only be specified if necessary, defaults are programmed in the template
 #haproxy_tuning_params:
 #  nbproc: 1
-#  bufsize: 384000
-#  chksize: 16384
-#  comp_maxlevel: 1
-#  http_maxhdr: 101
-#  maxaccept: 64
-#  ssl_cachesize: 20000
-#  ssl_lifetime: 300
+#  tune.bufsize: 384000
+#  tune.chksize: 16384
+#  tune.comp_maxlevel: 1
+#  tune.http_maxhdr: 101
+#  tune.maxaccept: 64
+#  tune.ssl_cachesize: 20000
+#  tune.ssl_lifetime: 300
+haproxy_tuning_params: {}
 
 # Add extra VIPs to all services
 extra_lb_vip_addresses: []
