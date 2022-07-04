@@ -67,6 +67,10 @@ haproxy_service_configs: []
 #         letsencrypt-acl:
 #           rule: "path_beg /.well-known/acme-challenge/"
 #           backend_name: letsencrypt
+#       haproxy_stick_table:
+#         - "stick-table  type ipv6  size 256k  expire 10s  store http_err_rate(10s)"
+#         - "http-request track-sc0 src"
+#         - "http-request deny deny_status 429 if { sc_http_err_rate(0) gt 20 } !{ src 10.0.0.0/8 } !{ src 172.16.0.0/12 } !{ src 192.168.0.0/16 }"
 #   - service:
 #       # https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint/
 #       haproxy_service_name: prometheus-metrics
