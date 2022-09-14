@@ -2,7 +2,7 @@
 # renew cert if required and copy to haproxy destination
 
 {% for vip in [ haproxy_bind_external_lb_vip_address ] + extra_lb_tls_vip_addresses %}
-cat /etc/letsencrypt/live/{{ haproxy_bind_external_lb_vip_address }}/{fullchain,privkey}.pem \
+cat /etc/letsencrypt/live/{{ haproxy_ssl_letsencrypt_domains | first }}/{fullchain,privkey}.pem \
     > {{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ vip  ~ '.pem' }}
 {% endfor %}
 

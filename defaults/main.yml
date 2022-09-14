@@ -176,6 +176,8 @@ haproxy_ssl_letsencrypt_acl:
     backend_name: letsencrypt
 # Use alternative CA that supports ACME, can be a public or private CA
 # haproxy_ssl_letsencrypt_certbot_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+haproxy_ssl_letsencrypt_domains:
+  - "{{ external_lb_vip_address }}"
 
 # hatop extra package URL and checksum
 haproxy_hatop_download_url: "https://github.com/jhunt/hatop/archive/v0.8.0.tar.gz"
