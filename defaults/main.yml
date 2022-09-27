@@ -237,6 +237,19 @@ haproxy_bind_external_lb_vip_address: "{{ external_lb_vip_address }}"
 # Option to override which address haproxy binds to for internal vip.
 haproxy_bind_internal_lb_vip_address: "{{ internal_lb_vip_address }}"
 
+# Option to define if you need haproxy to bind on specific interface.
+haproxy_bind_external_lb_vip_interface:
+haproxy_bind_internal_lb_vip_interface:
+
+# Option to override haproxy frontend binds
+# Example:
+# haproxy_tls_vip_binds:
+#   - address: '*'
+#     interface: bond0
+#   - address: '192.168.0.10'
+
+haproxy_tls_vip_binds: "{{ _haproxy_tls_vip_binds }}"
+
 # Make the log socket available to the chrooted filesystem
 haproxy_log_socket: "/dev/log"
 haproxy_log_mount_point: "/var/lib/haproxy/dev/log"

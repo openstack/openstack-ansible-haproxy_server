@@ -15,16 +15,23 @@
 {% if item.service.haproxy_bind is defined %}
 {%   set vip_binds = item.service.haproxy_bind %}
 {% else %}
-{%   set vip_binds = _haproxy_tls_vip_binds + extra_lb_vip_addresses %}
+{%   set vip_binds = haproxy_tls_vip_binds + extra_lb_vip_addresses %}
 {% endif %}
 
 {% if not item.service.haproxy_backend_only | default(false) %}
 {% for vip_bind in vip_binds %}
+{%   if vip_bind is not string and vip_bind is mapping %}
+{%     set vip_address = vip_bind['address'] %}
+{%     set vip_interface = vip_bind['interface'] %}
+{%   else %}
+{%     set vip_address = vip_bind %}
+{%     set vip_interface = '' %}
+{%   endif %}
 {% if item.service.haproxy_redirect_http_port is defined and item.service.haproxy_ssl %}
 {% if (loop.index == 1 or item.service.haproxy_ssl_all_vips | default(false) | bool) %}
 
 frontend {{ item.service.haproxy_service_name }}-redirect-front-{{ loop.index }}
-bind {{ vip_bind }}:{{ item.service.haproxy_redirect_http_port }}
+bind {{ vip_address }}:{{ item.service.haproxy_redirect_http_port }}{{ (vip_interface is truthy) | ternary(' interface ' ~ vip_interface, '') }}
     mode http
     redirect scheme {{ item.service.haproxy_redirect_scheme  | default('https if !{ ssl_fc }') }}
 {% if item.service.haproxy_frontend_acls is defined %}
@@ -38,11 +45,11 @@ bind {{ vip_bind }}:{{ item.service.haproxy_redirect_http_port }}
 
 {# TODO: remove if and section inside if after HTTPS upgrade #}
 {# During an upgrade of internal frontends from HTTP to HTTPS, need to accept both HTTP and HTTPS until client config has been changed #}
-{% if (item.service.haproxy_tcp_upgrade_frontend | default(false)) and not (loop.index == 1 or vip_bind in extra_lb_tls_vip_addresses) and (item.service.haproxy_ssl_all_vips | default(false)) %}
+{% if (item.service.haproxy_tcp_upgrade_frontend | default(false)) and not (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses) and (item.service.haproxy_ssl_all_vips | default(false)) %}
 {% include 'service-redirect.j2' %}
 {% else %}
 frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
-    bind {{ vip_bind }}:{{ item.service.haproxy_port }} {% if (item.service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_bind in extra_lb_tls_vip_addresses or (item.service.haproxy_ssl_all_vips | default(false) | bool and vip_bind not in extra_lb_vip_addresses)) %}ssl crt {{ haproxy_ssl_cert_path }}/haproxy_{{ ansible_facts['hostname'] }}-{{ vip_bind }}.pem {% endif %}
+    bind {{ vip_address }}:{{ item.service.haproxy_port }}{{ (vip_interface is truthy) | ternary(' interface ' ~ vip_interface, '') }} {% if (item.service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (item.service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}ssl crt {{ haproxy_ssl_cert_path }}/haproxy_{{ ansible_facts['hostname'] }}-{{ (vip_interface is truthy) | ternary(vip_address ~ '-' ~ vip_interface, vip_address) }}.pem {% endif %}
 
 {% if request_option == "http" %}
     option httplog
@@ -69,7 +76,7 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
 {%     endif %}
 {%   endfor %}
 {% endif %}
-{% if (item.service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or vip_bind in extra_lb_tls_vip_addresses or (item.service.haproxy_ssl_all_vips | default(false) | bool and vip_bind not in extra_lb_vip_addresses)) %}
+{% if (item.service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (item.service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}
     http-request add-header X-Forwarded-Proto https
 {% endif %}
     mode {{ item.service.haproxy_balance_type }}
