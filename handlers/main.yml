@@ -28,6 +28,7 @@
   assemble:
     src: "/etc/haproxy/conf.d"
     dest: "/etc/haproxy/haproxy.cfg"
+    validate: /usr/sbin/haproxy -c -f %s
   notify: Reload haproxy
   tags:
     - haproxy-general-config
