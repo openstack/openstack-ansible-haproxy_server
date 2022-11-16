@@ -208,7 +208,7 @@ haproxy_server_timeout: "50s"
 # Set the HTTP keepalive mode to use
 # Disable persistent connections by default because they can cause issues when the server side closes the connection
 # at the same time a request is sent.
-haproxy_keepalive_mode: 'forceclose'
+haproxy_keepalive_mode: 'httpclose'
 
 
 ## haproxy tuning params

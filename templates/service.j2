@@ -108,8 +108,6 @@ backend {{ item.service.haproxy_service_name }}-back
 {% endif %}
 {% if request_option == "http" %}
     option forwardfor
-{% elif request_option == "tcp" %}
-    option tcplog
 {% endif %}
 {% for option in backend_options %}
     option {{ option }}
