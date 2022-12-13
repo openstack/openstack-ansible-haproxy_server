@@ -6,6 +6,7 @@
    :maxdepth: 1
 
    unreleased
+   zed
    victoria
    ussuri
    train
