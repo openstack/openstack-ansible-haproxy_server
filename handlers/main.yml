@@ -18,7 +18,8 @@
     cat {{ item_base_path ~ '.crt' }} $(test -f {{ item_base_path  ~ '-ca.crt' }} && echo {{ item_base_path  ~ '-ca.crt' }}) {{ item_base_path  ~ '.key' }} > {{ item_base_path  ~ '.pem' }}
   notify: Reload haproxy
   vars:
-    item_name: "{{ ('interface' in item and item['interface'] is truthy) | ternary(item['address'] ~ '-' ~ item['interface'], item['address']) }}"
+    item_interface: "{{ item['interface'] }}"
+    item_name: "{{ ('interface' in item and item['interface'] is truthy) | ternary(item['address'] ~ '-' ~ item_interface, item['address']) }}"
     item_base_path: "{{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item_name }}"
   with_items: "{{ haproxy_tls_vip_binds }}"
   listen:

@@ -22,7 +22,7 @@
 {% for vip_bind in vip_binds %}
 {%   if vip_bind is not string and vip_bind is mapping %}
 {%     set vip_address = vip_bind['address'] %}
-{%     set vip_interface = vip_bind['interface'] %}
+{%     set vip_interface = vip_bind['interface'] | default('') %}
 {%   else %}
 {%     set vip_address = vip_bind %}
 {%     set vip_interface = '' %}
