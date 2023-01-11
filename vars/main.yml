@@ -26,9 +26,10 @@ _haproxy_tls_vip_binds: |
 _haproxy_pki_certificates: |
   {% set _pki_certs = [] %}
   {% for vip in haproxy_tls_vip_binds %}
+  {% set _vip_interface = vip['interface'] | default('') %}
   {% set _ = _pki_certs.append(
       {
-        'name': 'haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ ('interface' in vip and vip['interface'] is truthy) | ternary(vip['address'] ~ '-' ~ vip['interface'], vip['address']),
+        'name': 'haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (_vip_interface is truthy) | ternary(vip['address'] ~ '-' ~ _vip_interface, vip['address']),
         'provider': 'ownca',
         'cn': ansible_facts['hostname'],
         'san': 'DNS:' ~ ansible_facts['hostname'] ~  ',DNS:' ~ ansible_facts['fqdn'] ~ ',' ~ (vip['address'] | ansible.utils.ipaddr) | ternary('IP:', 'DNS:') ~ vip['address'],
@@ -41,7 +42,8 @@ _haproxy_pki_certificates: |
 _haproxy_pki_install_certificates: |
   {% set _pki_install = [] %}
   {% for vip in haproxy_tls_vip_binds %}
-  {% set _cert_basename = '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ ('interface' in vip and vip['interface'] is truthy) | ternary(vip['address'] ~ '-' ~ vip['interface'], vip['address']) %}
+  {% set _vip_interface = vip['interface'] | default('') %}
+  {% set _cert_basename = '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (_vip_interface is truthy) | ternary(vip['address'] ~ '-' ~ _vip_interface, vip['address']) %}
   {% set _ = _pki_install.append(
       {
         'src': haproxy_user_ssl_cert | default(haproxy_pki_certs_path ~ _cert_basename ~ '.crt'),
