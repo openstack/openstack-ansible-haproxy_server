@@ -52,73 +52,67 @@ haproxy_frontend_redirect_extra_raw: "{{ haproxy_frontend_extra_raw }}"
 haproxy_service_configs: []
 # Example:
 # haproxy_service_configs:
-#   - service:
-#       haproxy_service_name: haproxy_all
-#       haproxy_backend_nodes: "{{ groups['haproxy_all'][0] }}"
-#       # haproxy_backup_nodes: "{{ groups['haproxy_all'][1:] }}"
-#       haproxy_port: 80
-#       haproxy_balance_type: http
-#       haproxy_backend_options:
-#         - "forwardfor"
-#         - "httpchk"
-#         - "httplog"
-#       haproxy_backend_server_options:
-#         - "inter 3000"                # a contrived example, there are many server config options possible
-#       haproxy_acls:
-#         allow_list:
-#           rule: "src 127.0.0.1/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
-#           backend_name: "mybackend"
-#       haproxy_frontend_acls:
-#         letsencrypt-acl:
-#           rule: "path_beg /.well-known/acme-challenge/"
-#           backend_name: letsencrypt
-#       haproxy_stick_table:
-#         - "stick-table  type ipv6  size 256k  expire 10s  store http_err_rate(10s)"
-#         - "http-request track-sc0 src"
-#         - "http-request deny deny_status 429 if { sc_http_err_rate(0) gt 20 } !{ src 10.0.0.0/8 } !{ src 172.16.0.0/12 } !{ src 192.168.0.0/16 }"
-#   - service:
+#   - haproxy_service_name: haproxy_all
+#     haproxy_backend_nodes: "{{ groups['haproxy_all'][0] }}"
+#     # haproxy_backup_nodes: "{{ groups['haproxy_all'][1:] }}"
+#     haproxy_port: 80
+#     haproxy_balance_type: http
+#     haproxy_backend_options:
+#       - "forwardfor"
+#       - "httpchk"
+#       - "httplog"
+#     haproxy_backend_server_options:
+#       - "inter 3000"                # a contrived example, there are many server config options possible
+#     haproxy_acls:
+#       allow_list:
+#         rule: "src 127.0.0.1/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
+#         backend_name: "mybackend"
+#     haproxy_frontend_acls:
+#       letsencrypt-acl:
+#         rule: "path_beg /.well-known/acme-challenge/"
+#         backend_name: letsencrypt
+#     haproxy_stick_table:
+#       - "stick-table  type ipv6  size 256k  expire 10s  store http_err_rate(10s)"
+#       - "http-request track-sc0 src"
+#       - "http-request deny deny_status 429 if { sc_http_err_rate(0) gt 20 } !{ src 10.0.0.0/8 } !{ src 172.16.0.0/12 } !{ src 192.168.0.0/16 }"
 #       # https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint/
-#       haproxy_service_name: prometheus-metrics
-#       haproxy_port: 8404
-#       haproxy_bind:
-#         - '127.0.0.1'
-#       haproxy_allowlist_networks: "{{ haproxy_allowlist_networks }}"
-#       haproxy_frontend_only: True
-#       haproxy_balance_type: "http"
-#       haproxy_frontend_raw:
-#         - 'http-request use-service prometheus-exporter if { path /metrics }'
-#       haproxy_service_enabled: True
-#       haproxy_default_backend: other_backend
+#   - haproxy_service_name: prometheus-metrics
+#     haproxy_port: 8404
+#     haproxy_bind:
+#       - '127.0.0.1'
+#     haproxy_allowlist_networks: "{{ haproxy_allowlist_networks }}"
+#     haproxy_frontend_only: True
+#     haproxy_balance_type: "http"
+#     haproxy_frontend_raw:
+#       - 'http-request use-service prometheus-exporter if { path /metrics }'
+#     haproxy_service_enabled: True
 
 # HAProxy maps (unrelated keys are omitted but are required as the previous service example)
 # Example:
 # haproxy_service_configs:
-#   - service:
-#       state: present                         # state 'absent' will remove map entries defined in this service
-#       haproxy_service_enabled: true          # haproxy_service_enabled 'false' will remove map entries defined in this service
-#       haproxy_service_name: "one"
-#       haproxy_maps:
-#         - 'use_backend %[req.hdr(host),lower,map(/etc/haproxy/route.map)]'
-#       haproxy_map_entries:
-#         - name: 'route'                      # this service contributes entries to the map called 'route'
-#           order: 10                         # prefix the name of the map fragment wih this string to control ordering of the assembled map
-#           entries:
-#             - compute.example.com nova-api
-#             - dashboard.example.com horizon
-#   - service:                                # this service has no map definitions
-#       haproxy_service_name: "two"
-#   - service:
-#       haproxy_service_name: "three"
-#       haproxy_map_entries:
-#         - name: 'route'                     # this service contributes to the map called 'route'
-#           entries:
-#             - s3.example.com radosgw
-#             - sso.example.com keycloak
-#         - name: 'rate'                      # and also to the map called 'rate'
-#           state: present                    # individual map entries can be removed with state 'absent'
-#           entries:
-#             - /api/foo 20
-#             - /api/bar 40
+#   - state: present                         # state 'absent' will remove map entries defined in this service
+#     haproxy_service_enabled: true          # haproxy_service_enabled 'false' will remove map entries defined in this service
+#     haproxy_service_name: "one"
+#     haproxy_maps:
+#       - 'use_backend %[req.hdr(host),lower,map(/etc/haproxy/route.map)]'
+#     haproxy_map_entries:
+#       - name: 'route'                      # this service contributes entries to the map called 'route'
+#         order: 10                         # prefix the name of the map fragment wih this string to control ordering of the assembled map
+#         entries:
+#           - compute.example.com nova-api
+#           - dashboard.example.com horizon
+#   - haproxy_service_name: "two"
+#   - haproxy_service_name: "three"
+#     haproxy_map_entries:
+#       - name: 'route'                     # this service contributes to the map called 'route'
+#         entries:
+#           - s3.example.com radosgw
+#           - sso.example.com keycloak
+#       - name: 'rate'                      # and also to the map called 'rate'
+#         state: present                    # individual map entries can be removed with state 'absent'
+#         entries:
+#           - /api/foo 20
+#           - /api/bar 40
 #
 # Results:
 #

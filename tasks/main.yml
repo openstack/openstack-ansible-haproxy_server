@@ -59,7 +59,7 @@
   tags:
     - haproxy_server-config
 
-  # NOTE(jrosser) we must reload the haproxy config before doing the first time certbot setup to ensure the letsencypt backend is configured
+# NOTE(jrosser) we must reload the haproxy config before doing the first time certbot setup to ensure the letsencypt backend is configured
 - meta: flush_handlers
 
 - include_tasks: haproxy_ssl_letsencrypt.yml

@@ -21,29 +21,39 @@
 - name: Create haproxy service config files
   template:
     src: service.j2
-    dest: "/etc/haproxy/conf.d/{{ item.service.haproxy_service_name }}"
-  with_items: "{{ haproxy_service_configs }}"
+    dest: "/etc/haproxy/conf.d/{{ service.haproxy_service_name }}"
+# NOTE(damiandabrowski): Deprecated haproxy_service_configs format
+# conversion will be removed in 2024.1.
+#  loop: "{{ haproxy_service_configs }}"
+  loop: "{{ haproxy_service_configs[0].service is defined | ternary(haproxy_service_configs | map(attribute='service'), haproxy_service_configs) | list }}"
+  loop_control:
+    loop_var: service
   when:
-    - (item.service.haproxy_backend_nodes is defined and
-      item.service.haproxy_backend_nodes | length > 0) or
-      (item.service.haproxy_backup_nodes is defined and
-      item.service.haproxy_backup_nodes | length > 0) or
-      item.service.haproxy_frontend_only | default('False')
-    - (item.service.haproxy_service_enabled | default('True')) | bool
-    - (item.service.state is not defined or item.service.state != 'absent')
+    - (service.haproxy_backend_nodes is defined and
+      service.haproxy_backend_nodes | length > 0) or
+      (service.haproxy_backup_nodes is defined and
+      service.haproxy_backup_nodes | length > 0) or
+      service.haproxy_frontend_only | default('False')
+    - (service.haproxy_service_enabled | default('True')) | bool
+    - (service.state is not defined or service.state != 'absent')
   notify: Regenerate haproxy configuration
   tags:
     - haproxy-service-config
 
 - name: Remove haproxy service config files for absent services
   file:
-    path: "/etc/haproxy/conf.d/{{ item.service.haproxy_service_name }}"
+    path: "/etc/haproxy/conf.d/{{ service.haproxy_service_name }}"
     state: absent
   notify: Regenerate haproxy configuration
-  with_items: "{{ haproxy_service_configs }}"
+# NOTE(damiandabrowski): Deprecated haproxy_service_configs format
+# conversion will be removed in 2024.1.
+#  loop: "{{ haproxy_service_configs }}"
+  loop: "{{ haproxy_service_configs[0].service is defined | ternary(haproxy_service_configs | map(attribute='service'), haproxy_service_configs) | list }}"
+  loop_control:
+    loop_var: service
   when:
-    - ((item.service.haproxy_service_enabled | default('True')) | bool) is falsy or
-      (item.service.state is defined and item.service.state == 'absent')
+    - ((service.haproxy_service_enabled | default('True')) | bool) is falsy or
+      (service.state is defined and service.state == 'absent')
   tags:
     - haproxy-service-config
 
@@ -55,20 +65,20 @@
   file:
     state: directory
     path: "/etc/haproxy/map.conf.d/{{ item }}"
-  with_items: "{{ haproxy_service_configs | selectattr('service.haproxy_map_entries', 'defined') | map(attribute='service.haproxy_map_entries') | flatten | map(attribute='name') | unique }}"
+  with_items: "{{ haproxy_service_configs | selectattr('haproxy_map_entries', 'defined') | map(attribute='haproxy_map_entries') | flatten | map(attribute='name') | unique }}"
 
 # create map entries when the service is enabled and an existing map fragment is not absent
 - name: Create haproxy map files
   vars:
-    map_file: "/etc/haproxy/map.conf.d/{{ item.1.name }}/{{ item.1.order | default('00') }}-{{ item.0.service.haproxy_service_name }}.map"
+    map_file: "/etc/haproxy/map.conf.d/{{ item.1.name }}/{{ item.1.order | default('00') }}-{{ item.0.haproxy_service_name }}.map"
   template:
     src: map.j2
     dest: "{{ map_file }}"
   with_subelements:
-    - "{{ haproxy_service_configs | selectattr('service.haproxy_map_entries', 'defined') }}"
-    - service.haproxy_map_entries
+    - "{{ haproxy_service_configs | selectattr('haproxy_map_entries', 'defined') }}"
+    - haproxy_map_entries
   when:
-    - (item.0.service.haproxy_service_enabled | default(True)) | bool
+    - (item.0.haproxy_service_enabled | default(True)) | bool
     - item.1.state | default('present') != 'absent'
   notify: regenerate maps
   register: map_create
@@ -77,13 +87,13 @@
 - name: Delete unused map entries
   file:
     state: absent
-    path: "/etc/haproxy/map.conf.d/{{ item.1.name }}/{{ item.1.order | default('00') }}-{{ item.0.service.haproxy_service_name }}.map"
+    path: "/etc/haproxy/map.conf.d/{{ item.1.name }}/{{ item.1.order | default('00') }}-{{ item.0.haproxy_service_name }}.map"
   when:
-    - (item.0.service.haproxy_service_enabled | default('True')) | bool is falsy or
-      (item.0.service.state is defined and item.0.service.state == 'absent') or
+    - (item.0.haproxy_service_enabled | default('True')) | bool is falsy or
+      (item.0.state is defined and item.0.state == 'absent') or
       (item.1.state | default('present') == 'absent')
   with_subelements:
-    - "{{ haproxy_service_configs | selectattr('service.haproxy_map_entries', 'defined') }}"
-    - service.haproxy_map_entries
+    - "{{ haproxy_service_configs | selectattr('haproxy_map_entries', 'defined') }}"
+    - haproxy_map_entries
   notify: regenerate maps
   register: map_delete

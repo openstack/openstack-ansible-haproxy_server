@@ -186,36 +186,34 @@ certificates are renewed.
 
   haproxy_service_configs:
     # the external facing service which serves the apache test site, with a acl for LE requests
-    - service:
-        haproxy_service_name: test
-        haproxy_redirect_http_port: 80                         #redirect port 80 to port ssl
-        haproxy_redirect_scheme: "https if !{ ssl_fc } !{ path_beg /.well-known/acme-challenge/ }"   #redirect all non-ssl traffic to ssl except acme-challenge
-        haproxy_port: 443
-        haproxy_frontend_acls:                                 #use a frontend ACL specify the backend to use for acme-challenge
-          letsencrypt-acl:
-              rule: "path_beg /.well-known/acme-challenge/"
-              backend_name: letsencrypt
-        haproxy_ssl: True
-        haproxy_backend_nodes:                                 #apache is running on locally on 127.0.0.1:80 serving a dummy site
-          - name: local-test-service
-            ip_addr: 127.0.0.1
-        haproxy_balance_type: http
-        haproxy_backend_port: 80
-        haproxy_backend_options:
-          - "httpchk HEAD /"                                   # request to use for health check for the example service
+    - haproxy_service_name: test
+      haproxy_redirect_http_port: 80                         #redirect port 80 to port ssl
+      haproxy_redirect_scheme: "https if !{ ssl_fc } !{ path_beg /.well-known/acme-challenge/ }"   #redirect all non-ssl traffic to ssl except acme-challenge
+      haproxy_port: 443
+      haproxy_frontend_acls:                                 #use a frontend ACL specify the backend to use for acme-challenge
+        letsencrypt-acl:
+          rule: "path_beg /.well-known/acme-challenge/"
+          backend_name: letsencrypt
+      haproxy_ssl: True
+      haproxy_backend_nodes:                                 #apache is running on locally on 127.0.0.1:80 serving a dummy site
+        - name: local-test-service
+          ip_addr: 127.0.0.1
+      haproxy_balance_type: http
+      haproxy_backend_port: 80
+      haproxy_backend_options:
+        - "httpchk HEAD /"                                   # request to use for health check for the example service
 
     # an internal only service for acme-challenge whose backend is certbot on the haproxy host
-    - service:
-        haproxy_service_name: letsencrypt
-        haproxy_backend_nodes:
-          - name: localhost
-            ip_addr: {{ ansible_host }}                        #certbot binds to the internal IP
-        backend_rise: 1                                        #quick rise and fall time for multinode deployment to succeed
-        backend_fall: 2
-        haproxy_bind:
-          - 127.0.0.1                                          #bind to 127.0.0.1 as the local internal address  will be used by certbot
-        haproxy_port: 8888                                     #certbot is configured with http-01-port to be 8888
-        haproxy_balance_type: http
+    - haproxy_service_name: letsencrypt
+      haproxy_backend_nodes:
+        - name: localhost
+          ip_addr: {{ ansible_host }}                        #certbot binds to the internal IP
+      backend_rise: 1                                        #quick rise and fall time for multinode deployment to succeed
+      backend_fall: 2
+      haproxy_bind:
+        - 127.0.0.1                                          #bind to 127.0.0.1 as the local internal address  will be used by certbot
+      haproxy_port: 8888                                     #certbot is configured with http-01-port to be 8888
+      haproxy_balance_type: http
 
 
 It is possible to use an HA configuration of HAProxy with certificates
@@ -269,19 +267,18 @@ An example HTTP service could look like:
 .. code-block:: yaml
 
     haproxy_extra_services:
-      - service:
-          haproxy_service_name: extra-web-service
-          haproxy_backend_nodes: "{{ groups['service_group'] | default([]) }}"
-          haproxy_ssl: "{{ haproxy_ssl }}"
-          haproxy_port: 10000
-          haproxy_balance_type: http
-          # If backend connections should be secured with SSL (default False)
-          haproxy_backend_ssl: True
-          haproxy_backend_ca: /path/to/ca/cert.pem
-          # Or to use system CA for validation
-          # haproxy_backend_ca: True
-          # Or if certificate validation should be disabled
-          # haproxy_backend_ca: False
+      - haproxy_service_name: extra-web-service
+        haproxy_backend_nodes: "{{ groups['service_group'] | default([]) }}"
+        haproxy_ssl: "{{ haproxy_ssl }}"
+        haproxy_port: 10000
+        haproxy_balance_type: http
+        # If backend connections should be secured with SSL (default False)
+        haproxy_backend_ssl: True
+        haproxy_backend_ca: /path/to/ca/cert.pem
+        # Or to use system CA for validation
+        # haproxy_backend_ca: True
+        # Or if certificate validation should be disabled
+        # haproxy_backend_ca: False
 
 Additionally, you can specify haproxy services that are not managed
 in the Ansible inventory by manually specifying their hostnames/IP Addresses:
@@ -289,18 +286,17 @@ in the Ansible inventory by manually specifying their hostnames/IP Addresses:
 .. code-block:: yaml
 
     haproxy_extra_services:
-      - service:
-          haproxy_service_name: extra-non-inventory-service
-          haproxy_backend_nodes:
-            - name: nonInvHost01
-              ip_addr: 172.0.1.1
-            - name: nonInvHost02
-              ip_addr: 172.0.1.2
-            - name: nonInvHost03
-              ip_addr: 172.0.1.3
-          haproxy_ssl: "{{ haproxy_ssl }}"
-          haproxy_port: 10001
-          haproxy_balance_type: http
+      - haproxy_service_name: extra-non-inventory-service
+        haproxy_backend_nodes:
+          - name: nonInvHost01
+            ip_addr: 172.0.1.1
+          - name: nonInvHost02
+            ip_addr: 172.0.1.2
+          - name: nonInvHost03
+            ip_addr: 172.0.1.3
+        haproxy_ssl: "{{ haproxy_ssl }}"
+        haproxy_port: 10001
+        haproxy_balance_type: http
 
 Adding additional global VIP addresses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -355,14 +351,13 @@ Here is an example that shows how to achieve the goal
 .. code-block:: yaml
 
 
-   - service:
-          haproxy_service_name: influxdb-relay
-          haproxy_acls:
-              write_queries:
-                 rule: "path_sub -i write"
-              read_queries:
-                 rule: "path_sub -i query"
-                 backend_name: "influxdb"
+   - haproxy_service_name: influxdb-relay
+     haproxy_acls:
+       write_queries:
+         rule: "path_sub -i write"
+       read_queries:
+         rule: "path_sub -i query"
+         backend_name: "influxdb"
 
 This will add two acl rules ``path_sub -i write`` and ``path_sub -i query``  to
 the front end and use the backend specified in the rule. If no backend is specified
@@ -374,12 +369,11 @@ backend service does not require its own corresponding front-end, the
 
 .. code-block:: yaml
 
-  - service:
-        haproxy_service_name: influxdb
-        haproxy_backend_only: true # Directed by the 'influxdb-relay' service above
-        haproxy_backend_nodes:
-          - name: influxdb-service
-            ip_addr: 10.100.10.10
+  - haproxy_service_name: influxdb
+    haproxy_backend_only: true # Directed by the 'influxdb-relay' service above
+    haproxy_backend_nodes:
+      - name: influxdb-service
+        ip_addr: 10.100.10.10
 
 Adding prometheus metrics to haproxy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -391,14 +385,13 @@ option:
 
 .. code-block:: yaml
 
-  - service:
-      haproxy_service_name: prometheus-metrics
-      haproxy_port: 8404
-      haproxy_bind:
-        - '127.0.0.1'
-      haproxy_whitelist_networks: "{{ haproxy_whitelist_networks }}"
-      haproxy_frontend_only: True
-      haproxy_frontend_raw:
-        - 'http-request use-service prometheus-exporter if { path /metrics }'
-      haproxy_service_enabled: True
-      haproxy_balance_type: 'http'
+  - haproxy_service_name: prometheus-metrics
+    haproxy_port: 8404
+    haproxy_bind:
+      - '127.0.0.1'
+    haproxy_whitelist_networks: "{{ haproxy_whitelist_networks }}"
+    haproxy_frontend_only: True
+    haproxy_frontend_raw:
+      - 'http-request use-service prometheus-exporter if { path /metrics }'
+    haproxy_service_enabled: True
+    haproxy_balance_type: 'http'
