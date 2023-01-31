@@ -185,8 +185,8 @@ haproxy_ssl_letsencrypt_domains:
   - "{{ external_lb_vip_address }}"
 
 # hatop extra package URL and checksum
-haproxy_hatop_download_url: "https://github.com/jhunt/hatop/archive/v0.8.0.tar.gz"
-haproxy_hatop_download_checksum: "sha256:bcdab1664358ec83027957df11bbeb322df1a96d414a3ccc4e211532b82c4ad2"
+haproxy_hatop_download_url: "https://github.com/jhunt/hatop/archive/refs/tags/v0.8.2.tar.gz"
+haproxy_hatop_download_checksum: "sha256:7fac1f593f92b939cfce34175b593e43862eee8e25db251d03a910b37721fc5d"
 
 # Install hatop
 haproxy_hatop_install: true
