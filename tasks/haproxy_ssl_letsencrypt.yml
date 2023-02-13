@@ -69,7 +69,6 @@
     --bind {{ haproxy_ssl_letsencrypt_certbot_bind_address }} || true &&
     {% endif %}
     {{ haproxy_ssl_letsencrypt_certbot_binary }} certonly
-    --standalone
     --agree-tos
     --non-interactive
     --text
@@ -80,6 +79,7 @@
     --server {{ haproxy_ssl_letsencrypt_certbot_server }}
     {% endif %}
     {% if haproxy_ssl_letsencrypt_certbot_challenge == 'http-01' %}
+    --standalone
     --http-01-port {{ haproxy_ssl_letsencrypt_certbot_backend_port }}
     --http-01-address {{ haproxy_ssl_letsencrypt_certbot_bind_address }}
     {% endif %}
