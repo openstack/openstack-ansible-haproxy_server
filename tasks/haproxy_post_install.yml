@@ -77,3 +77,15 @@
     opts: bind
     state: mounted
     fstype: none
+
+- name: Prevent SELinux from preventing haproxy from binding to arbitrary ports
+  seboolean:
+    name: haproxy_connect_any
+    state: yes
+    persistent: yes
+  tags:
+    - haproxy-service-config
+  notify:
+    - Reload haproxy
+  when:
+    - ansible_facts['selinux']['status'] == "enabled"
