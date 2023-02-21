@@ -45,6 +45,10 @@ haproxy_stats_prometheus_enabled: False
 # defined for each service.
 haproxy_backup_nodes: []
 
+# Configuration lines to write directly into all frontends
+haproxy_frontend_extra_raw: []
+haproxy_frontend_redirect_extra_raw: "{{ haproxy_frontend_extra_raw }}"
+
 haproxy_service_configs: []
 # Example:
 # haproxy_service_configs:
