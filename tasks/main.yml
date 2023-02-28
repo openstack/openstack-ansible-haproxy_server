@@ -73,3 +73,6 @@
       tags:
         - haproxy_server-config
         - letsencrypt
+  tags:
+    - haproxy_server-config
+    - letsencrypt
