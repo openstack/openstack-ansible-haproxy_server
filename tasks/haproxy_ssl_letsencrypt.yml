@@ -62,6 +62,7 @@
   when: haproxy_ssl_letsencrypt_install_method == 'distro'
 
 - name: Create first time ssl cert with certbot
+  throttle: 1
   shell: >
     {% if haproxy_ssl_letsencrypt_certbot_challenge == 'http-01' %}
     timeout {{ haproxy_ssl_letsencrypt_pre_hook_timeout }}
