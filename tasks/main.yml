@@ -52,6 +52,7 @@
     pki_regen_cert: "{{ haproxy_pki_regen_cert }}"
     pki_certificates: "{{ haproxy_pki_certificates }}"
     pki_install_certificates: "{{ haproxy_pki_install_certificates }}"
+    pki_handler_cert_installed: "haproxy cert installed"
   when:
     - haproxy_ssl | bool
 
