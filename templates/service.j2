@@ -48,7 +48,7 @@ bind {{ vip_address }}:{{ item.service.haproxy_redirect_http_port }}{{ (vip_inte
 
 {# TODO: remove if and section inside if after HTTPS upgrade #}
 {# During an upgrade of internal frontends from HTTP to HTTPS, need to accept both HTTP and HTTPS until client config has been changed #}
-{% if (item.service.haproxy_tcp_upgrade_frontend | default(false)) and not (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses) and (item.service.haproxy_ssl_all_vips | default(false)) %}
+{% if (item.service.haproxy_tcp_upgrade_frontend | default(false)) and (item.service.haproxy_ssl_all_vips | default(false)) %}
 {% include 'service-redirect.j2' %}
 {% else %}
 frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
