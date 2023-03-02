@@ -88,6 +88,7 @@ haproxy_service_configs: []
 #       haproxy_frontend_raw:
 #         - 'http-request use-service prometheus-exporter if { path /metrics }'
 #       haproxy_service_enabled: True
+#       haproxy_default_backend: other_backend
 
 galera_monitoring_user: monitoring
 haproxy_bind_on_non_local: False

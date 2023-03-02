@@ -83,8 +83,8 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
     http-request add-header X-Forwarded-Proto https
 {% endif %}
     mode {{ item.service.haproxy_balance_type }}
-{% if not item.service.haproxy_frontend_only | default(false) %}
-    default_backend {{ item.service.haproxy_service_name }}-back
+{% if (not item.service.haproxy_frontend_only | default(false)) or ((item.service.haproxy_default_backend is defined) and (item.service.haproxy_default_backend | length > 0)) %}
+    default_backend {{ item.service.haproxy_default_backend | default(item.service.haproxy_service_name) }}-back
 {% endif %}
 {% for entry in (item.service.haproxy_frontend_raw|default([])) + haproxy_frontend_extra_raw %}
     {{ entry }}
