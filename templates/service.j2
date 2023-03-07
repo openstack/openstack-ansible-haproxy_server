@@ -79,6 +79,9 @@ frontend {{ item.service.haproxy_service_name }}-front-{{ loop.index }}
 {%     endif %}
 {%   endfor %}
 {% endif %}
+{% for entry in item.service.haproxy_maps | default([])  %}
+    {{ entry }}
+{% endfor %}
 {% if (item.service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (item.service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}
     http-request add-header X-Forwarded-Proto https
 {% endif %}

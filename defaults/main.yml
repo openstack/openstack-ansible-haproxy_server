@@ -90,6 +90,48 @@ haproxy_service_configs: []
 #       haproxy_service_enabled: True
 #       haproxy_default_backend: other_backend
 
+# HAProxy maps (unrelated keys are omitted but are required as the previous service example)
+# Example:
+# haproxy_service_configs:
+#   - service:
+#       state: present                         # state 'absent' will remove map entries defined in this service
+#       haproxy_service_enabled: true          # haproxy_service_enabled 'false' will remove map entries defined in this service
+#       haproxy_service_name: "one"
+#       haproxy_maps:
+#         - 'use_backend %[req.hdr(host),lower,map(/etc/haproxy/route.map)]'
+#       haproxy_map_entries:
+#         - name: 'route'                      # this service contributes entries to the map called 'route'
+#           order: 10                         # prefix the name of the map fragment wih this string to control ordering of the assembled map
+#           entries:
+#             - compute.example.com nova-api
+#             - dashboard.example.com horizon
+#   - service:                                # this service has no map definitions
+#       haproxy_service_name: "two"
+#   - service:
+#       haproxy_service_name: "three"
+#       haproxy_map_entries:
+#         - name: 'route'                     # this service contributes to the map called 'route'
+#           entries:
+#             - s3.example.com radosgw
+#             - sso.example.com keycloak
+#         - name: 'rate'                      # and also to the map called 'rate'
+#           state: present                    # individual map entries can be removed with state 'absent'
+#           entries:
+#             - /api/foo 20
+#             - /api/bar 40
+#
+# Results:
+#
+# /etc/haproxy/route.map
+#    s3.example.com radosgw
+#    sso.example.com keycloak
+#    compute.example.com nova-api
+#    dashboard.example.com horizon
+#
+# /etc/haproxy/rate.map
+#    /api/foo 20
+#    /api/bar 40
+
 galera_monitoring_user: monitoring
 haproxy_bind_on_non_local: False
 

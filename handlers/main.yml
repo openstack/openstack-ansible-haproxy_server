@@ -25,6 +25,15 @@
   listen:
     - cert installed
 
+- name: regenerate maps
+  vars:
+    all_changed_results: "{{ (map_create.results + map_delete.results) | select('changed') }}"
+  assemble:
+    src: "/etc/haproxy/map.conf.d/{{ item }}"
+    dest: "/etc/haproxy/{{ item }}.map"
+  notify: Reload haproxy
+  with_items: "{{ all_changed_results | map(attribute='item') | flatten | selectattr('name', 'defined') | map(attribute='name') | unique }}"
+
 - name: Regenerate haproxy configuration
   assemble:
     src: "/etc/haproxy/conf.d"
