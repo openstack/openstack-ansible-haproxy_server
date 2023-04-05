@@ -23,7 +23,7 @@
     item_base_path: "{{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item_name }}"
   with_items: "{{ haproxy_tls_vip_binds }}"
   listen:
-    - cert installed
+    - haproxy cert installed
 
 - name: regenerate maps
   vars:
