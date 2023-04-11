@@ -298,3 +298,30 @@ haproxy_log_mount_point: "/var/lib/haproxy/dev/log"
 
 # Ansible group name which should be used for distrtibuting self signed SSL Certificates
 haproxy_ansible_group_name: haproxy_all
+
+## security.txt
+# When security risks in web services are discovered by independent security
+# researchers who understand the severity of the risk, they often lack the
+# channels to disclose them properly. As a result, security issues may be
+# left unreported. security.txt defines a standard to help organizations
+# define the process for security researchers to disclose security
+# vulnerabilities securely. For more information see https://securitytxt.org/
+# This content will be hosted at /security.txt and /.well-known/security.txt
+haproxy_security_txt_dir: "/etc/haproxy"
+haproxy_security_txt_headers: |
+  HTTP/1.0 200 OK
+  Cache-Control: no-cache
+  Connection: close
+  Content-Type: text/html
+
+haproxy_security_txt_content: ''
+# haproxy_security_txt_content: |
+#   # Please see https://securitytxt.org/ for details of the specification of this file
+
+# Allows to copy any static file to the destination hosts
+haproxy_static_files_default:
+  - dest: "{{ haproxy_security_txt_dir }}/security.txt"
+    content: "{{ haproxy_security_txt_headers + '\n' + haproxy_security_txt_content }}"
+    condition: "{{ haproxy_security_txt_content is truthy }}"
+haproxy_static_files_extra: []
+haproxy_static_files: "{{ haproxy_static_files_default + haproxy_static_files_extra }}"

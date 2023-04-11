@@ -51,3 +51,11 @@
   with_items:
     - /etc/haproxy/conf.d
     - "{{ haproxy_ssl_cert_path }}"
+
+- name: Copy static files
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ item.dest }}"
+  when:
+    - (item.condition | default(True))
+  loop: "{{ haproxy_static_files }}"
