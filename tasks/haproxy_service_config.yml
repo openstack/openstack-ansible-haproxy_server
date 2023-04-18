@@ -15,9 +15,13 @@
 
 # NOTE(damiandabrowski): Deprecated haproxy_service_configs format
 # conversion will be removed in 2024.1.
+- name: Define blank _haproxy_service_configs_simplified variable
+  set_fact:
+    _haproxy_service_configs_simplified: []
+
 - name: Append services to _haproxy_service_configs_simplified list
   set_fact:
-    _haproxy_service_configs_simplified: "{{ _haproxy_service_configs_simplified | default([]) + [ (item.service is defined) | ternary(item.service, item) ] }}"
+    _haproxy_service_configs_simplified: "{{ _haproxy_service_configs_simplified + [ (item.service is defined) | ternary(item.service, item) ] }}"
   loop: "{{ haproxy_service_configs }}"
 
 ###########################################################################
