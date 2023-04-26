@@ -199,23 +199,14 @@ haproxy_pki_install_certificates: "{{ _haproxy_pki_install_certificates }}"
 
 # activate letsencrypt option
 haproxy_ssl_letsencrypt_enable: false
-# choose the certbot install method, 'distro' for a package manager repo, or downloaded with the certbot-auto script 'certbot-auto'
-haproxy_ssl_letsencrypt_install_method: "certbot-auto"
-haproxy_ssl_letsencrypt_certbot_auto_binary: "{{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }}"
-haproxy_ssl_letsencrypt_certbot_binary: "{{ (haproxy_ssl_letsencrypt_install_method == 'certbot-auto') | ternary(haproxy_ssl_letsencrypt_certbot_auto_binary, 'certbot') }}"
+haproxy_ssl_letsencrypt_certbot_binary: 'certbot'
 haproxy_ssl_letsencrypt_certbot_backend_port: 8888
 haproxy_ssl_letsencrypt_pre_hook_timeout: 5
 haproxy_ssl_letsencrypt_certbot_bind_address: "{{ ansible_host }}"
 haproxy_ssl_letsencrypt_certbot_challenge: "http-01"
 haproxy_ssl_letsencrypt_email: "example@example.com"
-haproxy_ssl_letsencrypt_download_url: "https://dl.eff.org/certbot-auto"
-haproxy_ssl_letsencrypt_venv: "/opt/eff.org/certbot/venv"
 haproxy_ssl_letsencrypt_config_path: "/etc/letsencrypt/live"
-haproxy_ssl_letsencrypt_install_path: "/opt/letsencrypt"
 haproxy_ssl_letsencrypt_setup_extra_params: ""
-haproxy_ssl_letsencrypt_cron_minute: "0"
-haproxy_ssl_letsencrypt_cron_hour: "0"
-haproxy_ssl_letsencrypt_cron_weekday: "0"
 haproxy_ssl_letsencrypt_acl:
   letsencrypt-acl:
     rule: "path_beg /.well-known/acme-challenge/"

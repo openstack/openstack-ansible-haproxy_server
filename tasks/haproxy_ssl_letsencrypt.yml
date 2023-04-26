@@ -11,55 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Install certbot with certbot-auto
-  when: haproxy_ssl_letsencrypt_install_method == 'certbot-auto'
-  block:
-
-    - name: Ensure haproxy_ssl_letsencrypt_install_path exists
-      file:
-        path: "{{ haproxy_ssl_letsencrypt_install_path }}"
-        state: directory
-
-    - name: Download certbot-auto
-      get_url:
-        url: "{{ haproxy_ssl_letsencrypt_download_url }}"
-        dest: "{{ haproxy_ssl_letsencrypt_install_path }}"
-        mode: 0755
-      register: fetch_url
-      until: fetch_url is success
-      retries: 3
-      delay: 10
-
-    - name: Install certbot with certbot-auto script
-      shell: >
-        PIP_INDEX_URL="https://pypi.org/simple/"
-        {{ haproxy_ssl_letsencrypt_install_path }}/{{ haproxy_ssl_letsencrypt_download_url | basename }}
-        --install-only
-      args:
-        creates: "{{ haproxy_ssl_letsencrypt_venv }}"
-
-    - name: Create letsencrypt_renew file
-      template:
-        src: letsencrypt_renew_certbot_auto.j2
-        dest: /usr/local/bin/letsencrypt_renew
-        mode: 0755
-        force: yes
-
-    - name: Renew Letsencrypt Cert Cron
-      cron:
-        name: "Renew Letsencrypt Cert"
-        minute: "{{ haproxy_ssl_letsencrypt_cron_minute }}"
-        hour: "{{ haproxy_ssl_letsencrypt_cron_hour }}"
-        weekday: "{{ haproxy_ssl_letsencrypt_cron_weekday }}"
-        job: "/usr/local/bin/letsencrypt_renew"
-        user: "root"
-        state: present
-
 - name: Install certbot from distro package
   package:
     name: "{{ haproxy_distro_certbot_packages }}"
     state: present
-  when: haproxy_ssl_letsencrypt_install_method == 'distro'
 
 - name: Create first time ssl cert with certbot
   throttle: 1
@@ -88,13 +43,13 @@
   args:
     creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_ssl_letsencrypt_domains | first }}/fullchain.pem"
 
+# Certbot automatically installs its systemd timer responsible for renewals
 - name: Create certbot pre hook
   template:
     src: letsencrypt_pre_hook_certbot_distro.j2
     dest: /etc/letsencrypt/renewal-hooks/pre/haproxy-pre
     mode: 0755
   when:
-    - haproxy_ssl_letsencrypt_install_method == 'distro'
     - haproxy_ssl_letsencrypt_certbot_challenge == 'http-01'
 
 - name: Create certbot post renewal hook
@@ -102,7 +57,6 @@
     src: letsencrypt_renew_certbot_distro.j2
     dest: /etc/letsencrypt/renewal-hooks/post/haproxy-renew
     mode: 0755
-  when: haproxy_ssl_letsencrypt_install_method == 'distro'
 
 - name: Create new pem file for haproxy
   assemble:

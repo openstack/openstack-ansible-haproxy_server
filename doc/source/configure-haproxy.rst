@@ -172,7 +172,6 @@ The following variables must be set for the haproxy hosts.
 .. code-block:: yaml
 
    haproxy_ssl_letsencrypt_enable: True
-   haproxy_ssl_letsencrypt_install_method: "distro"
    haproxy_ssl_letsencrypt_email: example@example.com
    haproxy_interval: 2000
 
