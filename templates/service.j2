@@ -46,9 +46,9 @@ bind {{ vip_address }}:{{ service.haproxy_redirect_http_port }}{{ (vip_interface
 {% endif %}
 {% endif %}
 
-{# TODO: remove if and section inside if after HTTPS upgrade #}
-{# During an upgrade of internal frontends from HTTP to HTTPS, need to accept both HTTP and HTTPS until client config has been changed #}
-{% if (service.haproxy_tcp_upgrade_frontend | default(false)) and (service.haproxy_ssl_all_vips | default(false)) %}
+{# service-redirect.j2 allows frontend to handle both HTTP and HTTPS connections. #}
+{# This is especially useful during HTTP->HTTPS service endpoint transition. #}
+{% if service.haproxy_accept_both_protocols | default(false) %}
 {% include 'service-redirect.j2' %}
 {% else %}
 frontend {{ service.haproxy_service_name }}-front-{{ loop.index }}
@@ -165,32 +165,6 @@ backend {{ service.haproxy_service_name }}-back
 {%  set _ = entry.append(option) %}
 {% endfor %}
     {{ entry | join(' ') }}
-{# TODO: remove if and section inside if after HTTPS upgrade #}
-{# During an upgrade of backends from HTTP to HTTPS, need to uses both HTTP and HTTPS backends until backends have been changed #}
-{% if service.haproxy_tcp_upgrade_backend | default(false) and service.haproxy_backend_ssl | default(false) %}
-{% set entry = [] %}
-{% set _ = entry.append("server") %}
-{% set _ = entry.append((host_name.name | default(host_name)) + "-http" | string) %}
-{% set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + haproxy_backend_port | string) %}
-{% set _ = entry.append("check") %}
-{% set _ = entry.append("port") %}
-{% set _ = entry.append(haproxy_check_port | string) %}
-{% set _ = entry.append("inter") %}
-{% set _ = entry.append(service.interval|default(haproxy_interval) | string) %}
-{% set _ = entry.append("rise") %}
-{% set _ = entry.append(service.backend_rise|default(haproxy_rise | string)) %}
-{% set _ = entry.append("fall") %}
-{% set _ = entry.append(service.backend_fall|default(haproxy_fall | string)) %}
-{% set backend_server_options = service.haproxy_backend_server_options|default([]) %}
-{% for option in backend_server_options %}
-{%  set _ = entry.append(option) %}
-{% endfor %}
-{% set backend_per_server_options = host_name.backend_server_options|default([]) %}
-{% for option in backend_per_server_options %}
-{%  set _ = entry.append(option) %}
-{% endfor %}
-    {{ entry | join(' ') }}
-{% endif %}
 {% endfor %}
 
 {% for host_name in service.haproxy_backup_nodes|default([]) %}
