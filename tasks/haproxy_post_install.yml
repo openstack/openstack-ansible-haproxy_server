@@ -45,11 +45,15 @@
   template:
     src: "haproxy.cfg.j2"
     dest: "/etc/haproxy/conf.d/00-haproxy"
+    mode: "0640"
+    owner: haproxy
+    group: haproxy
   notify: Regenerate haproxy configuration
   tags:
     - haproxy-base-config
 
-- include_tasks: haproxy_service_config.yml
+- name: Including haproxy_service_config tasks
+  include_tasks: haproxy_service_config.yml
   tags:
     - haproxy-service-config
 
@@ -61,14 +65,15 @@
     owner: 'haproxy'
     group: 'haproxy'
 
-#NOTE(jrosser) The next task fails on Centos without this,
-#an empty directory rather than a file is made and the bind mount fails
+# NOTE(jrosser) The next task fails on Centos without this,
+# an empty directory rather than a file is made and the bind mount fails
 - name: Ensure empty file is availble to bind mount log socket
   file:
     state: touch
     path: "{{ haproxy_log_mount_point }}"
     access_time: preserve
     modification_time: preserve
+    mode: "0755"
 
 - name: Make log socket available to chrooted filesystem
   mount:

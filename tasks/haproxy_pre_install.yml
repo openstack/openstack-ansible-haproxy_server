@@ -48,6 +48,8 @@
     path: "{{ item }}"
     state: directory
     mode: "0755"
+    owner: haproxy
+    group: haproxy
   with_items:
     - /etc/haproxy/conf.d
     - "{{ haproxy_ssl_cert_path }}"
@@ -56,6 +58,9 @@
   copy:
     content: "{{ item.content }}"
     dest: "{{ item.dest }}"
+    mode: "0644"
+    owner: haproxy
+    group: haproxy
   when:
     - (item.condition | default(True))
   loop: "{{ haproxy_static_files }}"

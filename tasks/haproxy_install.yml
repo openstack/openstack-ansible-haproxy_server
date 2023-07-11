@@ -30,6 +30,7 @@
       file:
         path: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
         state: directory
+        mode: "0755"
 
     - name: Download hatop package
       get_url:
@@ -37,6 +38,7 @@
         dest: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
         validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
         checksum: "{{ haproxy_hatop_download_checksum }}"
+        mode: "0644"
       register: fetch_url
       until: fetch_url is success
       retries: 3
@@ -44,17 +46,16 @@
 
     - name: Unarchive HATop
       unarchive:
-       src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
-       dest: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
-       remote_src: yes
-       extra_opts:
-         - --strip-components=1
+        src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
+        dest: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
+        remote_src: yes
+        extra_opts:
+          - --strip-components=1
 
     - name: Copy HATop binary
       copy:
         src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}/bin/hatop"
         dest: /usr/local/bin/hatop
-        mode: 0755
+        mode: "0755"
         remote_src: yes
   when: haproxy_hatop_install | bool
-

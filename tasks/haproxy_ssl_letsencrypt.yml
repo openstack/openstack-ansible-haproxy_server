@@ -48,7 +48,7 @@
   template:
     src: letsencrypt_pre_hook_certbot_distro.j2
     dest: /etc/letsencrypt/renewal-hooks/pre/haproxy-pre
-    mode: 0755
+    mode: "0755"
   when:
     - haproxy_ssl_letsencrypt_certbot_challenge == 'http-01'
 
@@ -56,14 +56,17 @@
   template:
     src: letsencrypt_renew_certbot_distro.j2
     dest: /etc/letsencrypt/renewal-hooks/post/haproxy-renew
-    mode: 0755
+    mode: "0755"
 
 - name: Create new pem file for haproxy
   assemble:
     src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_ssl_letsencrypt_domains | first }}"
     dest: "{{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item  ~ '.pem' }}"
     regexp: '(privkey|fullchain).pem$'
+    owner: haproxy
+    group: haproxy
+    mode: "0640"
   with_items:
-    - "{{ [ haproxy_bind_external_lb_vip_address ] + extra_lb_tls_vip_addresses }}"
+    - "{{ [haproxy_bind_external_lb_vip_address] + extra_lb_tls_vip_addresses }}"
   notify:
     - Reload haproxy

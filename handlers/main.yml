@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: regen pem
-  shell: >
-    cat {{ item_base_path ~ '.crt' }} $(test -f {{ item_base_path  ~ '-ca.crt' }} && echo {{ item_base_path  ~ '-ca.crt' }}) {{ item_base_path  ~ '.key' }} > {{ item_base_path  ~ '.pem' }}
+- name: Regen pem # noqa: no-changed-when
+  shell: >-
+    cat {{ item_base_path ~ '.crt' }} $(test -f {{ item_base_path  ~ '-ca.crt' }} &&
+    echo {{ item_base_path  ~ '-ca.crt' }}) {{ item_base_path  ~ '.key' }} > {{ item_base_path  ~ '.pem' }}
   notify: Reload haproxy
   vars:
     item_interface: "{{ item['interface'] | default('') }}"
@@ -25,12 +26,15 @@
   listen:
     - haproxy cert installed
 
-- name: regenerate maps
+- name: Regenerate maps
   vars:
     all_changed_results: "{{ (map_create.results + map_delete.results) | select('changed') }}"
   assemble:
     src: "/etc/haproxy/map.conf.d/{{ item }}"
     dest: "/etc/haproxy/{{ item }}.map"
+    mode: "0640"
+    owner: haproxy
+    group: haproxy
   notify: Reload haproxy
   with_items: "{{ all_changed_results | map(attribute='item') | flatten | selectattr('name', 'defined') | map(attribute='name') | unique }}"
 
@@ -39,6 +43,9 @@
     src: "/etc/haproxy/conf.d"
     dest: "/etc/haproxy/haproxy.cfg"
     validate: /usr/sbin/haproxy -c -f %s
+    mode: "0640"
+    owner: haproxy
+    group: haproxy
   notify: Reload haproxy
   tags:
     - haproxy-general-config

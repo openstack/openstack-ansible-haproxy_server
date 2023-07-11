@@ -28,19 +28,21 @@
   tags:
     - always
 
-- import_tasks: haproxy_pre_install.yml
+- name: Importing haproxy_pre_install tasks
+  import_tasks: haproxy_pre_install.yml
   tags:
     - haproxy_server-install
 
-- import_tasks: haproxy_install.yml
+- name: Importing haproxy_install tasks
+  import_tasks: haproxy_install.yml
   tags:
     - haproxy_server-install
 
- #NOTE (jrosser) the self signed certificate is also needed for bootstrapping
- #letsencrypt, as haproxy will not start with ssl config but a missing certificate
+ # NOTE (jrosser) the self signed certificate is also needed for bootstrapping
+ # letsencrypt, as haproxy will not start with ssl config but a missing certificate
 - name: Create and install SSL certificates
   include_role:
-     name: pki
+    name: pki
   vars:
     pki_setup_host: "{{ haproxy_pki_setup_host }}"
     pki_dir: "{{ haproxy_pki_dir }}"
@@ -56,14 +58,17 @@
   when:
     - haproxy_ssl | bool
 
-- import_tasks: haproxy_post_install.yml
+- name: Importing haproxy_post_install tasks
+  import_tasks: haproxy_post_install.yml
   tags:
     - haproxy_server-config
 
 # NOTE(jrosser) we must reload the haproxy config before doing the first time certbot setup to ensure the letsencypt backend is configured
-- meta: flush_handlers
+- name: Flush handlers
+  meta: flush_handlers
 
-- include_tasks: haproxy_ssl_letsencrypt.yml
+- name: Including haproxy_ssl_letsencrypt tasks
+  include_tasks: haproxy_ssl_letsencrypt.yml
   when:
     - haproxy_ssl | bool
     - haproxy_ssl_letsencrypt_enable | bool
