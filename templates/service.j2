@@ -134,10 +134,10 @@ backend {{ service.haproxy_service_name }}-back
 {% set entry = [] %}
 {% set _ = entry.append("server") %}
 {% set _ = entry.append((host_name.name | default(host_name)) | string) %}
-{% set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + haproxy_backend_port | string) %}
+{% set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + (host_name.backend_port | default(haproxy_backend_port)) | string) %}
 {% set _ = entry.append("check") %}
 {% set _ = entry.append("port") %}
-{% set _ = entry.append(haproxy_check_port | string) %}
+{% set _ = entry.append(host_name.backend_port | default(haproxy_check_port) | string) %}
 {% set _ = entry.append("inter") %}
 {% set _ = entry.append(service.interval|default(haproxy_interval) | string) %}
 {% set _ = entry.append("rise") %}
