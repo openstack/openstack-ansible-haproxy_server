@@ -51,8 +51,9 @@ bind {{ vip_address }}:{{ service.haproxy_redirect_http_port }}{{ (vip_interface
 {% if service.haproxy_accept_both_protocols | default(false) %}
 {% include 'service-redirect.j2' %}
 {% else %}
+{% set haproxy_ssl_path=haproxy_ssl_cert_path + "/haproxy_" + (haproxy_host | default(ansible_facts['hostname'])) + "-" + ((vip_interface is truthy) | ternary(vip_address ~ '-' ~ vip_interface, vip_address)) + ".pem" %}
 frontend {{ service.haproxy_service_name }}-front-{{ loop.index }}
-    bind {{ vip_address }}:{{ service.haproxy_port }}{{ (vip_interface is truthy) | ternary(' interface ' ~ vip_interface, '') }} {% if (service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}ssl crt {{ haproxy_ssl_cert_path }}/haproxy_{{ haproxy_host | default(ansible_facts['hostname']) }}-{{ (vip_interface is truthy) | ternary(vip_address ~ '-' ~ vip_interface, vip_address) }}.pem {% endif %}
+    bind {{ vip_address }}:{{ service.haproxy_port }}{{ (vip_interface is truthy) | ternary(' interface ' ~ vip_interface, '') }} {% if (service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}ssl crt {{ service.haproxy_ssl_path | default(haproxy_ssl_path) }} {% endif %}
 
 {% if request_option == "http" %}
     option httplog
