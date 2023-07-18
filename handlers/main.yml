@@ -17,7 +17,6 @@
   shell: >-
     cat {{ item_base_path ~ '.crt' }} $(test -f {{ item_base_path  ~ '-ca.crt' }} &&
     echo {{ item_base_path  ~ '-ca.crt' }}) {{ item_base_path  ~ '.key' }} > {{ item_base_path  ~ '.pem' }}
-  notify: Reload haproxy
   vars:
     item_interface: "{{ item['interface'] | default('') }}"
     item_name: "{{ ('interface' in item and item['interface'] is truthy) | ternary(item['address'] ~ '-' ~ item_interface, item['address']) }}"
@@ -35,7 +34,6 @@
     mode: "0640"
     owner: haproxy
     group: haproxy
-  notify: Reload haproxy
   with_items: "{{ all_changed_results | map(attribute='item') | flatten | selectattr('name', 'defined') | map(attribute='name') | unique }}"
 
 - name: Regenerate haproxy configuration
@@ -46,7 +44,6 @@
     mode: "0640"
     owner: haproxy
     group: haproxy
-  notify: Reload haproxy
   tags:
     - haproxy-general-config
 
@@ -70,3 +67,7 @@
     state: "reloaded"
     enabled: yes
     daemon_reload: yes
+  listen:
+    - Regen pem
+    - Regenerate maps
+    - Regenerate haproxy configuration
