@@ -339,6 +339,24 @@ This can be set in the ``user_variables.yml`` file:
    haproxy_bind_external_lb_vip_address: 10.0.0.10
    haproxy_bind_internal_lb_vip_address: 192.168.0.10
 
+Binding haproxy to interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In some cases it might be more convenient to bind haproxy to the interface
+rather then a specific IP address. For example, this is handy if you decide
+to balance load between HAProxy instances using DNS RR, where each HAProxy
+will have it's own VIP which will failover to others.
+
+Binding to the interface can be set by providing following variables
+in the ``user_variables.yml`` file:
+
+.. code-block:: yaml
+
+  haproxy_bind_external_lb_vip_address: "*"
+  haproxy_bind_internal_lb_vip_address: "*"
+  haproxy_bind_external_lb_vip_interface: bond0
+  haproxy_bind_internal_lb_vip_interface: br-mgmt
+
 Adding Access Control Lists to HAProxy front end
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
