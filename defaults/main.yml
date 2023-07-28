@@ -303,7 +303,7 @@ haproxy_security_txt_headers: |
   HTTP/1.0 200 OK
   Cache-Control: no-cache
   Connection: close
-  Content-Type: text/html
+  Content-Type: text/plain; charset=utf-8
 
 haproxy_security_txt_content: ''
 # haproxy_security_txt_content: |
