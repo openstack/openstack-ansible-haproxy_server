@@ -49,6 +49,12 @@ haproxy_backup_nodes: []
 haproxy_frontend_extra_raw: []
 haproxy_frontend_redirect_extra_raw: "{{ haproxy_frontend_extra_raw }}"
 
+# Default values for enabling HTTP/2 support
+# Note, that while HTTP/2 will be enabled on frontends that are covered with TLS,
+# backends can be configured to use HTTP/2 regardless of TLS.
+haproxy_frontend_h2: True
+haproxy_backend_h2: False
+
 haproxy_service_configs: []
 # Example:
 # haproxy_service_configs:
@@ -67,6 +73,8 @@ haproxy_service_configs: []
 #       allow_list:
 #         rule: "src 127.0.0.1/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
 #         backend_name: "mybackend"
+#     haproxy_frontend_h2: True
+#     haproxy_backend_h2: False
 #     haproxy_frontend_acls:
 #       letsencrypt-acl:
 #         rule: "path_beg /.well-known/acme-challenge/"
