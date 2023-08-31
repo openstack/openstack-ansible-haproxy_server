@@ -26,7 +26,8 @@
       paths:
         - "{{ role_path }}/vars"
 
-- include_tasks: haproxy_service_config.yml
+- name: Including haproxy_service_config tasks
+  include_tasks: haproxy_service_config.yml
   args:
     apply:
       tags:

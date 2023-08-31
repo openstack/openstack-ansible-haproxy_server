@@ -16,21 +16,23 @@
 galaxy_info:
   author: rcbops
   description: Installation and setup of HAProxy
+  role_name: haproxy_server
+  namespace: openstack
   company: Rackspace
   license: Apache2
-  min_ansible_version: 2.2
+  min_ansible_version: "2.10"
   platforms:
     - name: Debian
       versions:
-        - buster
+        - bullseye
     - name: Ubuntu
       versions:
-        - bionic
         - focal
+        - jammy
     - name: EL
       versions:
-        - 8
-  categories:
+        - "9"
+  galaxy_tags:
     - cloud
     - python
     - development

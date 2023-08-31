@@ -145,7 +145,8 @@ haproxy_ssl_cert_path: /etc/haproxy/ssl
 haproxy_ssl_bind_options: "ssl-min-ver TLSv1.2 prefer-client-ciphers"
 haproxy_ssl_server_options: "ssl-min-ver TLSv1.2"
 # TLS v1.2 and below
-haproxy_ssl_cipher_suite_tls12: "{{ haproxy_ssl_cipher_suite | default(ssl_cipher_suite_tls12 | default('ECDH+AESGCM:ECDH+CHACHA20:ECDH+AES256:ECDH+AES128:!aNULL:!SHA1:!AESCCM')) }}"
+haproxy_ssl_cipher_suite_tls12: >-
+  {{ haproxy_ssl_cipher_suite | default(ssl_cipher_suite_tls12 | default('ECDH+AESGCM:ECDH+CHACHA20:ECDH+AES256:ECDH+AES128:!aNULL:!SHA1:!AESCCM')) }}
 # TLS v1.3
 haproxy_ssl_cipher_suite_tls13: "{{ ssl_cipher_suite_tls13 | default('TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256') }}"
 
@@ -198,7 +199,8 @@ haproxy_pki_install_ca:
 haproxy_pki_keys_path: "{{ haproxy_pki_dir ~ '/certs/private/' }}"
 haproxy_pki_certs_path: "{{ haproxy_pki_dir ~ '/certs/certs/' }}"
 haproxy_pki_intermediate_cert_name: "{{ openstack_pki_service_intermediate_cert_name | default('HAProxyIntermediate') }}"
-haproxy_pki_intermediate_cert_path: "{{ haproxy_pki_dir ~ '/roots/' ~ haproxy_pki_intermediate_cert_name ~ '/certs/' ~ haproxy_pki_intermediate_cert_name ~ '.crt' }}"
+haproxy_pki_intermediate_cert_path: >-
+  {{ haproxy_pki_dir ~ '/roots/' ~ haproxy_pki_intermediate_cert_name ~ '/certs/' ~ haproxy_pki_intermediate_cert_name ~ '.crt' }}
 haproxy_pki_regen_cert: ''
 haproxy_pki_certificates: "{{ _haproxy_pki_certificates }}"
 
@@ -255,15 +257,15 @@ haproxy_keepalive_mode: 'httpclose'
 haproxy_maxconn: 4096
 
 # Parameters below should only be specified if necessary, defaults are programmed in the template
-#haproxy_tuning_params:
-#  nbproc: 1
-#  tune.bufsize: 384000
-#  tune.chksize: 16384
-#  tune.comp_maxlevel: 1
-#  tune.http_maxhdr: 101
-#  tune.maxaccept: 64
-#  tune.ssl_cachesize: 20000
-#  tune.ssl_lifetime: 300
+# haproxy_tuning_params:
+#   nbproc: 1
+#   tune.bufsize: 384000
+#   tune.chksize: 16384
+#   tune.comp_maxlevel: 1
+#   tune.http_maxhdr: 101
+#   tune.maxaccept: 64
+#   tune.ssl_cachesize: 20000
+#   tune.ssl_lifetime: 300
 haproxy_tuning_params: {}
 
 # Add extra VIPs to all services
