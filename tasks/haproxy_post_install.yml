@@ -54,6 +54,10 @@
 
 - name: Including haproxy_service_config tasks
   include_tasks: haproxy_service_config.yml
+  args:
+    apply:
+      tags:
+        - haproxy-service-config
   tags:
     - haproxy-service-config
 
