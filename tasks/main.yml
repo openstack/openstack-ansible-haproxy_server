@@ -43,6 +43,10 @@
 - name: Create and install SSL certificates
   include_role:
     name: pki
+    apply:
+      tags:
+        - haproxy_server-config
+        - pki
   vars:
     pki_setup_host: "{{ haproxy_pki_setup_host }}"
     pki_dir: "{{ haproxy_pki_dir }}"
@@ -57,6 +61,9 @@
     pki_handler_cert_installed: "haproxy cert installed"
   when:
     - haproxy_ssl | bool
+  tags:
+    - haproxy_server-config
+    - pki
 
 - name: Importing haproxy_post_install tasks
   import_tasks: haproxy_post_install.yml
