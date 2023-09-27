@@ -3,7 +3,9 @@
   hosts: haproxy
   user: root
   roles:
-    - { role: "haproxy_server", tags: [ "haproxy-server" ] }
+    - role: haproxy_server
+      tags:
+        - haproxy-server
   vars:
     haproxy_service_configs:
       - haproxy_service_name: group_name
