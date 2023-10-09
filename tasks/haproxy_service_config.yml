@@ -49,8 +49,6 @@
     - (service.haproxy_service_enabled | default('True')) | bool
     - (service.state is not defined or service.state != 'absent')
   notify: Regenerate haproxy configuration
-  tags:
-    - haproxy-service-config
 
 - name: Remove haproxy service config files for absent services
   file:
@@ -65,8 +63,6 @@
   when:
     - ((service.haproxy_service_enabled | default('True')) | bool) is falsy or
       (service.state is defined and service.state == 'absent')
-  tags:
-    - haproxy-service-config
 
 ###########################################################################
 # Map files assembled from fragments from each service into <map-name>.map
