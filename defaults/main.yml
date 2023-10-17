@@ -31,6 +31,8 @@ haproxy_stats_enabled: False
 haproxy_stats_bind_address: 127.0.0.1
 haproxy_stats_port: 1936
 haproxy_stats_ssl: "{{ haproxy_ssl }}"
+# haproxy_stats_ssl_cert_path: "{{ haproxy_ssl_cert_path }}/somecustomstatscert.pem"
+# haproxy_stats_ssl_client_cert_ca: "{{ haproxy_ssl_cert_path }}/somecustomrootca.pem"
 haproxy_username: admin
 haproxy_stats_password: secrete
 haproxy_stats_refresh_interval: 60
