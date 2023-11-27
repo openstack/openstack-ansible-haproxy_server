@@ -40,7 +40,7 @@ defaults
         timeout server {{ haproxy_server_timeout }}
         maxconn {{ haproxy_maxconn }}
 {% if haproxy_stats_enabled | bool %}
-{% set haproxy_ssl_path=haproxy_ssl_cert_path + "/haproxy_" + (haproxy_host | default(ansible_facts['hostname'])) + "-" + ((vip_interface is truthy) | ternary(vip_address ~ '-' ~ vip_interface, vip_address)) + ".pem" %}
+{% set haproxy_ssl_path = haproxy_ssl_cert_path + "/haproxy_" + (haproxy_host | default(ansible_facts['hostname'])) + "-" + ((haproxy_bind_internal_lb_vip_interface is truthy) | ternary(haproxy_bind_internal_lb_vip_address ~ '-' ~ haproxy_bind_internal_lb_vip_interface, haproxy_bind_internal_lb_vip_address)) + ".pem" %}
 listen stats
     bind {{ haproxy_stats_bind_address }}:{{ haproxy_stats_port }} {% if haproxy_stats_ssl | bool %}ssl crt {{ haproxy_stats_ssl_cert_path | default(haproxy_ssl_path) }} {% if haproxy_stats_ssl_client_cert_ca is defined %}verify required ca-file {{ haproxy_stats_ssl_client_cert_ca }}{% endif %}{% endif %}
 
