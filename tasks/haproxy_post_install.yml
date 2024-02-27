@@ -77,7 +77,7 @@
     path: "{{ haproxy_log_mount_point }}"
     access_time: preserve
     modification_time: preserve
-    mode: "0755"
+    mode: "0666"
 
 - name: Make log socket available to chrooted filesystem
   mount:
