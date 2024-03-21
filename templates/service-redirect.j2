@@ -24,9 +24,9 @@ frontend {{ service.haproxy_service_name }}-http-front-{{ loop.index }}
 {% if request_option == "http" %}
     option httplog
     option forwardfor except 127.0.0.0/8
-{% if service.haproxy_http_keepalive_mode is defined %}
+{%   if service.haproxy_http_keepalive_mode is defined %}
     option {{ service.haproxy_http_keepalive_mode }}
-{% endif %}
+{%   endif %}
 {% elif request_option == "tcp" %}
     option tcplog
 {% endif %}
@@ -62,9 +62,9 @@ frontend {{ service.haproxy_service_name }}-https-front-{{ loop.index }}
 {% if request_option == "http" %}
     option httplog
     option forwardfor except 127.0.0.0/8
-{% if service.haproxy_http_keepalive_mode is defined %}
+{%   if service.haproxy_http_keepalive_mode is defined %}
     option {{ service.haproxy_http_keepalive_mode }}
-{% endif %}
+{%   endif %}
 {% elif request_option == "tcp" %}
     option tcplog
 {% endif %}
