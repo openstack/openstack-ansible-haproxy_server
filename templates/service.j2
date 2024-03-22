@@ -19,203 +19,203 @@
 {% endif %}
 
 {% if not service.haproxy_backend_only | default(false) %}
-{% for vip_bind in vip_binds %}
-{%   if vip_bind is not string and vip_bind is mapping %}
-{%     set vip_address = vip_bind['address'] %}
-{%     set vip_interface = vip_bind['interface'] | default('') %}
-{%   else %}
-{%     set vip_address = vip_bind %}
-{%     set vip_interface = '' %}
-{%   endif %}
-{% if service.haproxy_redirect_http_port is defined and service.haproxy_ssl %}
-{% if (loop.index == 1 or service.haproxy_ssl_all_vips | default(false) | bool) %}
+{%   for vip_bind in vip_binds %}
+{%     if vip_bind is not string and vip_bind is mapping %}
+{%       set vip_address = vip_bind['address'] %}
+{%       set vip_interface = vip_bind['interface'] | default('') %}
+{%     else %}
+{%       set vip_address = vip_bind %}
+{%       set vip_interface = '' %}
+{%     endif %}
+{%     if service.haproxy_redirect_http_port is defined and service.haproxy_ssl %}
+{%       if (loop.index == 1 or service.haproxy_ssl_all_vips | default(false) | bool) %}
 
 frontend {{ service.haproxy_service_name }}-redirect-front-{{ loop.index }}
 bind {{ vip_address }}:{{ service.haproxy_redirect_http_port }}{{ (vip_interface is truthy) | ternary(' interface ' ~ vip_interface, '') }}
     mode http
     redirect scheme {{ service.haproxy_redirect_scheme  | default('https if !{ ssl_fc }') }}
-{% if service.haproxy_frontend_acls is defined %}
-{%   for key, value in service.haproxy_frontend_acls.items() %}
+{%         if service.haproxy_frontend_acls is defined %}
+{%           for key, value in service.haproxy_frontend_acls.items() %}
     acl {{ key }} {{ value.rule }}
     use_backend {{ value.backend_name | default(service.haproxy_service_name) }}-back if {{ key }}
-{%   endfor %}
-{% for entry in haproxy_frontend_redirect_extra_raw %}
+{%           endfor %}
+{%           for entry in haproxy_frontend_redirect_extra_raw %}
     {{ entry }}
-{% endfor %}
-{% endif %}
-{% endif %}
-{% endif %}
+{%           endfor %}
+{%         endif %}
+{%       endif %}
+{%     endif %}
 
-{# service-redirect.j2 allows frontend to handle both HTTP and HTTPS connections. #}
-{# This is especially useful during HTTP->HTTPS service endpoint transition. #}
-{% if service.haproxy_accept_both_protocols | default(false) %}
-{% include 'service-redirect.j2' %}
-{% else %}
-{% set haproxy_ssl_path=haproxy_ssl_cert_path + "/haproxy_" + (haproxy_host | default(ansible_facts['hostname'])) + "-" + ((vip_interface is truthy) | ternary(vip_address ~ '-' ~ vip_interface, vip_address)) + ".pem" %}
+{#     service-redirect.j2 allows frontend to handle both HTTP and HTTPS connections. #}
+{#     This is especially useful during HTTP->HTTPS service endpoint transition. #}
+{%     if service.haproxy_accept_both_protocols | default(false) %}
+{%       include 'service-redirect.j2' %}
+{%     else %}
+{%       set haproxy_ssl_path=haproxy_ssl_cert_path + "/haproxy_" + (haproxy_host | default(ansible_facts['hostname'])) + "-" + ((vip_interface is truthy) | ternary(vip_address ~ '-' ~ vip_interface, vip_address)) + ".pem" %}
 frontend {{ service.haproxy_service_name }}-front-{{ loop.index }}
     bind {{ vip_address }}:{{ service.haproxy_port }}{{ (vip_interface is truthy) | ternary(' interface ' ~ vip_interface, '') }} {% if (service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}ssl crt {{ service.haproxy_ssl_path | default(haproxy_ssl_path) }}{% if service.haproxy_frontend_h2 | default(haproxy_frontend_h2) and request_option == "http" %} alpn h2,http/1.1{% endif %}{% endif %}
 
-{% if request_option == "http" %}
+{%       if request_option == "http" %}
     option httplog
     option forwardfor except 127.0.0.0/8
-{% if service.haproxy_http_keepalive_mode is defined %}
+{%         if service.haproxy_http_keepalive_mode is defined %}
     option {{ service.haproxy_http_keepalive_mode }}
-{% endif %}
-{% elif request_option == "tcp" %}
+{%         endif %}
+{%       elif request_option == "tcp" %}
     option tcplog
-{% endif %}
-{% if service.haproxy_timeout_client is defined %}
+{%       endif %}
+{%       if service.haproxy_timeout_client is defined %}
     timeout client {{ service.haproxy_timeout_client }}
-{% endif %}
-{% if service.haproxy_allowlist_networks is defined %}
+{%       endif %}
+{%       if service.haproxy_allowlist_networks is defined %}
     acl allow_list src 127.0.0.1/8 {{ service.haproxy_allowlist_networks | join(' ') }}
     tcp-request content accept if allow_list
     tcp-request content reject
-{% endif %}
-{% if service.haproxy_acls is defined %}
-{%   for key, value in service.haproxy_acls.items() %}
+{%       endif %}
+{%       if service.haproxy_acls is defined %}
+{%         for key, value in service.haproxy_acls.items() %}
     acl {{ key }} {{ value.rule }}
-{%     if not service.haproxy_frontend_only | default(false) %}
+{%           if not service.haproxy_frontend_only | default(false) %}
     use_backend {{ value.backend_name | default(service.haproxy_service_name) }}-back if {{ key }}
+{%           endif %}
+{%         endfor %}
+{%       endif %}
+{%       for entry in service.haproxy_maps | default([])  %}
+    {{ entry }}
+{%       endfor %}
+{%       if (service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}
+    http-request add-header X-Forwarded-Proto https
+{%       endif %}
+    mode {{ service.haproxy_balance_type }}
+{%       if (not service.haproxy_frontend_only | default(false)) or ((service.haproxy_default_backend is defined) and (service.haproxy_default_backend | length > 0)) %}
+    default_backend {{ service.haproxy_default_backend | default(service.haproxy_service_name) }}-back
+{%       endif %}
+{%       for entry in (service.haproxy_frontend_raw|default([])) + haproxy_frontend_extra_raw %}
+    {{ entry }}
+{%       endfor %}
 {%     endif %}
 {%   endfor %}
 {% endif %}
-{% for entry in service.haproxy_maps | default([])  %}
-    {{ entry }}
-{% endfor %}
-{% if (service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}
-    http-request add-header X-Forwarded-Proto https
-{% endif %}
-    mode {{ service.haproxy_balance_type }}
-{% if (not service.haproxy_frontend_only | default(false)) or ((service.haproxy_default_backend is defined) and (service.haproxy_default_backend | length > 0)) %}
-    default_backend {{ service.haproxy_default_backend | default(service.haproxy_service_name) }}-back
-{% endif %}
-{% for entry in (service.haproxy_frontend_raw|default([])) + haproxy_frontend_extra_raw %}
-    {{ entry }}
-{% endfor %}
-{% endif %}
-{% endfor %}
-{% endif %}
 
 {% if not service.haproxy_frontend_only | default(false) %}
-{% set backend_options = service.haproxy_backend_options|default([]) %}
-{% set backend_arguments = service.haproxy_backend_arguments|default([]) %}
+{%   set backend_options = service.haproxy_backend_options|default([]) %}
+{%   set backend_arguments = service.haproxy_backend_arguments|default([]) %}
 
 backend {{ service.haproxy_service_name }}-back
     mode {{ service.haproxy_balance_type }}
     balance {{ service.haproxy_balance_alg|default("leastconn") }}
-{% if service.haproxy_timeout_server is defined %}
+{%   if service.haproxy_timeout_server is defined %}
     timeout server {{ service.haproxy_timeout_server }}
-{% endif %}
-{% if (service.haproxy_stick_table_enabled | default(true) | bool) %}
-{%   set stick_table = service.haproxy_stick_table|default( haproxy_stick_table | default([])) %}
-{%   for entry in stick_table %}
+{%   endif %}
+{%   if (service.haproxy_stick_table_enabled | default(true) | bool) %}
+{%     set stick_table = service.haproxy_stick_table|default( haproxy_stick_table | default([])) %}
+{%     for entry in stick_table %}
     {{ entry }}
-{%   endfor %}
-{% endif %}
-{% if request_option == "http" %}
+{%     endfor %}
+{%   endif %}
+{%   if request_option == "http" %}
     option forwardfor
-{% endif %}
-{% for option in backend_options %}
+{%   endif %}
+{%   for option in backend_options %}
     option {{ option }}
-{% endfor %}
-{% for argument in backend_arguments %}
+{%   endfor %}
+{%   for argument in backend_arguments %}
     {{ argument }}
-{% endfor %}
-{% set backend_httpcheck_options = service.haproxy_backend_httpcheck_options|default([]) %}
-{% if backend_httpcheck_options %}
+{%   endfor %}
+{%   set backend_httpcheck_options = service.haproxy_backend_httpcheck_options|default([]) %}
+{%   if backend_httpcheck_options %}
     option httpchk
-{% for option in backend_httpcheck_options %}
+{%     for option in backend_httpcheck_options %}
     http-check {{ option }}
-{% endfor %}
-{% endif %}
+{%     endfor %}
+{%   endif %}
 
 
-{% for host_name in service.haproxy_backend_nodes %}
-{% if hostvars[host_name] is defined %}
-{%   set ip_addr = hostvars[host_name]['ansible_host'] %}
-{% endif %}
-{% set entry = [] %}
-{% set _ = entry.append("server") %}
-{% set _ = entry.append((host_name.name | default(host_name)) | string) %}
-{% set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + (host_name.backend_port | default(haproxy_backend_port)) | string) %}
-{% set _ = entry.append("check") %}
-{% set _ = entry.append("port") %}
-{% set _ = entry.append(host_name.backend_port | default(haproxy_check_port) | string) %}
-{% set _ = entry.append("inter") %}
-{% set _ = entry.append(service.interval|default(haproxy_interval) | string) %}
-{% set _ = entry.append("rise") %}
-{% set _ = entry.append(service.backend_rise|default(haproxy_rise | string)) %}
-{% set _ = entry.append("fall") %}
-{% set _ = entry.append(service.backend_fall|default(haproxy_fall | string)) %}
-{% if service.haproxy_backend_ssl | default(False) %}
-{% set _ = entry.append("ssl") %}
-{% if service.haproxy_backend_ssl_check | default(service.haproxy_backend_ssl) %}
-{% set _ = entry.append("check-ssl") %}
-{% endif %}
-{% if service.haproxy_backend_ca | default(False) %}
-{% set _ = entry.append("ca-file") %}
-{% set _ = entry.append(service.haproxy_backend_ca is string | ternary(service.haproxy_backend_ca, haproxy_system_ca)) %}
-{% else %}
-{% set _ = entry.append("verify none") %}
-{% endif %}
-{% if service.haproxy_backend_h2 | default(haproxy_backend_h2) and request_option == "http" %}
-{% set _ = entry.append("alpn h2,http/1.1") %}
-{% endif %}
-{% else %}
-{% if service.haproxy_backend_h2 | default(haproxy_backend_h2) and request_option == "http" %}
-{% set _ = entry.append("proto h2") %}
-{% endif %}
-{% endif %}
-{% set backend_server_options = service.haproxy_backend_server_options|default([]) %}
-{% for option in backend_server_options %}
-{%  set _ = entry.append(option) %}
-{% endfor %}
-{% set backend_per_server_options = host_name.backend_server_options|default([]) %}
-{% for option in backend_per_server_options %}
-{%  set _ = entry.append(option) %}
-{% endfor %}
+{%   for host_name in service.haproxy_backend_nodes %}
+{%     if hostvars[host_name] is defined %}
+{%       set ip_addr = hostvars[host_name]['ansible_host'] %}
+{%     endif %}
+{%     set entry = [] %}
+{%     set _ = entry.append("server") %}
+{%     set _ = entry.append((host_name.name | default(host_name)) | string) %}
+{%     set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + (host_name.backend_port | default(haproxy_backend_port)) | string) %}
+{%     set _ = entry.append("check") %}
+{%     set _ = entry.append("port") %}
+{%     set _ = entry.append(host_name.backend_port | default(haproxy_check_port) | string) %}
+{%     set _ = entry.append("inter") %}
+{%     set _ = entry.append(service.interval | default(haproxy_interval) | string) %}
+{%     set _ = entry.append("rise") %}
+{%     set _ = entry.append(service.backend_rise | default(haproxy_rise | string)) %}
+{%     set _ = entry.append("fall") %}
+{%     set _ = entry.append(service.backend_fall | default(haproxy_fall | string)) %}
+{%     if service.haproxy_backend_ssl | default(False) %}
+{%       set _ = entry.append("ssl") %}
+{%       if service.haproxy_backend_ssl_check | default(service.haproxy_backend_ssl) %}
+{%         set _ = entry.append("check-ssl") %}
+{%       endif %}
+{%       if service.haproxy_backend_ca | default(False) %}
+{%         set _ = entry.append("ca-file") %}
+{%         set _ = entry.append(service.haproxy_backend_ca is string | ternary(service.haproxy_backend_ca, haproxy_system_ca)) %}
+{%       else %}
+{%         set _ = entry.append("verify none") %}
+{%       endif %}
+{%       if service.haproxy_backend_h2 | default(haproxy_backend_h2) and request_option == "http" %}
+{%         set _ = entry.append("alpn h2,http/1.1") %}
+{%       endif %}
+{%     else %}
+{%       if service.haproxy_backend_h2 | default(haproxy_backend_h2) and request_option == "http" %}
+{%         set _ = entry.append("proto h2") %}
+{%       endif %}
+{%     endif %}
+{%     set backend_server_options = service.haproxy_backend_server_options|default([]) %}
+{%     for option in backend_server_options %}
+{%       set _ = entry.append(option) %}
+{%     endfor %}
+{%     set backend_per_server_options = host_name.backend_server_options|default([]) %}
+{%     for option in backend_per_server_options %}
+{%       set _ = entry.append(option) %}
+{%     endfor %}
     {{ entry | join(' ') }}
-{% endfor %}
+{%   endfor %}
 
-{% for host_name in service.haproxy_backup_nodes|default([]) %}
-{% if hostvars[host_name] is defined %}
-{%   set ip_addr = hostvars[host_name]['ansible_host'] %}
-{% endif %}
-{% set entry = [] %}
-{% set _ = entry.append("server") %}
-{% set _ = entry.append((host_name.name | default(host_name)) | string) %}
-{% set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + haproxy_backend_port | string) %}
-{% set _ = entry.append("check") %}
-{% set _ = entry.append("port") %}
-{% set _ = entry.append(haproxy_check_port | string) %}
-{% set _ = entry.append("inter") %}
-{% set _ = entry.append(haproxy_interval | string) %}
-{% set _ = entry.append("rise") %}
-{% set _ = entry.append(service.backup_rise|default(haproxy_rise | string)) %}
-{% set _ = entry.append("fall") %}
-{% set _ = entry.append(service.backup_fall|default(haproxy_fall | string)) %}
-{% set _ = entry.append("backup") %}
-{% if service.haproxy_backend_ssl | default(False) %}
-{% set _ = entry.append("ssl") %}
-{% if service.haproxy_backend_ssl_check | default(service.haproxy_backend_ssl) %}
-{% set _ = entry.append("check-ssl") %}
-{% endif %}
-{% if service.haproxy_backend_ca | default(False) %}
-{% set _ = entry.append("ca-file") %}
-{% set _ = entry.append(service.haproxy_backend_ca is string | ternary(service.haproxy_backend_ca, haproxy_system_ca)) %}
-{% else %}
-{% set _ = entry.append("verify none") %}
-{% endif %}
-{% endif %}
-{% set backend_server_options = service.haproxy_backend_server_options|default([]) %}
-{% for option in backend_server_options %}
-{%  set _ = entry.append(option) %}
-{% endfor %}
-{% set backend_per_server_options = host_name.backend_server_options|default([]) %}
-{% for option in backend_per_server_options %}
-{%  set _ = entry.append(option) %}
-{% endfor %}
+{%   for host_name in service.haproxy_backup_nodes|default([]) %}
+{%     if hostvars[host_name] is defined %}
+{%       set ip_addr = hostvars[host_name]['ansible_host'] %}
+{%     endif %}
+{%     set entry = [] %}
+{%     set _ = entry.append("server") %}
+{%     set _ = entry.append((host_name.name | default(host_name)) | string) %}
+{%     set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + haproxy_backend_port | string) %}
+{%     set _ = entry.append("check") %}
+{%     set _ = entry.append("port") %}
+{%     set _ = entry.append(haproxy_check_port | string) %}
+{%     set _ = entry.append("inter") %}
+{%     set _ = entry.append(haproxy_interval | string) %}
+{%     set _ = entry.append("rise") %}
+{%     set _ = entry.append(service.backup_rise|default(haproxy_rise | string)) %}
+{%     set _ = entry.append("fall") %}
+{%     set _ = entry.append(service.backup_fall|default(haproxy_fall | string)) %}
+{%     set _ = entry.append("backup") %}
+{%     if service.haproxy_backend_ssl | default(False) %}
+{%       set _ = entry.append("ssl") %}
+{%       if service.haproxy_backend_ssl_check | default(service.haproxy_backend_ssl) %}
+{%         set _ = entry.append("check-ssl") %}
+{%       endif %}
+{%       if service.haproxy_backend_ca | default(False) %}
+{%         set _ = entry.append("ca-file") %}
+{%         set _ = entry.append(service.haproxy_backend_ca is string | ternary(service.haproxy_backend_ca, haproxy_system_ca)) %}
+{%       else %}
+{%         set _ = entry.append("verify none") %}
+{%       endif %}
+{%     endif %}
+{%     set backend_server_options = service.haproxy_backend_server_options|default([]) %}
+{%     for option in backend_server_options %}
+{%       set _ = entry.append(option) %}
+{%     endfor %}
+{%     set backend_per_server_options = host_name.backend_server_options|default([]) %}
+{%     for option in backend_per_server_options %}
+{%       set _ = entry.append(option) %}
+{%     endfor %}
     {{ entry | join(' ') }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
