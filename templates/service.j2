@@ -132,22 +132,23 @@ backend {{ service.haproxy_service_name }}-back
 
 
 {%   for host_name in service.haproxy_backend_nodes %}
-{%     if hostvars[host_name] is defined %}
-{%       set ip_addr = hostvars[host_name]['ansible_host'] %}
-{%     endif %}
+{%     set __ip_addr = host_name.ip_addr | default(hostvars[host_name]['ansible_host']) %}
+{%     set __host_name = host_name.name | default(host_name) | string %}
+{%     set __backend_port = host_name.backend_port | default(haproxy_backend_port) | string %}
+{%     set __check_port = host_name.check_port | default(haproxy_check_port) | string %}
 {%     set entry = [] %}
 {%     set _ = entry.append("server") %}
-{%     set _ = entry.append((host_name.name | default(host_name)) | string) %}
-{%     set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + (host_name.backend_port | default(haproxy_backend_port)) | string) %}
+{%     set _ = entry.append(__host_name) %}
+{%     set _ = entry.append(__ip_addr + ":" + __backend_port) %}
 {%     set _ = entry.append("check") %}
 {%     set _ = entry.append("port") %}
-{%     set _ = entry.append(host_name.backend_port | default(haproxy_check_port) | string) %}
+{%     set _ = entry.append(__check_port) %}
 {%     set _ = entry.append("inter") %}
 {%     set _ = entry.append(service.interval | default(haproxy_interval) | string) %}
 {%     set _ = entry.append("rise") %}
-{%     set _ = entry.append(service.backend_rise | default(haproxy_rise | string)) %}
+{%     set _ = entry.append(service.backend_rise | default(haproxy_rise) | string) %}
 {%     set _ = entry.append("fall") %}
-{%     set _ = entry.append(service.backend_fall | default(haproxy_fall | string)) %}
+{%     set _ = entry.append(service.backend_fall | default(haproxy_fall) | string) %}
 {%     if service.haproxy_backend_ssl | default(False) %}
 {%       set _ = entry.append("ssl") %}
 {%       if service.haproxy_backend_ssl_check | default(service.haproxy_backend_ssl) %}
@@ -178,23 +179,24 @@ backend {{ service.haproxy_service_name }}-back
     {{ entry | join(' ') }}
 {%   endfor %}
 
-{%   for host_name in service.haproxy_backup_nodes|default([]) %}
-{%     if hostvars[host_name] is defined %}
-{%       set ip_addr = hostvars[host_name]['ansible_host'] %}
-{%     endif %}
+{%   for host_name in service.haproxy_backup_nodes | default([]) %}
+{%     set __ip_addr = host_name.ip_addr | default(hostvars[host_name]['ansible_host']) %}
+{%     set __host_name = host_name.name | default(host_name) | string %}
+{%     set __backend_port = host_name.backend_port | default(haproxy_backend_port) | string %}
+{%     set __check_port = host_name.check_port | default(haproxy_check_port) | string %}
 {%     set entry = [] %}
 {%     set _ = entry.append("server") %}
-{%     set _ = entry.append((host_name.name | default(host_name)) | string) %}
-{%     set _ = entry.append((host_name.ip_addr | default(ip_addr)) + ":" + haproxy_backend_port | string) %}
+{%     set _ = entry.append(__host_name) %}
+{%     set _ = entry.append(__ip_addr + ":" + __backend_port) %}
 {%     set _ = entry.append("check") %}
 {%     set _ = entry.append("port") %}
-{%     set _ = entry.append(haproxy_check_port | string) %}
+{%     set _ = entry.append(__check_port) %}
 {%     set _ = entry.append("inter") %}
-{%     set _ = entry.append(haproxy_interval | string) %}
+{%     set _ = entry.append(service.interval | default(haproxy_interval) | string) %}
 {%     set _ = entry.append("rise") %}
-{%     set _ = entry.append(service.backup_rise|default(haproxy_rise | string)) %}
+{%     set _ = entry.append(service.backup_rise | default(haproxy_rise) | string) %}
 {%     set _ = entry.append("fall") %}
-{%     set _ = entry.append(service.backup_fall|default(haproxy_fall | string)) %}
+{%     set _ = entry.append(service.backup_fall | default(haproxy_fall) | string) %}
 {%     set _ = entry.append("backup") %}
 {%     if service.haproxy_backend_ssl | default(False) %}
 {%       set _ = entry.append("ssl") %}
