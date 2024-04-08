@@ -206,6 +206,9 @@ haproxy_pki_intermediate_cert_path: >-
 haproxy_pki_regen_cert: ''
 haproxy_pki_certificates: "{{ _haproxy_pki_certificates }}"
 
+# SSL certificate creation
+haproxy_pki_create_certificates: "{{ haproxy_user_ssl_cert is not defined and haproxy_user_ssl_key is not defined }}"
+
 # Installation details for SSL certificates
 haproxy_pki_install_certificates: "{{ _haproxy_pki_install_certificates }}"
 
