@@ -61,7 +61,11 @@
 - name: Create new pem file for haproxy
   assemble:
     src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_ssl_letsencrypt_domains | first }}"
-    dest: "{{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item  ~ '.pem' }}"
+    dest: >-
+      {{
+        haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (haproxy_bind_external_lb_vip_interface is truthy) | ternary(
+          item ~ '-' ~ haproxy_bind_external_lb_vip_interface, item)  ~ '.pem'
+      }}
     regexp: '(privkey|fullchain).pem$'
     owner: haproxy
     group: haproxy
