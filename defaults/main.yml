@@ -260,7 +260,6 @@ haproxy_maxconn: 4096
 
 # Parameters below should only be specified if necessary, defaults are programmed in the template
 # haproxy_tuning_params:
-#   nbproc: 1
 #   tune.bufsize: 384000
 #   tune.chksize: 16384
 #   tune.comp_maxlevel: 1
