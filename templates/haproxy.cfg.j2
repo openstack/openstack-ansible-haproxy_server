@@ -49,7 +49,6 @@ listen stats
 {% endif %}
     mode http
 {% if haproxy_stats_prometheus_enabled | bool %}
-    option http-use-htx
     http-request use-service prometheus-exporter if { path /metrics }
 {% endif %}
     stats enable
