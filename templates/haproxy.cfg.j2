@@ -11,9 +11,6 @@ global
         {{ key }} {{ value }}
 {% endfor %}
         stats socket /var/run/haproxy.stat level admin mode 600
-{% if haproxy_stats_process is defined %}
-        stats bind-process {{ haproxy_stats_process }}
-{% endif %}
         {% if haproxy_ssl | bool %}
         ssl-default-bind-options {{ haproxy_ssl_bind_options }}
         ssl-default-server-options {{ haproxy_ssl_server_options }}
@@ -44,9 +41,6 @@ defaults
 listen stats
     bind {{ haproxy_stats_bind_address }}:{{ haproxy_stats_port }} {% if haproxy_stats_ssl | bool %}ssl crt {{ haproxy_stats_ssl_cert_path | default(haproxy_ssl_path) }} {% if haproxy_stats_ssl_client_cert_ca is defined %}verify required ca-file {{ haproxy_stats_ssl_client_cert_ca }}{% endif %}{% endif %}
 
-{% if haproxy_stats_process is defined %}
-    bind-process {{ haproxy_stats_process }}
-{% endif %}
     mode http
 {% if haproxy_stats_prometheus_enabled | bool %}
     http-request use-service prometheus-exporter if { path /metrics }

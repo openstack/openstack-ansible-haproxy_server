@@ -39,9 +39,6 @@ haproxy_stats_refresh_interval: 60
 # Prometheus stats are supported from HAProxy v2
 # Stats must be enabled above before this can be used
 haproxy_stats_prometheus_enabled: False
-# Pin stats gathering to one or more processes when using 'nbproc' tuning
-# For permitted options see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#3.1-stats%20bind-process
-# haproxy_stats_process: all
 
 # Default haproxy backup nodes to empty list so this doesn't have to be
 # defined for each service.
