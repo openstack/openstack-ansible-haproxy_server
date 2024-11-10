@@ -15,7 +15,7 @@
 {% if service.haproxy_bind is defined %}
 {%   set vip_binds = service.haproxy_bind %}
 {% else %}
-{%   set vip_binds = haproxy_tls_vip_binds + extra_lb_vip_addresses %}
+{%   set vip_binds = haproxy_vip_binds + extra_lb_vip_addresses %}
 {% endif %}
 
 {% if not service.haproxy_backend_only | default(false) %}

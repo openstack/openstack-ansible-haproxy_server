@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-_haproxy_tls_vip_binds: |
+_haproxy_vip_binds: |
   {% set vip_binds = [{'address': haproxy_bind_external_lb_vip_address, 'interface': haproxy_bind_external_lb_vip_interface}] %}
   {% if haproxy_bind_internal_lb_vip_address != haproxy_bind_external_lb_vip_address or
       haproxy_bind_external_lb_vip_interface != haproxy_bind_internal_lb_vip_interface %}
@@ -26,7 +26,7 @@ _haproxy_tls_vip_binds: |
 
 _haproxy_pki_certificates: |
   {% set _pki_certs = [] %}
-  {% for vip in haproxy_tls_vip_binds %}
+  {% for vip in haproxy_vip_binds %}
   {%   set _vip_interface = vip['interface'] | default('') %}
   {%   set san = ['DNS:' ~ ansible_facts['hostname'], 'DNS:' ~ ansible_facts['fqdn']] %}
   {%   if vip['address'] != '*' %}
@@ -55,7 +55,7 @@ _haproxy_pki_certificates: |
 
 _haproxy_pki_install_certificates: |
   {% set _pki_install = [] %}
-  {% for vip in haproxy_tls_vip_binds %}
+  {% for vip in haproxy_vip_binds %}
   {% set _vip_interface = vip['interface'] | default('') %}
   {% set _cert_basename = '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (_vip_interface is truthy) | ternary(
       vip['address'] ~ '-' ~ _vip_interface, vip['address'])
