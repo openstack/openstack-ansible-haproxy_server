@@ -27,26 +27,26 @@ _haproxy_tls_vip_binds: |
 _haproxy_pki_certificates: |
   {% set _pki_certs = [] %}
   {% for vip in haproxy_tls_vip_binds %}
-  {% set _vip_interface = vip['interface'] | default('') %}
-  {% set san = 'DNS:' ~ ansible_facts['hostname'] ~  ',DNS:' ~ ansible_facts['fqdn'] %}
-  {% if vip['address'] != '*' %}
-  {%   set san = san ~ (vip['address'] | ansible.utils.ipaddr) | ternary(',IP:', ',DNS:') ~ vip['address'] %}
-  {% endif %}
-  {% if vip['address'] == haproxy_bind_internal_lb_vip_address %}
-  {%   set san = san ~ (internal_lb_vip_address | ansible.utils.ipaddr) | ternary('', ',DNS:' ~ internal_lb_vip_address) %}
-  {% endif %}
-  {% if vip['address'] == haproxy_bind_external_lb_vip_address %}
-  {%   set san = san ~ (external_lb_vip_address | ansible.utils.ipaddr) | ternary('', ',DNS:' ~ external_lb_vip_address) %}
-  {% endif %}
-  {% set _ = _pki_certs.append(
-      {
-        'name': 'haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (_vip_interface is truthy) | ternary(vip['address'] ~ '-' ~ _vip_interface, vip['address']),
-        'provider': 'ownca',
-        'cn': ansible_facts['hostname'],
-        'san': san,
-        'signed_by': haproxy_pki_intermediate_cert_name,
-      }
-    ) %}
+  {%   set _vip_interface = vip['interface'] | default('') %}
+  {%   set san = ['DNS:' ~ ansible_facts['hostname'], 'DNS:' ~ ansible_facts['fqdn']] %}
+  {%   if vip['address'] != '*' %}
+  {%     set _ = san.append((vip['address'] | ansible.utils.ipaddr) | ternary('IP:', 'DNS:') ~ vip['address']) %}
+  {%   endif %}
+  {%   if vip['address'] == haproxy_bind_internal_lb_vip_address and not (internal_lb_vip_address | ansible.utils.ipaddr) %}
+  {%     set _ = san.append('DNS:' ~ internal_lb_vip_address) %}
+  {%   endif %}
+  {%   if vip['address'] == haproxy_bind_external_lb_vip_address and not (external_lb_vip_address | ansible.utils.ipaddr) %}
+  {%     set _ = san.append('DNS:' ~ external_lb_vip_address) %}
+  {%   endif %}
+  {%   set _ = _pki_certs.append(
+        {
+          'name': 'haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (_vip_interface is truthy) | ternary(vip['address'] ~ '-' ~ _vip_interface, vip['address']),
+          'provider': 'ownca',
+          'cn': ansible_facts['hostname'],
+          'san': san | join(','),
+          'signed_by': haproxy_pki_intermediate_cert_name,
+        }
+      ) %}
   {% endfor %}
   {{ _pki_certs }}
 
