@@ -28,8 +28,10 @@ _haproxy_pki_certificates: |
   {% set _pki_certs = [] %}
   {% for vip in haproxy_tls_vip_binds %}
   {% set _vip_interface = vip['interface'] | default('') %}
-  {% set san = 'DNS:' ~ ansible_facts['hostname'] ~  ',DNS:' ~ ansible_facts['fqdn'] ~ ',' ~ (
-                vip['address'] | ansible.utils.ipaddr) | ternary('IP:', 'DNS:') ~ vip['address'] %}
+  {% set san = 'DNS:' ~ ansible_facts['hostname'] ~  ',DNS:' ~ ansible_facts['fqdn'] %}
+  {% if vip['address'] != '*' %}
+  {%   set san = san ~ (vip['address'] | ansible.utils.ipaddr) | ternary(',IP:', ',DNS:') ~ vip['address'] %}
+  {% endif %}
   {% if vip['address'] == haproxy_bind_internal_lb_vip_address %}
   {%   set san = san ~ (internal_lb_vip_address | ansible.utils.ipaddr) | ternary('', ',DNS:' ~ internal_lb_vip_address) %}
   {% endif %}
