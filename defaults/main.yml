@@ -291,7 +291,8 @@ haproxy_bind_internal_lb_vip_interface:
 #   - address: '*'
 #     interface: bond0
 #   - address: '192.168.0.10'
-
+#     pki_san_records:
+#       - internal.cloud
 haproxy_tls_vip_binds: "{{ _haproxy_tls_vip_binds }}"
 
 # Make the log socket available to the chrooted filesystem
