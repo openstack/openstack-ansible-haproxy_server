@@ -53,7 +53,7 @@ bind {{ vip_address }}:{{ service.haproxy_redirect_http_port }}{{ (vip_interface
 {%     else %}
 {%       set haproxy_ssl_path=haproxy_ssl_cert_path + "/haproxy_" + (haproxy_host | default(ansible_facts['hostname'])) + "-" + ((vip_interface is truthy) | ternary(vip_address ~ '-' ~ vip_interface, vip_address)) + ".pem" %}
 frontend {{ service.haproxy_service_name }}-front-{{ loop.index }}
-    bind {{ vip_address }}:{{ service.haproxy_port }}{{ (vip_interface is truthy) | ternary(' interface ' ~ vip_interface, '') }} {% if (service.haproxy_ssl | default(false) | bool) and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}ssl crt {{ service.haproxy_ssl_path | default(haproxy_ssl_path) }}{% if service.haproxy_frontend_h2 | default(haproxy_frontend_h2) and request_option == "http" %} alpn h2,http/1.1{% endif %}{% endif %}
+    bind {{ vip_address }}:{{ service.haproxy_port }}{{ (vip_interface is truthy) | ternary(' interface ' ~ vip_interface, '') }} {% if (service.haproxy_ssl | default(false) | bool) and (request_option == "http") and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}ssl crt {{ service.haproxy_ssl_path | default(haproxy_ssl_path) }}{% if service.haproxy_frontend_h2 | default(haproxy_frontend_h2) %} alpn h2,http/1.1{% endif %}{% endif %}
 
 {%       if request_option == "http" %}
     option httplog
@@ -86,7 +86,7 @@ frontend {{ service.haproxy_service_name }}-front-{{ loop.index }}
 {%       if (service.haproxy_ssl | default(false) | bool) and request_option == 'http' and (loop.index == 1 or vip_address in extra_lb_tls_vip_addresses or (service.haproxy_ssl_all_vips | default(false) | bool and vip_address not in extra_lb_vip_addresses)) %}
     http-request add-header X-Forwarded-Proto https
 {%       endif %}
-    mode {{ service.haproxy_balance_type }}
+    mode {{ request_option }}
 {%       if (not service.haproxy_frontend_only | default(false)) or ((service.haproxy_default_backend is defined) and (service.haproxy_default_backend | length > 0)) %}
     default_backend {{ service.haproxy_default_backend | default(service.haproxy_service_name) }}-back
 {%       endif %}
@@ -102,7 +102,7 @@ frontend {{ service.haproxy_service_name }}-front-{{ loop.index }}
 {%   set backend_arguments = service.haproxy_backend_arguments|default([]) %}
 
 backend {{ service.haproxy_service_name }}-back
-    mode {{ service.haproxy_balance_type }}
+    mode {{ request_option }}
     balance {{ service.haproxy_balance_alg|default("leastconn") }}
 {%   if service.haproxy_timeout_server is defined %}
     timeout server {{ service.haproxy_timeout_server }}
