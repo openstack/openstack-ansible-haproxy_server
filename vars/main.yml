@@ -14,13 +14,13 @@
 # limitations under the License.
 
 _haproxy_vip_binds: |
-  {% set vip_binds = [{'address': haproxy_bind_external_lb_vip_address, 'interface': haproxy_bind_external_lb_vip_interface}] %}
+  {% set vip_binds = [{'address': haproxy_bind_external_lb_vip_address, 'interface': haproxy_bind_external_lb_vip_interface, 'type': 'external'}] %}
   {% if haproxy_bind_internal_lb_vip_address != haproxy_bind_external_lb_vip_address or
       haproxy_bind_external_lb_vip_interface != haproxy_bind_internal_lb_vip_interface %}
-  {%   set _ = vip_binds.append({'address': haproxy_bind_internal_lb_vip_address, 'interface': haproxy_bind_internal_lb_vip_interface}) %}
+  {%   set _ = vip_binds.append({'address': haproxy_bind_internal_lb_vip_address, 'interface': haproxy_bind_internal_lb_vip_interface, 'type': 'internal'}) %}
   {% endif %}
   {% for vip_address in extra_lb_tls_vip_addresses %}
-  {%   set _ = vip_binds.append({'address': vip_address}) %}
+  {%   set _ = vip_binds.append({'address': vip_address, 'type': 'external'}) %}
   {% endfor %}
   {{ vip_binds }}
 

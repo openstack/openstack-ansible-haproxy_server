@@ -63,14 +63,14 @@
     src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_ssl_letsencrypt_domains | first }}"
     dest: >-
       {{
-        haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (haproxy_bind_external_lb_vip_interface is truthy) | ternary(
-          item ~ '-' ~ haproxy_bind_external_lb_vip_interface, item)  ~ '.pem'
+        haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (item.get('interface')) | ternary(
+          item.get('address') ~ '-' ~ item['interface'], item['address'])  ~ '.pem'
       }}
     regexp: '(privkey|fullchain).pem$'
     owner: haproxy
     group: haproxy
     mode: "0640"
   with_items:
-    - "{{ [haproxy_bind_external_lb_vip_address] + extra_lb_tls_vip_addresses }}"
+    - "{{ haproxy_vip_binds | selectattr('type', 'defined') |  selectattr('type', 'eq', 'external') }}"
   notify:
     - Reload haproxy

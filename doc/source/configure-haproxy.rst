@@ -222,35 +222,21 @@ Each HAProxy instance will be checking for certbot running on its own
 node plus each of the others, and direct any incoming acme-challenge
 requests to the HAProxy instance which is performing a renewal.
 
+Domains which will be covered by Let's Encrypt certificate are defined
+with ``haproxy_ssl_letsencrypt_domains`` variable, which can be set to
+a list. By default certificate will be issued only for
+``external_lb_vip_address``.
+
+Another important aspect is defining a list of frontends, for which
+issued certificate will be used.
+By default, it is goind to be used only for VIPs with type ``external``.
+You can control and define type by overriding a variable ``haproxy_vip_binds``.
+
 It is necessary to configure certbot to bind to the HAproxy node local
 internal IP address via the haproxy_ssl_letsencrypt_certbot_bind_address
 variable in a H/A setup.
 
-Using Certificates from LetsEncrypt (legacy method)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-If you want to use `LetsEncrypt SSL Service <https://letsencrypt.org/>`_
-you can activate the feature by providing the following configuration in
-``/etc/openstack_deploy/user_variables.yml``. Note that this requires
-that ``external_lb_vip_address`` in
-``/etc/openstack_deploy/openstack_user_config.yml`` is set to the
-external DNS address.
-
-.. code-block:: yaml
-
-   haproxy_ssl_letsencrypt_enable: true
-   haproxy_ssl_letsencrypt_email: example@example.com
-
-.. warning::
-
-   There is no certificate distribution implementation at this time, so
-   this will only work for a single haproxy-server environment.  The
-   renewal is automatically handled via CRON and currently will shut
-   down haproxy briefly during the certificate renewal.  The
-   haproxy shutdown/restart will result in a brief service interruption.
-
-.. _Securing services with SSL certificates: https://docs.openstack.org/project-deploy-guide/openstack-ansible/draft/app-advanced-config-sslcertificates.html
+.. _Securing services with SSL certificates: https://docs.openstack.org/openstack-ansible/latest/user/security/index.html
 
 Configuring additional services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

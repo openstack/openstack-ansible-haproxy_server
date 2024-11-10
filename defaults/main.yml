@@ -290,6 +290,7 @@ haproxy_bind_internal_lb_vip_interface:
 # haproxy_vip_binds:
 #   - address: '*'
 #     interface: bond0
+#     type: external
 #   - address: '192.168.0.10'
 #     pki_san_records:
 #       - internal.cloud
