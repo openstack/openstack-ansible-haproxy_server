@@ -328,3 +328,5 @@ haproxy_static_files_default:
     condition: "{{ haproxy_security_txt_content is truthy }}"
 haproxy_static_files_extra: []
 haproxy_static_files: "{{ haproxy_static_files_default + haproxy_static_files_extra }}"
+
+haproxy_sysctl_file: "{{ openstack_sysctl_file | default('/etc/sysctl.conf') }}"

@@ -18,6 +18,7 @@
     name: "{{ item }}"
     value: 1
     sysctl_set: true
+    sysctl_file: "{{ haproxy_sysctl_file }}"
     state: present
   when: haproxy_bind_on_non_local | bool
   with_items:
