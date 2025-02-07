@@ -64,13 +64,13 @@
     dest: >-
       {{
         haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (item.get('interface')) | ternary(
-          item.get('address') ~ '-' ~ item['interface'], item['address'])  ~ '.pem'
+          item.get('address') ~ '-' ~ item.get('interface'), item['address'])  ~ '.pem'
       }}
     regexp: '(privkey|fullchain).pem$'
     owner: haproxy
     group: haproxy
     mode: "0640"
   with_items:
-    - "{{ haproxy_vip_binds | selectattr('type', 'defined') |  selectattr('type', 'eq', 'external') }}"
+    - "{{ haproxy_vip_binds | selectattr('type', 'defined') | selectattr('type', 'eq', 'external') }}"
   notify:
     - Reload haproxy
