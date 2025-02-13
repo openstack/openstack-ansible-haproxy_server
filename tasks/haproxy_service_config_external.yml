@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Gather variables for each operating system
-  include_vars: "{{ lookup('first_found', params) }}"
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
     params:
       files:
@@ -27,7 +27,7 @@
         - "{{ role_path }}/vars"
 
 - name: Including haproxy_service_config tasks
-  include_tasks: haproxy_service_config.yml
+  ansible.builtin.include_tasks: haproxy_service_config.yml
   args:
     apply:
       tags:

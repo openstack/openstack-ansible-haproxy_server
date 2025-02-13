@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Make haproxy bindable on non local addresses
-  sysctl:
+  ansible.posix.sysctl:
     name: "{{ item }}"
     value: 1
     sysctl_set: true
@@ -30,7 +30,7 @@
 # to handle log collection and log file rotation. This is not needed since
 # journald is used for this purpose
 - name: Delete rsyslog and logrotate configs
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   with_items:
@@ -42,7 +42,7 @@
     - haproxy-logging-config
 
 - name: Drop base haproxy config
-  template:
+  ansible.builtin.template:
     src: "haproxy.cfg.j2"
     dest: "/etc/haproxy/conf.d/00-haproxy"
     mode: "0640"
@@ -53,7 +53,7 @@
     - haproxy-base-config
 
 - name: Including haproxy_service_config tasks
-  include_tasks: haproxy_service_config.yml
+  ansible.builtin.include_tasks: haproxy_service_config.yml
   args:
     apply:
       tags:
@@ -62,7 +62,7 @@
     - haproxy-service-config
 
 - name: Create log directory if it does not exist
-  file:
+  ansible.builtin.file:
     path: "{{ haproxy_log_mount_point | dirname }}"
     state: directory
     mode: "0755"
@@ -72,7 +72,7 @@
 # NOTE(jrosser) The next task fails on Centos without this,
 # an empty directory rather than a file is made and the bind mount fails
 - name: Ensure empty file is availble to bind mount log socket
-  file:
+  ansible.builtin.file:
     state: touch
     path: "{{ haproxy_log_mount_point }}"
     access_time: preserve
@@ -80,7 +80,7 @@
     mode: "0666"
 
 - name: Make log socket available to chrooted filesystem
-  mount:
+  ansible.posix.mount:
     src: "{{ haproxy_log_socket }}"
     path: "{{ haproxy_log_mount_point }}"
     opts: bind
@@ -88,7 +88,7 @@
     fstype: none
 
 - name: Prevent SELinux from preventing haproxy from binding to arbitrary ports
-  seboolean:
+  ansible.posix.seboolean:
     name: haproxy_connect_any
     state: true
     persistent: true

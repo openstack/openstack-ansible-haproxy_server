@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Regen pem # noqa: no-changed-when
-  shell: >-
+  ansible.builtin.shell: >-
     cat {{ item_base_path ~ '.crt' }} $(test -f {{ item_base_path  ~ '-ca.crt' }} &&
     echo {{ item_base_path  ~ '-ca.crt' }}) {{ item_base_path  ~ '.key' }} > {{ item_base_path  ~ '.pem' }}
   vars:
@@ -28,7 +28,7 @@
 - name: Regenerate maps
   vars:
     all_changed_results: "{{ (map_create.results + map_delete.results) | select('changed') }}"
-  assemble:
+  ansible.builtin.assemble:
     src: "/etc/haproxy/map.conf.d/{{ item }}"
     dest: "/etc/haproxy/{{ item }}.map"
     mode: "0640"
@@ -37,7 +37,7 @@
   with_items: "{{ all_changed_results | map(attribute='item') | flatten | selectattr('name', 'defined') | map(attribute='name') | unique }}"
 
 - name: Regenerate haproxy configuration
-  assemble:
+  ansible.builtin.assemble:
     src: "/etc/haproxy/conf.d"
     dest: "/etc/haproxy/haproxy.cfg"
     validate: /usr/sbin/haproxy -c -f %s
@@ -48,12 +48,12 @@
     - haproxy-general-config
 
 - name: Get package facts
-  package_facts:
+  ansible.builtin.package_facts:
     manager: auto
   listen: Restart rsyslog
 
 - name: Restart rsyslog
-  service:
+  ansible.builtin.service:
     name: "rsyslog"
     state: "restarted"
     enabled: true
@@ -62,7 +62,7 @@
     - "'rsyslog' in ansible_facts.packages"
 
 - name: Reload haproxy
-  service:
+  ansible.builtin.service:
     name: "haproxy"
     state: "reloaded"
     enabled: true

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Install HAProxy Packages
-  package:
+  ansible.builtin.package:
     name: "{{ haproxy_distro_packages }}"
     state: "{{ haproxy_package_state }}"
     update_cache: "{{ (ansible_facts['pkg_mgr'] == 'apt') | ternary('yes', omit) }}"
@@ -27,13 +27,13 @@
 - name: Install HATop Utility
   block:
     - name: Ensure haproxy_hatop_download_path exists on haproxy
-      file:
+      ansible.builtin.file:
         path: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
         state: directory
         mode: "0755"
 
     - name: Download hatop package
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ haproxy_hatop_download_url }}"
         dest: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
         validate_certs: "{{ haproxy_hatop_download_validate_certs }}"
@@ -45,7 +45,7 @@
       delay: 10
 
     - name: Unarchive HATop
-      unarchive:
+      ansible.builtin.unarchive:
         src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
         dest: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
         remote_src: true
@@ -53,7 +53,7 @@
           - --strip-components=1
 
     - name: Copy HATop binary
-      copy:
+      ansible.builtin.copy:
         src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}/bin/hatop"
         dest: /usr/local/bin/hatop
         mode: "0755"

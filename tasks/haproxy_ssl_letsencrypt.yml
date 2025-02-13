@@ -12,13 +12,13 @@
 # limitations under the License.
 
 - name: Install certbot from distro package
-  package:
+  ansible.builtin.package:
     name: "{{ haproxy_distro_certbot_packages }}"
     state: present
 
 - name: Create first time ssl cert with certbot
   throttle: 1
-  shell: >
+  ansible.builtin.shell: >
     {% if haproxy_ssl_letsencrypt_certbot_challenge == 'http-01' %}
     timeout {{ haproxy_ssl_letsencrypt_pre_hook_timeout }}
     python3 -m http.server {{ haproxy_ssl_letsencrypt_certbot_backend_port }}
@@ -45,7 +45,7 @@
 
 # Certbot automatically installs its systemd timer responsible for renewals
 - name: Create certbot pre hook
-  template:
+  ansible.builtin.template:
     src: letsencrypt_pre_hook_certbot_distro.j2
     dest: /etc/letsencrypt/renewal-hooks/pre/haproxy-pre
     mode: "0755"
@@ -53,13 +53,13 @@
     - haproxy_ssl_letsencrypt_certbot_challenge == 'http-01'
 
 - name: Create certbot post renewal hook
-  template:
+  ansible.builtin.template:
     src: letsencrypt_renew_certbot_distro.j2
     dest: /etc/letsencrypt/renewal-hooks/post/haproxy-renew
     mode: "0755"
 
 - name: Create new pem file for haproxy
-  assemble:
+  ansible.builtin.assemble:
     src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_ssl_letsencrypt_domains | first }}"
     dest: >-
       {{

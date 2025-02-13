@@ -19,7 +19,7 @@
 #  log aggregation links as well as ensure common user
 #  functionality across various distros that we support.
 - name: Create the haproxy system group
-  group:
+  ansible.builtin.group:
     name: "haproxy"
     state: "present"
     system: "yes"
@@ -32,7 +32,7 @@
 #  log aggregation links as well as ensure common user
 #  functionality across various distros that we support.
 - name: Create the haproxy system user
-  user:
+  ansible.builtin.user:
     name: "haproxy"
     group: "haproxy"
     comment: "haproxy user"
@@ -44,7 +44,7 @@
     - haproxy-user
 
 - name: Create haproxy conf.d dir
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: "0755"
@@ -55,7 +55,7 @@
     - "{{ haproxy_ssl_cert_path }}"
 
 - name: Copy static files
-  copy:
+  ansible.builtin.copy:
     content: "{{ item.content }}"
     dest: "{{ item.dest }}"
     mode: "0644"
