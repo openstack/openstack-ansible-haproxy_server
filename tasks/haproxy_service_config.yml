@@ -35,8 +35,8 @@
     owner: root
     group: haproxy
     mode: "0640"
-# NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-# with haproxy_service_configs in 2024.1.
+  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
+  # with haproxy_service_configs in 2024.1.
   loop: "{{ _haproxy_service_configs_simplified }}"
   loop_control:
     loop_var: service
@@ -55,14 +55,13 @@
     path: "/etc/haproxy/conf.d/{{ service.haproxy_service_name }}"
     state: absent
   notify: Regenerate haproxy configuration
-# NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-# with haproxy_service_configs in 2024.1.
+  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
+  # with haproxy_service_configs in 2024.1.
   loop: "{{ _haproxy_service_configs_simplified }}"
   loop_control:
     loop_var: service
   when:
-    - ((service.haproxy_service_enabled | default('True')) | bool) is falsy or
-      (service.state is defined and service.state == 'absent')
+    - ((service.haproxy_service_enabled | default('True')) | bool) is falsy or (service.state is defined and service.state == 'absent')
 
 ###########################################################################
 # Map files assembled from fragments from each service into <map-name>.map
@@ -75,8 +74,8 @@
     owner: root
     group: haproxy
     mode: "0750"
-# NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-# with haproxy_service_configs in 2024.1.
+  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
+  # with haproxy_service_configs in 2024.1.
   loop: >-
     {{
       _haproxy_service_configs_simplified | selectattr('haproxy_map_entries', 'defined') | map(attribute='haproxy_map_entries') | flatten |
@@ -93,8 +92,8 @@
     owner: root
     group: haproxy
     mode: "0640"
-# NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-# with haproxy_service_configs in 2024.1.
+  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
+  # with haproxy_service_configs in 2024.1.
   with_subelements:
     - "{{ _haproxy_service_configs_simplified | selectattr('haproxy_map_entries', 'defined') }}"
     - haproxy_map_entries
@@ -113,8 +112,8 @@
     - (item.0.haproxy_service_enabled | default('True')) | bool is falsy or
       (item.0.state is defined and item.0.state == 'absent') or
       (item.1.state | default('present') == 'absent')
-# NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-# with haproxy_service_configs in 2024.1.
+  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
+  # with haproxy_service_configs in 2024.1.
   with_subelements:
     - "{{ _haproxy_service_configs_simplified | selectattr('haproxy_map_entries', 'defined') }}"
     - haproxy_map_entries

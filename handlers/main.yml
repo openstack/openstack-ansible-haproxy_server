@@ -56,8 +56,8 @@
   service:
     name: "rsyslog"
     state: "restarted"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   when:
     - "'rsyslog' in ansible_facts.packages"
 
@@ -65,8 +65,8 @@
   service:
     name: "haproxy"
     state: "reloaded"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   listen:
     - Regen pem
     - Regenerate maps

@@ -15,7 +15,7 @@
 
 # Validate Certificates when downloading hatop. May be set to "no" when proxy server
 # is intercepting the certificates.
-haproxy_hatop_download_validate_certs: yes
+haproxy_hatop_download_validate_certs: true
 
 # Set the package install state for distribution packages
 # Options are 'present' and 'latest'
@@ -27,7 +27,7 @@ haproxy_fall: 3
 haproxy_interval: 12000
 
 ## Haproxy Stats
-haproxy_stats_enabled: False
+haproxy_stats_enabled: false
 haproxy_stats_bind_address: 127.0.0.1
 haproxy_stats_port: 1936
 haproxy_stats_ssl: "{{ haproxy_ssl }}"
@@ -38,7 +38,7 @@ haproxy_stats_password: secrete
 haproxy_stats_refresh_interval: 60
 # Prometheus stats are supported from HAProxy v2
 # Stats must be enabled above before this can be used
-haproxy_stats_prometheus_enabled: False
+haproxy_stats_prometheus_enabled: false
 
 # Default haproxy backup nodes to empty list so this doesn't have to be
 # defined for each service.
@@ -51,8 +51,8 @@ haproxy_frontend_redirect_extra_raw: "{{ haproxy_frontend_extra_raw }}"
 # Default values for enabling HTTP/2 support
 # Note, that while HTTP/2 will be enabled on frontends that are covered with TLS,
 # backends can be configured to use HTTP/2 regardless of TLS.
-haproxy_frontend_h2: True
-haproxy_backend_h2: False
+haproxy_frontend_h2: true
+haproxy_backend_h2: false
 
 haproxy_service_configs: []
 # Example:
@@ -134,7 +134,7 @@ haproxy_service_configs: []
 #    /api/bar 40
 
 galera_monitoring_user: monitoring
-haproxy_bind_on_non_local: False
+haproxy_bind_on_non_local: false
 
 ## haproxy SSL
 haproxy_ssl: true
@@ -159,7 +159,7 @@ haproxy_pki_setup_host: "{{ openstack_pki_setup_host | default('localhost') }}"
 
 # Create a certificate authority if one does not already exist
 haproxy_pki_create_ca: "{{ openstack_pki_authorities is not defined | bool }}"
-haproxy_pki_regen_ca: ''
+haproxy_pki_regen_ca: ""
 haproxy_pki_authorities:
   - name: "HAProxyRoot"
     country: "GB"
@@ -200,7 +200,7 @@ haproxy_pki_certs_path: "{{ haproxy_pki_dir ~ '/certs/certs/' }}"
 haproxy_pki_intermediate_cert_name: "{{ openstack_pki_service_intermediate_cert_name | default('HAProxyIntermediate') }}"
 haproxy_pki_intermediate_cert_path: >-
   {{ haproxy_pki_dir ~ '/roots/' ~ haproxy_pki_intermediate_cert_name ~ '/certs/' ~ haproxy_pki_intermediate_cert_name ~ '.crt' }}
-haproxy_pki_regen_cert: ''
+haproxy_pki_regen_cert: ""
 haproxy_pki_certificates: "{{ _haproxy_pki_certificates }}"
 
 # SSL certificate creation
@@ -211,7 +211,7 @@ haproxy_pki_install_certificates: "{{ _haproxy_pki_install_certificates }}"
 
 # activate letsencrypt option
 haproxy_ssl_letsencrypt_enable: false
-haproxy_ssl_letsencrypt_certbot_binary: 'certbot'
+haproxy_ssl_letsencrypt_certbot_binary: "certbot"
 haproxy_ssl_letsencrypt_certbot_backend_port: 8888
 haproxy_ssl_letsencrypt_pre_hook_timeout: 5
 haproxy_ssl_letsencrypt_certbot_bind_address: "{{ ansible_host }}"
@@ -252,8 +252,7 @@ haproxy_server_timeout: "50s"
 # Set the HTTP keepalive mode to use
 # Disable persistent connections by default because they can cause issues when the server side closes the connection
 # at the same time a request is sent.
-haproxy_keepalive_mode: 'httpclose'
-
+haproxy_keepalive_mode: "httpclose"
 
 ## haproxy tuning params
 haproxy_maxconn: 4096
@@ -318,7 +317,7 @@ haproxy_security_txt_headers: |
   Connection: close
   Content-Type: text/plain; charset=utf-8
 
-haproxy_security_txt_content: ''
+haproxy_security_txt_content: ""
 # haproxy_security_txt_content: |
 #   # Please see https://securitytxt.org/ for details of the specification of this file
 

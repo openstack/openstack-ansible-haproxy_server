@@ -48,7 +48,7 @@
       unarchive:
         src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename }}"
         dest: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}"
-        remote_src: yes
+        remote_src: true
         extra_opts:
           - --strip-components=1
 
@@ -57,5 +57,5 @@
         src: "{{ haproxy_hatop_download_path }}/{{ haproxy_hatop_download_url | basename | replace('.tar.gz', '') }}/bin/hatop"
         dest: /usr/local/bin/hatop
         mode: "0755"
-        remote_src: yes
+        remote_src: true
   when: haproxy_hatop_install | bool

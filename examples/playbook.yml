@@ -18,4 +18,4 @@
           - "httpchk"
           - "httplog"
         haproxy_backend_arguments:
-          - 'http-check expect string OK'
+          - "http-check expect string OK"

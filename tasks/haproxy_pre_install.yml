@@ -64,4 +64,4 @@
   when:
     - (item.condition | default(True))
   loop: "{{ haproxy_static_files }}"
-  no_log: True
+  no_log: true
