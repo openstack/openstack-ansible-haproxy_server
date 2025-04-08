@@ -330,3 +330,32 @@ haproxy_static_files_extra: []
 haproxy_static_files: "{{ haproxy_static_files_default + haproxy_static_files_extra }}"
 
 haproxy_sysctl_file: "{{ openstack_sysctl_file | default('/etc/sysctl.conf') }}"
+
+# Allows to define custom errorfiles in the format:
+# - code: 504
+#   path: /path/to/504.http
+# You can use haproxy_static_files_extra to add those files.
+# See https://github.com/haproxy/haproxy/tree/master/examples/errorfiles for examples
+#
+# An example combination of haproxy_static_files_extra and haproxy_errorfiles:
+# haproxy_static_files_extra:
+#   - dest: /etc/haproxy/500.http
+#     content: |
+#       HTTP/1.0 500 Internal Server Error
+#       Cache-Control: no-cache
+#       Connection: close
+#       Content-Type: text/html
+#
+#       <html><body><h1>500 Internal Server Error</h1>
+#       This Server Made a Boo Boo
+#       </body></html>
+#   - dest: /etc/haproxy/504.http
+#     content: "{{ lookup('file', '/etc/openstack_deploy/haproxy/504.http') }}"
+#
+# haproxy_errorfiles:
+#   - code: 500
+#     path: /etc/haproxy/500.http
+#   - code: 504
+#     path: /etc/haproxy/504.http
+#
+haproxy_errorfiles: []

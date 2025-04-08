@@ -36,6 +36,9 @@ defaults
         timeout http-request {{ haproxy_http_request_timeout }}
         timeout server {{ haproxy_server_timeout }}
         maxconn {{ haproxy_maxconn }}
+{% for value in haproxy_errorfiles %}
+        errorfile {{ value.code }} {{ value.path }}
+{% endfor %}
 {% if haproxy_stats_enabled | bool %}
 {% set haproxy_ssl_path = haproxy_ssl_cert_path + "/haproxy_" + (haproxy_host | default(ansible_facts['hostname'])) + "-" + ((haproxy_bind_internal_lb_vip_interface is truthy) | ternary(haproxy_bind_internal_lb_vip_address ~ '-' ~ haproxy_bind_internal_lb_vip_interface, haproxy_bind_internal_lb_vip_address)) + ".pem" %}
 listen stats
