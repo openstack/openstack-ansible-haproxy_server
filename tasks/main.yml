@@ -48,6 +48,7 @@
         - haproxy_server-config
         - pki
   vars:
+    pki_backend: "{{ haproxy_pki_backend }}"
     pki_setup_host: "{{ haproxy_pki_setup_host }}"
     pki_dir: "{{ haproxy_pki_dir }}"
     pki_create_ca: "{{ haproxy_pki_create_ca }}"
@@ -79,7 +80,7 @@
   when:
     - haproxy_ssl | bool
     - haproxy_ssl_letsencrypt_enable | bool
-    - haproxy_user_ssl_cert is not defined or haproxy_user_ssl_key is not defined
+    - haproxy_user_ssl_cert | length == 0 or haproxy_user_ssl_key | length == 0
   args:
     apply:
       tags:

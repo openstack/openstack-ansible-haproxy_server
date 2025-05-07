@@ -168,26 +168,28 @@ haproxy_pki_authorities:
     organization_name: "Example Corporation"
     organizational_unit_name: "IT Security"
     cn: "HAProxy Root CA"
-    provider: selfsigned
-    basic_constraints: "CA:TRUE"
     key_usage:
       - digitalSignature
       - cRLSign
       - keyCertSign
-    not_after: "+3650d"
+    ttl: "3650d"
+    # standalone backend only
+    provider: selfsigned
+    basic_constraints: "CA:TRUE"
   - name: "HAProxyIntermediate"
     country: "GB"
     state_or_province_name: "England"
     organization_name: "Example Corporation"
     organizational_unit_name: "IT Security"
     cn: "HAProxy Intermediate CA"
-    provider: ownca
-    basic_constraints: "CA:TRUE,pathlen:0"
     key_usage:
       - digitalSignature
       - cRLSign
       - keyCertSign
-    not_after: "+3650d"
+    ttl: "3650d"
+    # standalone backend only
+    provider: ownca
+    basic_constraints: "CA:TRUE,pathlen:0"
     signed_by: "HAProxyRoot"
 
 # Installation details for certificate authorities
@@ -202,10 +204,15 @@ haproxy_pki_intermediate_cert_name: "{{ openstack_pki_service_intermediate_cert_
 haproxy_pki_intermediate_cert_path: >-
   {{ haproxy_pki_dir ~ '/roots/' ~ haproxy_pki_intermediate_cert_name ~ '/certs/' ~ haproxy_pki_intermediate_cert_name ~ '.crt' }}
 haproxy_pki_regen_cert: ""
+haproxy_pki_backend: "{{ openstack_pki_backend | default('standalone') }}"
 haproxy_pki_certificates: "{{ _haproxy_pki_certificates }}"
 
+haproxy_user_ssl_cert: ""
+haproxy_user_ssl_key: ""
+haproxy_user_ssl_ca_cert: ""
+
 # SSL certificate creation
-haproxy_pki_create_certificates: "{{ haproxy_user_ssl_cert is not defined and haproxy_user_ssl_key is not defined }}"
+haproxy_pki_create_certificates: "{{ haproxy_user_ssl_cert | length == 0 and haproxy_user_ssl_key | length == 0 }}"
 
 # Installation details for SSL certificates
 haproxy_pki_install_certificates: "{{ _haproxy_pki_install_certificates }}"
