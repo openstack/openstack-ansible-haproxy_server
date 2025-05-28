@@ -63,7 +63,7 @@ _haproxy_pki_install_certificates: |
   {% set _ = _pki_install.append(
       {
         'src': haproxy_user_ssl_cert | default(haproxy_pki_certs_path ~ _cert_basename ~ '.crt'),
-        'dest': haproxy_ssl_cert_path ~ _cert_basename  ~ '.crt',
+        'dest': haproxy_ssl_temp_path ~ _cert_basename  ~ '.crt',
         'owner': 'root',
         'group': 'root',
         'mode': '0644'
@@ -73,7 +73,7 @@ _haproxy_pki_install_certificates: |
   {% set _ = _pki_install.append(
       {
         'src': haproxy_user_ssl_key | default(haproxy_pki_keys_path ~ _cert_basename ~ '.key.pem'),
-        'dest': haproxy_ssl_cert_path ~ _cert_basename  ~ '.key',
+        'dest': haproxy_ssl_temp_path ~ _cert_basename  ~ '.key',
         'owner': 'root',
         'group': 'root',
         'mode': '0644'
@@ -85,7 +85,7 @@ _haproxy_pki_install_certificates: |
   {%   set _ = _pki_install.append(
         {
           'src': haproxy_user_ssl_ca_cert | default(haproxy_pki_intermediate_cert_path),
-          'dest': haproxy_ssl_cert_path ~ _cert_basename  ~ '-ca.crt',
+          'dest': haproxy_ssl_temp_path ~ _cert_basename  ~ '-ca.crt',
           'owner': 'root',
           'group': 'root',
           'mode': '0644'

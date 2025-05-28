@@ -53,6 +53,32 @@
   with_items:
     - /etc/haproxy/conf.d
     - "{{ haproxy_ssl_cert_path }}"
+    - "{{ haproxy_ssl_temp_path }}"
+
+- name: Cleanup haproxy_ssl_cert_path if temp_path is used
+  when: "haproxy_ssl_cert_path != haproxy_ssl_temp_path"
+  block:
+    - name: Find crt and key files in the cert_path
+      ansible.builtin.find:
+        paths: "{{ haproxy_ssl_cert_path }}"
+        patterns: '*.crt,*.key'
+      register: old_certs
+
+    - name: Copy cert files to the temp_path
+      vars:
+        filename: "{{ item | basename }}"
+      ansible.builtin.copy:
+        remote_src: true
+        src: "{{ item }}"
+        dest: "{{ [haproxy_ssl_temp_path, filename] | path_join }}"
+        mode: "0644"
+      loop: "{{ old_certs['files'] | map(attribute='path') }}"
+
+    - name: Remove file from the old place
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop: "{{ old_certs['files'] | map(attribute='path') }}"
 
 - name: Copy static files
   ansible.builtin.copy:

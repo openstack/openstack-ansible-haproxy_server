@@ -16,11 +16,12 @@
 - name: Regen pem # noqa: no-changed-when
   ansible.builtin.shell: >-
     cat {{ item_base_path ~ '.crt' }} $(test -f {{ item_base_path  ~ '-ca.crt' }} &&
-    echo {{ item_base_path  ~ '-ca.crt' }}) {{ item_base_path  ~ '.key' }} > {{ item_base_path  ~ '.pem' }}
+    echo {{ item_base_path  ~ '-ca.crt' }}) {{ item_base_path  ~ '.key' }} > {{ target_base_path  ~ '.pem' }}
   vars:
     item_interface: "{{ item['interface'] | default('') }}"
     item_name: "{{ ('interface' in item and item['interface'] is truthy) | ternary(item['address'] ~ '-' ~ item_interface, item['address']) }}"
-    item_base_path: "{{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item_name }}"
+    item_base_path: "{{ haproxy_ssl_temp_path  ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item_name }}"
+    target_base_path: "{{ haproxy_ssl_cert_path ~ '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ item_name }}"
   with_items: "{{ haproxy_vip_binds }}"
   listen:
     - haproxy cert installed

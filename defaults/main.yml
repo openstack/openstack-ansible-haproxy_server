@@ -141,6 +141,7 @@ haproxy_ssl: true
 haproxy_ssl_all_vips: false
 haproxy_ssl_dh_param: 2048
 haproxy_ssl_cert_path: /etc/haproxy/ssl
+haproxy_ssl_temp_path: "{{ haproxy_ssl_cert_path }}"
 haproxy_ssl_bind_options: "ssl-min-ver TLSv1.2 prefer-client-ciphers"
 haproxy_ssl_server_options: "ssl-min-ver TLSv1.2"
 # TLS v1.2 and below
