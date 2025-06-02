@@ -43,9 +43,9 @@ Making HAProxy highly-available
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If multiple hosts are found in the inventory, deploy
-HAProxy in a highly-available manner by installing keepalived.
+HAProxy in a highly-available manner by installing Keepalived.
 
-To make keepalived work, edit at least the following variables
+To make Keepalived work, edit at least the following variables
 in ``user_variables.yml``:
 
 .. code-block:: yaml
@@ -64,10 +64,10 @@ in ``user_variables.yml``:
   ``haproxy_keepalived_external_vip_cidr`` represent the internal and
   external (respectively) vips (with their prefix length).
 
-- Set additional variables to adapt keepalived in your deployment.
+- Set additional variables to adapt Keepalived in your deployment.
   Refer to the ``user_variables.yml`` for more descriptions.
 
-To always deploy (or upgrade to) the latest stable version of keepalived.
+To always deploy (or upgrade to) the latest stable version of Keepalived.
 Edit the ``/etc/openstack_deploy/user_variables.yml``:
 
 .. code-block:: yaml
@@ -75,9 +75,9 @@ Edit the ``/etc/openstack_deploy/user_variables.yml``:
    keepalived_use_latest_stable: True
 
 The HAProxy nodes have group vars applied that define the configuration
-of keepalived. This configuration is stored in
+of Keepalived. This configuration is stored in
 ``group_vars/haproxy_all/keepalived.yml``. It contains the variables
-needed for the keepalived role (master and backup nodes).
+needed for the Keepalived role (master and backup nodes).
 
 Keepalived pings a public and private IP address to check its status. The
 default address is ``193.0.14.129``. To change this default,
@@ -87,31 +87,29 @@ set the ``keepalived_external_ping_address`` and
 
 .. note::
 
-   The keepalived test works with IPv4 addresses only.
+   The Keepalived test works with IPv4 addresses only.
 
-You can adapt keepalived to your environment by either using our override
+You can adapt Keepalived to your environment by either using our override
 mechanisms (per host with userspace ``host_vars``, per group with
 userspace``group_vars``, or globally using the userspace
 ``user_variables.yml`` file)
 
-If you wish to deploy multiple haproxy hosts without keepalived and
+If you wish to deploy multiple HAProxy hosts without Keepalived and
 provide your own means for failover between them, edit
 ``/etc/openstack_deploy/user_variables.yml`` to skip the deployment
-of keepalived.
+of Keepalived.
 To do this, set the following:
 
 .. code-block:: yaml
 
    haproxy_use_keepalived: False
 
-
-
-Configuring keepalived ping checks
+Configuring Keepalived ping checks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-OpenStack-Ansible configures keepalived with a check script that pings an
+OpenStack-Ansible configures Keepalived with a check script that pings an
 external resource and uses that ping to determine if a node has lost network
-connectivity. If the pings fail, keepalived fails over to another node and
+connectivity. If the pings fail, Keepalived fails over to another node and
 HAProxy serves requests there.
 
 The destination address, ping count and ping interval are configurable via
@@ -124,13 +122,13 @@ Ansible variables in ``/etc/openstack_deploy/user_variables.yml``:
    keepalived_ping_count:              # ICMP packets to send (per interval)
    keepalived_ping_interval:           # How often ICMP packets are sent
 
-By default, OpenStack-Ansible configures keepalived to ping one of the root
+By default, OpenStack-Ansible configures Keepalived to ping one of the root
 DNS servers operated by RIPE. You can change this IP address to a different
 external address or another address on your internal network.
 
 If external connectivity fails, it is important that internal services can
 still access an HAProxy instance. In a situation, when ping to some external
-host fails and internal ping is not separated, all keepalived instances enter
+host fails and internal ping is not separated, all Keepalived instances enter
 the fault state despite internal connectivity being still available. Separate
 ping check for internal and external connectivity ensures that when one
 instance fails the other VIP remains in operation.
@@ -155,19 +153,19 @@ certificates and keys to use with HAProxy. User provided certificates should
 be folded and formatted at 64 characters long. Single line certificates
 will not be accepted by HAProxy and will result in SSL validation failures.
 Please have a look here for information on `converting your certificate to
-various formats <https://search.thawte.com/support/ssl-digital-certificates/index?page=content&actp=CROSSLINK&id=SO26449>`_.
+various formats <https://knowledge.digicert.com/solution/how-to-convert-a-certificate-into-the-appropriate-format>`_.
 
-Using Certificates from LetsEncrypt
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using Certificates from Let’s Encrypt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to use `LetsEncrypt SSL Service <https://letsencrypt.org/>`_
+If you want to use Let’s Encrypt <https://letsencrypt.org/>`_
 you can activate the feature by providing the following configuration in
 ``/etc/openstack_deploy/user_variables.yml``. Note that this requires
 that ``external_lb_vip_address`` in
 ``/etc/openstack_deploy/openstack_user_config.yml`` is set to the
 external DNS address.
 
-The following variables must be set for the haproxy hosts.
+The following variables must be set for the HAProxy hosts.
 
 .. code-block:: yaml
 
@@ -217,12 +215,12 @@ certificates are renewed.
 
 It is possible to use an HA configuration of HAProxy with certificates
 initialised and renewed using certbot by setting haproxy_backend_nodes
-for the LetsEncrypt service to include all HAProxy internal addresses.
+for the Let’s Encrypt service to include all HAProxy internal addresses.
 Each HAProxy instance will be checking for certbot running on its own
 node plus each of the others, and direct any incoming acme-challenge
 requests to the HAProxy instance which is performing a renewal.
 
-Domains which will be covered by Let's Encrypt certificate are defined
+Domains which will be covered by Let’s Encrypt certificate are defined
 with ``haproxy_ssl_letsencrypt_domains`` variable, which can be set to
 a list. By default certificate will be issued only for
 ``external_lb_vip_address``.
@@ -232,7 +230,7 @@ issued certificate will be used.
 By default, it is goind to be used only for VIPs with type ``external``.
 You can control and define type by overriding a variable ``haproxy_vip_binds``.
 
-It is necessary to configure certbot to bind to the HAproxy node local
+It is necessary to configure certbot to bind to the HAProxy node local
 internal IP address via the haproxy_ssl_letsencrypt_certbot_bind_address
 variable in a H/A setup.
 
@@ -241,7 +239,7 @@ variable in a H/A setup.
 Configuring additional services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Additional haproxy service entries can be configured by setting
+Additional HAProxy service entries can be configured by setting
 ``haproxy_extra_services`` in ``/etc/openstack_deploy/user_variables.yml``
 
 For more information on the service dict syntax, please reference
@@ -265,7 +263,7 @@ An example HTTP service could look like:
         # Or if certificate validation should be disabled
         # haproxy_backend_ca: False
 
-Additionally, you can specify haproxy services that are not managed
+Additionally, you can specify HAProxy services that are not managed
 in the Ansible inventory by manually specifying their hostnames/IP Addresses:
 
 .. code-block:: yaml
@@ -312,7 +310,7 @@ defined in the ``user_variables.yml`` file:
 Controlling HAProxy front-end binding
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Haproxy frontend can bind either to some specific IP (VIP) address or
+HAProxy frontend can bind either to some specific IP (VIP) address or
 ethernet interface. A variable which controls this behaviour is
 ``haproxy_vip_binds``. It is used for the service, unless ``haproxy_bind``
 is defined on the service level. In that case ``service.haproxy_bind``
@@ -328,14 +326,13 @@ variables, like
 Though you still can override ``haproxy_vip_binds`` to fine-control
 the binding process of HAProxy instance.
 
-
-Overriding the address haproxy will bind to
+Overriding the address HAProxy will bind to
 -------------------------------------------
 
-In some cases you may want to override the default of having haproxy
+In some cases you may want to override the default of having HAProxy
 bind to the addresses specified in ``external_lb_vip_address`` and
 ``internal_lb_vip_address``. For example if those are hostnames and you
-want haproxy to bind to IP addresses while preserving the names for TLS-
+want HAProxy to bind to IP addresses while preserving the names for TLS-
 certificates and endpoint URIs.
 
 This can be set in the ``user_variables.yml`` file:
@@ -345,10 +342,10 @@ This can be set in the ``user_variables.yml`` file:
    haproxy_bind_external_lb_vip_address: 10.0.0.10
    haproxy_bind_internal_lb_vip_address: 192.168.0.10
 
-Binding haproxy to interface
+Binding HAProxy to interface
 ----------------------------
 
-In some cases it might be more convenient to bind haproxy to the interface
+In some cases it might be more convenient to bind HAProxy to the interface
 rather then a specific IP address. For example, this is handy if you decide
 to balance load between HAProxy instances using DNS RR, where each HAProxy
 will have it's own VIP which will failover to others.
@@ -398,11 +395,11 @@ backend service does not require its own corresponding front-end, the
       - name: influxdb-service
         ip_addr: 10.100.10.10
 
-Adding prometheus metrics to haproxy
+Adding prometheus metrics to HAProxy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Since haproxy 2.0 it's possible to exposes prometheus metrics.
-https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint/
+Since HAProxy 2.0 it's possible to exposes prometheus metrics.
+https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint
 if you need to create a frontend for it you can use the `haproxy_frontend_only`
 option:
 
