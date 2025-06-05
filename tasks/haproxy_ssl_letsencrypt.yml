@@ -16,7 +16,23 @@
     name: "{{ haproxy_distro_certbot_packages }}"
     state: present
 
+- name: Check if certificate exists
+  community.crypto.x509_certificate_info:
+    path: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_ssl_letsencrypt_domains | first }}/fullchain.pem"
+  register: letsencrypt_certificate
+  ignore_errors: true
+
 - name: Create first time ssl cert with certbot
+  vars:
+    letsencrypt_certificate_domains_changed: >
+      {{
+        (letsencrypt_certificate is success) | ternary(
+          (letsencrypt_certificate.subject_alt_name | default([]) | map(
+            'regex_replace', '^(DNS|IP):(.*)$', '\2'
+          ) | sort | list) != (haproxy_ssl_letsencrypt_domains | sort | list),
+          true
+        )
+      }}
   throttle: 1
   ansible.builtin.shell: >
     {% if haproxy_ssl_letsencrypt_certbot_challenge == 'http-01' %}
@@ -31,6 +47,7 @@
     --rsa-key-size 4096
     --email {{ haproxy_ssl_letsencrypt_email }}
     --domains {{ haproxy_ssl_letsencrypt_domains | join(',') }}
+    --expand
     {% if haproxy_ssl_letsencrypt_certbot_server is defined %}
     --server {{ haproxy_ssl_letsencrypt_certbot_server }}
     {% endif %}
@@ -40,8 +57,9 @@
     --http-01-address {{ haproxy_ssl_letsencrypt_certbot_bind_address }}
     {% endif %}
     {{ haproxy_ssl_letsencrypt_setup_extra_params }}
-  args:
-    creates: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_ssl_letsencrypt_domains | first }}/fullchain.pem"
+  register: certbot_output
+  changed_when: "'Certificate not yet due for renewal; no action taken.' not in certbot_output.stdout_lines"
+  when: letsencrypt_certificate_domains_changed | bool
 
 # Certbot automatically installs its systemd timer responsible for renewals
 - name: Create certbot pre hook
