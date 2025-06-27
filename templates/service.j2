@@ -132,7 +132,7 @@ backend {{ service.haproxy_service_name }}-back
 
 
 {%   for host_name in service.haproxy_backend_nodes %}
-{%     set __ip_addr = host_name.ip_addr | default(hostvars[host_name]['ansible_host']) %}
+{%     set __ip_addr = host_name.ip_addr | default(hostvars[host_name]['management_address'] | default(hostvars[host_name]['ansible_host'])) %}
 {%     set __host_name = host_name.name | default(host_name) | string %}
 {%     set __backend_port = host_name.backend_port | default(haproxy_backend_port) | string %}
 {%     set __check_port = host_name.check_port | default(haproxy_check_port) | string %}
@@ -180,7 +180,7 @@ backend {{ service.haproxy_service_name }}-back
 {%   endfor %}
 
 {%   for host_name in service.haproxy_backup_nodes | default([]) %}
-{%     set __ip_addr = host_name.ip_addr | default(hostvars[host_name]['ansible_host']) %}
+{%     set __ip_addr = host_name.ip_addr | default(hostvars[host_name]['management_address'] | default(hostvars[host_name]['ansible_host'])) %}
 {%     set __host_name = host_name.name | default(host_name) | string %}
 {%     set __backend_port = host_name.backend_port | default(haproxy_backend_port) | string %}
 {%     set __check_port = host_name.check_port | default(haproxy_check_port) | string %}

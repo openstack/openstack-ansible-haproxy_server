@@ -215,7 +215,7 @@ haproxy_ssl_letsencrypt_enable: false
 haproxy_ssl_letsencrypt_certbot_binary: "certbot"
 haproxy_ssl_letsencrypt_certbot_backend_port: 8888
 haproxy_ssl_letsencrypt_pre_hook_timeout: 5
-haproxy_ssl_letsencrypt_certbot_bind_address: "{{ ansible_host }}"
+haproxy_ssl_letsencrypt_certbot_bind_address: "{{ management_address | default(ansible_host) }}"
 haproxy_ssl_letsencrypt_certbot_challenge: "http-01"
 haproxy_ssl_letsencrypt_email: "example@example.com"
 haproxy_ssl_letsencrypt_config_path: "/etc/letsencrypt/live"
