@@ -18,9 +18,7 @@ cache_timeout: 600
 
 haproxy_distro_packages:
   - haproxy
-  - "{{ (ansible_facts['distribution_release'] == 'bookworm' or
-         ansible_facts['distribution_release'] == 'noble')
-        | ternary('netcat-openbsd', 'netcat') }}" # Used for the Ansible haproxy module
+  - netcat-openbsd
   - psmisc
   - vim-haproxy
 
