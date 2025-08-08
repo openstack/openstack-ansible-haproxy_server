@@ -1,0 +1,12 @@
+---
+- name: Playbook for role testing
+  hosts: service_hosts
+  vars:
+    external_lb_vip_address: 127.0.0.1
+    internal_lb_vip_address: 127.0.0.1
+    haproxy_pki_setup_host: "{{ inventory_hostname }}"
+    haproxy_service_configs:
+      - haproxy_service_name: test_absent_service
+        state: absent
+  roles:
+    - "{{ playbook_dir | dirname | basename }}"

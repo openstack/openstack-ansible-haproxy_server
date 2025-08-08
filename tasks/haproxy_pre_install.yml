@@ -43,13 +43,13 @@
   tags:
     - haproxy-user
 
-- name: Create haproxy conf.d dir
+- name: Create haproxy config directories
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: "0755"
-    owner: haproxy
-    group: haproxy
+    owner: root
+    group: root
   with_items:
     - /etc/haproxy/conf.d
     - "{{ haproxy_ssl_cert_path }}"

@@ -1,0 +1,9 @@
+---
+- name: Testing result after role re-run
+  hosts: service_hosts
+  tasks:
+    - name: Ensure the absent service is present
+      ansible.builtin.stat:
+        path: "/etc/haproxy/conf.d/test_absent_service"
+      register: absent_services
+      failed_when: not absent_services.stat.exists
