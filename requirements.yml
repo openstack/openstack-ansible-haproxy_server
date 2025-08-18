@@ -1,0 +1,13 @@
+---
+roles:
+  - name: pki
+    src: https://opendev.org/openstack/ansible-role-pki
+    scm: git
+    version: master
+collections:
+  - name: community.crypto
+    source: https://github.com/ansible-collections/community.crypto
+    type: git
+  - name: ansible.utils
+    source: https://github.com/ansible-collections/ansible.utils
+    type: git

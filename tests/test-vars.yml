@@ -1,6 +1,7 @@
 ---
 external_lb_vip_address: 127.0.0.1
 internal_lb_vip_address: 127.0.0.1
+haproxy_pki_setup_host: "{{ inventory_hostname }}"
 haproxy_service_configs:
   - service:
       haproxy_service_name: test_group
@@ -38,4 +39,4 @@ haproxy_service_configs:
           ip_addr: "127.0.0.1"
       haproxy_port: 65535
       haproxy_balance_type: tcp
-      state: "{{ absent_service_state }}"
+      state: present

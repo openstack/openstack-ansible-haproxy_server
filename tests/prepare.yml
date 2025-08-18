@@ -1,0 +1,14 @@
+---
+- name: Prepare environment for testing
+  hosts: service_hosts
+  vars:
+    procps_package_name:
+      redhat: procps-ng
+      debian: procps
+  tasks:
+    - name: Install required packages
+      ansible.builtin.package:
+        name:
+          - python3-cryptography
+          - "{{ procps_package_name[ansible_facts['os_family'] | lower] }}"
+        update_cache: "{{ (ansible_facts['os_family'] | lower == 'debian') | ternary(true, omit) }}"
