@@ -15,7 +15,34 @@
 
 haproxy_distro_packages:
   - haproxy
-  - nc # Used for the Ansible haproxy module
+  - nc # Used for the Ansible HAProxy module
+
+haproxy_distro_certbot_packages:
+  - certbot
+  - python3-acme
+  - python3-certbot
+  - python3-configargparse
+  - python3-josepy
+  - python3-parsedatetime
+  - python3-pyOpenSSL
+  - python3-pyrfc3339
+  - python3-pytz
+
 
 # Set system CA store which can be used to verify backends
 haproxy_system_ca: /etc/pki/tls/certs/ca-bundle.crt
+
+haproxy_repos:
+  - name: epel-haproxy
+    baseurl: "{{ haproxy_epel_mirror ~ '/' ~ ansible_facts['distribution_major_version'] ~ '/Everything/' ~ ansible_facts['architecture'] }}"
+    description: "Extra Packages for Enterprise Linux $releasever - $basearch"
+    gpgkey: "file://{{ (haproxy_package_repos_keys | selectattr('name', 'eq', 'epel-10') | first).key }}"
+    gpgcheck: true
+    enabled: true
+    includepkgs: "{{ haproxy_distro_certbot_packages }}"
+    state: present
+
+haproxy_package_repos_keys:
+  - name: epel-10
+    key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-10
+    keyfile: gpg/E37ED158

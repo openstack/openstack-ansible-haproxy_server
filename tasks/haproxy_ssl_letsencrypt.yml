@@ -11,6 +11,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Import repository GPG keys for epel
+  ansible.builtin.rpm_key:
+    key: "{{ item.key }}"
+    state: present
+  loop: "{{ haproxy_package_repos_keys }}"
+  when: ansible_facts['os_family'] | lower == 'redhat'
+
+- name: Configure epel repository for certbot
+  ansible.builtin.yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    gpgkey: "{{ item.gpgkey }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+    enabled: "{{ item.enabled }}"
+    state: "{{ item.state }}"
+    includepkgs: "{{ item.includepkgs }}"
+  loop: "{{ haproxy_repos }}"
+  when: ansible_facts['os_family'] | lower == 'redhat'
+
 - name: Install certbot from distro package
   ansible.builtin.package:
     name: "{{ haproxy_distro_certbot_packages }}"
@@ -58,7 +78,7 @@
     dest: /etc/letsencrypt/renewal-hooks/post/haproxy-renew
     mode: "0755"
 
-- name: Create new pem file for haproxy
+- name: Create new pem file for HAProxy
   ansible.builtin.assemble:
     src: "{{ haproxy_ssl_letsencrypt_config_path }}/{{ haproxy_ssl_letsencrypt_domains | first }}"
     dest: >-
