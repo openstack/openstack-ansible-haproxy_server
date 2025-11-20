@@ -13,17 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# NOTE(damiandabrowski): Deprecated haproxy_service_configs format
-# conversion will be removed in 2024.1.
-- name: Define blank _haproxy_service_configs_simplified variable
-  ansible.builtin.set_fact:
-    _haproxy_service_configs_simplified: []
-
-- name: Append services to _haproxy_service_configs_simplified list
-  ansible.builtin.set_fact:
-    _haproxy_service_configs_simplified: "{{ _haproxy_service_configs_simplified + [(item.service is defined) | ternary(item.service, item)] }}"
-  loop: "{{ haproxy_service_configs }}"
-
 ###########################################################################
 # Service frontends and backends assembled from fragments into haproxy.conf
 ###########################################################################
@@ -35,9 +24,7 @@
     owner: root
     group: haproxy
     mode: "0640"
-  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-  # with haproxy_service_configs in 2024.1.
-  loop: "{{ _haproxy_service_configs_simplified }}"
+  loop: "{{ haproxy_service_configs }}"
   loop_control:
     loop_var: service
   when:
@@ -55,9 +42,7 @@
     path: "/etc/haproxy/conf.d/{{ service.haproxy_service_name }}"
     state: absent
   notify: Regenerate haproxy configuration
-  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-  # with haproxy_service_configs in 2024.1.
-  loop: "{{ _haproxy_service_configs_simplified }}"
+  loop: "{{ haproxy_service_configs }}"
   loop_control:
     loop_var: service
   when:
@@ -74,11 +59,9 @@
     owner: root
     group: haproxy
     mode: "0750"
-  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-  # with haproxy_service_configs in 2024.1.
   loop: >-
     {{
-      _haproxy_service_configs_simplified | selectattr('haproxy_map_entries', 'defined') | map(attribute='haproxy_map_entries') | flatten |
+      haproxy_service_configs | selectattr('haproxy_map_entries', 'defined') | map(attribute='haproxy_map_entries') | flatten |
       map(attribute='name') | unique
     }}
 
@@ -92,10 +75,8 @@
     owner: root
     group: haproxy
     mode: "0640"
-  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-  # with haproxy_service_configs in 2024.1.
   with_subelements:
-    - "{{ _haproxy_service_configs_simplified | selectattr('haproxy_map_entries', 'defined') }}"
+    - "{{ haproxy_service_configs | selectattr('haproxy_map_entries', 'defined') }}"
     - haproxy_map_entries
   when:
     - (item.0.haproxy_service_enabled | default(True)) | bool
@@ -112,10 +93,8 @@
     - (item.0.haproxy_service_enabled | default('True')) | bool is falsy or
       (item.0.state is defined and item.0.state == 'absent') or
       (item.1.state | default('present') == 'absent')
-  # NOTE(damiandabrowski): _haproxy_service_configs_simplified should be replaced
-  # with haproxy_service_configs in 2024.1.
   with_subelements:
-    - "{{ _haproxy_service_configs_simplified | selectattr('haproxy_map_entries', 'defined') }}"
+    - "{{ haproxy_service_configs | selectattr('haproxy_map_entries', 'defined') }}"
     - haproxy_map_entries
   notify: Regenerate maps
   register: map_delete
