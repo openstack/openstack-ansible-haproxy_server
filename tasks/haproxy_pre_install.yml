@@ -82,8 +82,9 @@
 
 - name: Copy static files
   ansible.builtin.copy:
-    content: "{{ item.content }}"
+    content: "{{ item.content | default(omit) }}"
     dest: "{{ item.dest }}"
+    src: "{{ item.src | default(omit) }}"
     mode: "0644"
     owner: haproxy
     group: haproxy
