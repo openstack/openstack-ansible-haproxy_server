@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Make haproxy bindable on non local addresses
+- name: Make HAProxy bindable on non local addresses
   ansible.posix.sysctl:
     name: "{{ item }}"
     value: 1
@@ -42,14 +42,14 @@
   tags:
     - haproxy-logging-config
 
-- name: Drop base haproxy config
+- name: Drop base HAProxy config
   ansible.builtin.template:
     src: "haproxy.cfg.j2"
     dest: "/etc/haproxy/conf.d/00-haproxy"
     mode: "0640"
     owner: haproxy
     group: haproxy
-  notify: Regenerate haproxy configuration
+  notify: Regenerate HAProxy configuration
   tags:
     - haproxy-base-config
 
@@ -70,7 +70,7 @@
     owner: "haproxy"
     group: "haproxy"
 
-# NOTE(jrosser) The next task fails on Centos without this,
+# NOTE(jrosser) The next task fails on CentOS without this,
 # an empty directory rather than a file is made and the bind mount fails
 - name: Ensure empty file is availble to bind mount log socket
   ansible.builtin.file:
@@ -88,7 +88,7 @@
     state: mounted
     fstype: none
 
-- name: Prevent SELinux from preventing haproxy from binding to arbitrary ports
+- name: Prevent SELinux from preventing HAProxy from binding to arbitrary ports
   ansible.posix.seboolean:
     name: haproxy_connect_any
     state: true
@@ -96,6 +96,6 @@
   tags:
     - haproxy-service-config
   notify:
-    - Reload haproxy
+    - Reload HAProxy
   when:
     - ansible_facts['selinux']['status'] == "enabled"

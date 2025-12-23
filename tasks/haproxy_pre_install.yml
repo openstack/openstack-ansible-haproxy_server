@@ -93,4 +93,4 @@
   loop: "{{ haproxy_static_files }}"
   no_log: true
   notify:
-    - Reload haproxy
+    - Reload HAProxy

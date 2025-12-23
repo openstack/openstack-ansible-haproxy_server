@@ -111,4 +111,4 @@
   with_items:
     - "{{ haproxy_vip_binds | selectattr('type', 'defined') | selectattr('type', 'eq', 'external') }}"
   notify:
-    - Reload haproxy
+    - Reload HAProxy
