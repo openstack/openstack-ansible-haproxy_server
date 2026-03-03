@@ -18,4 +18,4 @@
   vars_files:
     - test-vars.yml
   roles:
-    - "{{ playbook_dir | dirname | basename }}"
+    - haproxy_server

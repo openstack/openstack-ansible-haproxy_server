@@ -8,6 +8,9 @@ collections:
   - name: community.crypto
     source: https://github.com/ansible-collections/community.crypto
     type: git
+  - name: https://opendev.org/openstack/openstack-ansible-plugins
+    type: git
+    version: master
   - name: ansible.utils
     source: https://github.com/ansible-collections/ansible.utils
     type: git

@@ -9,4 +9,4 @@
       - haproxy_service_name: test_absent_service
         state: absent
   roles:
-    - "{{ playbook_dir | dirname | basename }}"
+    - haproxy_server
