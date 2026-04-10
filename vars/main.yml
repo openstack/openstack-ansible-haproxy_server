@@ -26,30 +26,37 @@ _haproxy_vip_binds: |
 
 _haproxy_pki_certificates: |
   {% set _pki_certs = [] %}
+  {% set _san = {'dns': [], 'ip': [], 'uri': [], 'other': []} %}
   {% for vip in haproxy_vip_binds %}
   {%   set _vip_interface = vip['interface'] | default('') %}
-  {%   set san = ['DNS:' ~ ansible_facts['hostname'], 'DNS:' ~ ansible_facts['fqdn']] %}
+  {%   set _ = _san['dns'].extend([ansible_facts['hostname'], ansible_facts['fqdn']]) %}
   {%   if vip['address'] != '*' %}
-  {%     set _ = san.append((vip['address'] | ansible.utils.ipaddr) | ternary('IP:', 'DNS:') ~ vip['address']) %}
+  {%     if (vip['address'] | ansible.utils.ipaddr) %}
+  {%       set _ = _san['ip'].append(vip['address']) %}
+  {%     else %}
+  {%       set _ = _san['dns'].append(vip['address']) %}
+  {%     endif %}
   {%   endif %}
   {%   if vip['address'] == haproxy_bind_internal_lb_vip_address and not (internal_lb_vip_address | ansible.utils.ipaddr) %}
-  {%     set _ = san.append('DNS:' ~ internal_lb_vip_address) %}
+  {%     set _ = _san['dns'].append(internal_lb_vip_address) %}
   {%   endif %}
   {%   if vip['address'] == haproxy_bind_external_lb_vip_address and not (external_lb_vip_address | ansible.utils.ipaddr) %}
-  {%     set _ = san.append('DNS:' ~ external_lb_vip_address) %}
+  {%     set _ = _san['dns'].append(external_lb_vip_address) %}
   {%   endif %}
   {%   for record in vip.get('pki_san_records', []) %}
-  {%     set _ = san.append((record | ansible.utils.ipaddr) | ternary('IP:', 'DNS:') ~ record) %}
+  {%     if (record | ansible.utils.ipaddr) %}
+  {%       set _ = _san['ip'].append(record) %}
+  {%     else %}
+  {%       set _ = _san['dns'].append(record) %}
+  {%     endif %}
   {%   endfor %}
-  {%   set _ = _pki_certs.append(
-        {
+  {%   set _ = _pki_certs.append({
           'name': 'haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (_vip_interface is truthy) | ternary(vip['address'] ~ '-' ~ _vip_interface, vip['address']),
           'provider': 'ownca',
           'cn': ansible_facts['hostname'],
-          'san': san | join(','),
+          'san': _san,
           'signed_by': haproxy_pki_intermediate_cert_name,
-        }
-      ) %}
+        }) %}
   {% endfor %}
   {{ _pki_certs }}
 
@@ -57,38 +64,35 @@ _haproxy_pki_install_certificates: |
   {% set _pki_install = [] %}
   {% for vip in haproxy_vip_binds %}
   {% set _vip_interface = vip['interface'] | default('') %}
-  {% set _cert_basename = '/haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (_vip_interface is truthy) | ternary(
+  {% set _cert_basename = 'haproxy_' ~ ansible_facts['hostname'] ~ '-' ~ (_vip_interface is truthy) | ternary(
       vip['address'] ~ '-' ~ _vip_interface, vip['address'])
   %}
   {% set _ = _pki_install.append(
       {
-        'src': haproxy_user_ssl_cert | default(haproxy_pki_certs_path ~ _cert_basename ~ '.crt'),
-        'dest': haproxy_ssl_temp_path ~ _cert_basename  ~ '.crt',
-        'owner': 'root',
-        'group': 'haproxy',
-        'mode': '0644'
+        'name': _cert_basename,
+        'src': haproxy_user_ssl_cert,
+        'dest': haproxy_ssl_temp_path ~ '/' ~ _cert_basename  ~ '.crt',
+        'type': 'certificate'
       }
     )
   %}
   {% set _ = _pki_install.append(
       {
-        'src': haproxy_user_ssl_key | default(haproxy_pki_keys_path ~ _cert_basename ~ '.key.pem'),
-        'dest': haproxy_ssl_temp_path ~ _cert_basename  ~ '.key',
-        'owner': 'root',
-        'group': 'haproxy',
-        'mode': '0640'
+        'name': _cert_basename,
+        'src': haproxy_user_ssl_key,
+        'dest': haproxy_ssl_temp_path ~ '/' ~ _cert_basename  ~ '.key',
+        'type': 'private_key'
       }
     )
   %}
   {# We need to put CA only when it's provided by user or internal CA is used and user certs are not provided #}
-  {% if (haproxy_user_ssl_cert is not defined and haproxy_user_ssl_key is not defined) or haproxy_user_ssl_ca_cert is defined %}
+  {% if (not haproxy_user_ssl_cert and not haproxy_user_ssl_key) or haproxy_user_ssl_ca_cert %}
   {%   set _ = _pki_install.append(
         {
-          'src': haproxy_user_ssl_ca_cert | default(haproxy_pki_intermediate_cert_path),
-          'dest': haproxy_ssl_temp_path ~ _cert_basename  ~ '-ca.crt',
-          'owner': 'root',
-          'group': 'haproxy',
-          'mode': '0644'
+          'name': _cert_basename,
+          'src': haproxy_user_ssl_ca_cert,
+          'dest': haproxy_ssl_temp_path ~ '/' ~ _cert_basename  ~ '-ca.crt',
+          'type': 'ca_bundle'
         })
   %}
   {% endif %}
