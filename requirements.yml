@@ -3,7 +3,7 @@ roles:
   - name: pki
     src: https://opendev.org/openstack/ansible-role-pki
     scm: git
-    version: master
+    version: stable/2025.2
 collections:
   - name: community.crypto
     source: https://github.com/ansible-collections/community.crypto
