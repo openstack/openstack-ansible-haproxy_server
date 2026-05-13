@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Validate Certificates when downloading hatop. May be set to "no" when proxy server
+# Validate Certificates when downloading hatop. May be set to "false" when proxy server
 # is intercepting the certificates.
 haproxy_hatop_download_validate_certs: true
 
@@ -21,12 +21,12 @@ haproxy_hatop_download_validate_certs: true
 # Options are 'present' and 'latest'
 haproxy_package_state: "latest"
 
-## Haproxy Configuration
+## HAProxy Configuration
 haproxy_rise: 3
 haproxy_fall: 3
 haproxy_interval: 12000
 
-## Haproxy Stats
+## HAProxy Stats
 haproxy_stats_enabled: false
 haproxy_stats_bind_address: 127.0.0.1
 haproxy_stats_port: 1936
@@ -40,7 +40,7 @@ haproxy_stats_refresh_interval: 60
 # Stats must be enabled above before this can be used
 haproxy_stats_prometheus_enabled: false
 
-# Default haproxy backup nodes to empty list so this doesn't have to be
+# Default HAProxy backup nodes to empty list so this doesn't have to be
 # defined for each service.
 haproxy_backup_nodes: []
 
@@ -72,8 +72,8 @@ haproxy_service_configs: []
 #       allow_list:
 #         rule: "src 127.0.0.1/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
 #         backend_name: "mybackend"
-#     haproxy_frontend_h2: True
-#     haproxy_backend_h2: False
+#     haproxy_frontend_h2: true
+#     haproxy_backend_h2: false
 #     haproxy_frontend_acls:
 #       letsencrypt-acl:
 #         rule: "path_beg /.well-known/acme-challenge/"
@@ -88,11 +88,11 @@ haproxy_service_configs: []
 #     haproxy_bind:
 #       - '127.0.0.1'
 #     haproxy_allowlist_networks: "{{ haproxy_allowlist_networks }}"
-#     haproxy_frontend_only: True
+#     haproxy_frontend_only: true
 #     haproxy_balance_type: "http"
 #     haproxy_frontend_raw:
 #       - 'http-request use-service prometheus-exporter if { path /metrics }'
-#     haproxy_service_enabled: True
+#     haproxy_service_enabled: true
 
 # HAProxy maps (unrelated keys are omitted but are required as the previous service example)
 # Example:
@@ -136,7 +136,7 @@ haproxy_service_configs: []
 galera_monitoring_user: monitoring
 haproxy_bind_on_non_local: false
 
-## haproxy SSL
+## HAProxy SSL
 haproxy_ssl: true
 haproxy_ssl_all_vips: false
 haproxy_ssl_dh_param: 2048
@@ -150,7 +150,7 @@ haproxy_ssl_cipher_suite_tls12: >-
 # TLS v1.3
 haproxy_ssl_cipher_suite_tls13: "{{ ssl_cipher_suite_tls13 | default('TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256') }}"
 
-# haproxy self signed certificate
+# HAProxy self signed certificate
 
 # Storage location for SSL certificate authority
 haproxy_pki_dir: "{{ openstack_pki_dir | default('/etc/pki/haproxy-ca') }}"
@@ -217,7 +217,7 @@ haproxy_pki_create_certificates: "{{ haproxy_user_ssl_cert | length == 0 and hap
 # Installation details for SSL certificates
 haproxy_pki_install_certificates: "{{ _haproxy_pki_install_certificates }}"
 
-# activate letsencrypt option
+# Activate Let’s Encrypt option
 haproxy_ssl_letsencrypt_enable: false
 haproxy_ssl_letsencrypt_certbot_binary: "certbot"
 haproxy_ssl_letsencrypt_certbot_backend_port: 8888
@@ -246,7 +246,7 @@ haproxy_hatop_install: true
 # The location where the extra packages are downloaded to
 haproxy_hatop_download_path: "/opt/cache/files"
 
-## haproxy default
+## HAProxy default
 # Set the number of retries to perform on a server after a connection failure
 haproxy_retries: "3"
 # Set the maximum inactivity time on the client side
@@ -262,7 +262,7 @@ haproxy_server_timeout: "50s"
 # at the same time a request is sent.
 haproxy_keepalive_mode: "httpclose"
 
-## haproxy tuning params
+## HAProxy tuning params
 haproxy_maxconn: 4096
 
 # Parameters below should only be specified if necessary, defaults are programmed in the template
@@ -282,17 +282,17 @@ extra_lb_vip_addresses: []
 # Add extra TLS VIPs to all services
 extra_lb_tls_vip_addresses: []
 
-# Option to override which address haproxy binds to for external vip.
+# Option to override which address HAProxy binds to for external vip.
 haproxy_bind_external_lb_vip_address: "{{ external_lb_vip_address }}"
 
-# Option to override which address haproxy binds to for internal vip.
+# Option to override which address HAProxy binds to for internal vip.
 haproxy_bind_internal_lb_vip_address: "{{ internal_lb_vip_address }}"
 
 # Option to define if you need haproxy to bind on specific interface.
 haproxy_bind_external_lb_vip_interface:
 haproxy_bind_internal_lb_vip_interface:
 
-# Option to override haproxy frontend binds
+# Option to override HAProxy frontend binds
 # Example:
 # haproxy_vip_binds:
 #   - address: '*'

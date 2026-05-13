@@ -7,7 +7,7 @@ haproxy_service_configs:
     haproxy_backend_nodes: "{{ groups['haproxy_all'] | default([]) }}"
     haproxy_port: 8180
     haproxy_backend_port: 22
-    haproxy_ssl: False
+    haproxy_ssl: false
     haproxy_balance_type: tcp
     haproxy_backend_options:
       - tcp-check
@@ -17,7 +17,7 @@ haproxy_service_configs:
         ip_addr: "127.0.0.1"
     haproxy_port: 8181
     haproxy_backend_port: 22
-    haproxy_ssl: False
+    haproxy_ssl: false
     haproxy_balance_type: tcp
     haproxy_backend_options:
       - tcp-check
@@ -25,9 +25,9 @@ haproxy_service_configs:
     haproxy_backend_nodes: "{{ groups['haproxy_all'] | default([]) }}"
     haproxy_port: 8180
     haproxy_backend_port: 443
-    haproxy_backend_ssl: True
-    haproxy_backend_ca: False
-    haproxy_ssl: False
+    haproxy_backend_ssl: true
+    haproxy_backend_ca: false
+    haproxy_ssl: false
     haproxy_balance_type: http
   - haproxy_service_name: test_absent_service
     haproxy_backend_nodes:

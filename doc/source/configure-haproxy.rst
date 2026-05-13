@@ -72,7 +72,7 @@ Edit the ``/etc/openstack_deploy/user_variables.yml``:
 
 .. code-block:: yaml
 
-   keepalived_use_latest_stable: True
+   keepalived_use_latest_stable: true
 
 The HAProxy nodes have group vars applied that define the configuration
 of Keepalived. This configuration is stored in
@@ -102,7 +102,7 @@ To do this, set the following:
 
 .. code-block:: yaml
 
-   haproxy_use_keepalived: False
+   haproxy_use_keepalived: false
 
 Configuring Keepalived ping checks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -169,7 +169,7 @@ The following variables must be set for the HAProxy hosts.
 
 .. code-block:: yaml
 
-   haproxy_ssl_letsencrypt_enable: True
+   haproxy_ssl_letsencrypt_enable: true
    haproxy_ssl_letsencrypt_email: example@example.com
    haproxy_interval: 2000
 
@@ -191,7 +191,7 @@ certificates are renewed.
         letsencrypt-acl:
           rule: "path_beg /.well-known/acme-challenge/"
           backend_name: letsencrypt
-      haproxy_ssl: True
+      haproxy_ssl: true
       haproxy_backend_nodes:                                 #apache is running on locally on 127.0.0.1:80 serving a dummy site
         - name: local-test-service
           ip_addr: 127.0.0.1
@@ -211,7 +211,6 @@ certificates are renewed.
         - 127.0.0.1                                          #bind to 127.0.0.1 as the local internal address  will be used by certbot
       haproxy_port: 8888                                     #certbot is configured with http-01-port to be 8888
       haproxy_balance_type: http
-
 
 It is possible to use an HA configuration of HAProxy with certificates
 initialised and renewed using certbot by setting haproxy_backend_nodes
@@ -256,12 +255,12 @@ An example HTTP service could look like:
         haproxy_port: 10000
         haproxy_balance_type: http
         # If backend connections should be secured with SSL (default False)
-        haproxy_backend_ssl: True
+        haproxy_backend_ssl: true
         haproxy_backend_ca: /path/to/ca/cert.pem
         # Or to use system CA for validation
-        # haproxy_backend_ca: True
+        # haproxy_backend_ca: true
         # Or if certificate validation should be disabled
-        # haproxy_backend_ca: False
+        # haproxy_backend_ca: false
 
 Additionally, you can specify HAProxy services that are not managed
 in the Ansible inventory by manually specifying their hostnames/IP Addresses:
@@ -370,7 +369,6 @@ Here is an example that shows how to achieve the goal
 
 .. code-block:: yaml
 
-
    - haproxy_service_name: influxdb-relay
      haproxy_acls:
        write_queries:
@@ -410,8 +408,8 @@ option:
     haproxy_bind:
       - '127.0.0.1'
     haproxy_whitelist_networks: "{{ haproxy_whitelist_networks }}"
-    haproxy_frontend_only: True
+    haproxy_frontend_only: true
     haproxy_frontend_raw:
       - 'http-request use-service prometheus-exporter if { path /metrics }'
-    haproxy_service_enabled: True
+    haproxy_service_enabled: true
     haproxy_balance_type: 'http'

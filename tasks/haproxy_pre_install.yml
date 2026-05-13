@@ -14,11 +14,11 @@
 # limitations under the License.
 
 # NOTE(cloudnull):
-#  While the haproxy distro packages provide for an haproxy
+#  While the HAProxy distro packages provide for an HAProxy
 #  group this group is being created upfront to support
 #  log aggregation links as well as ensure common user
 #  functionality across various distros that we support.
-- name: Create the haproxy system group
+- name: Create the HAProxy system group
   ansible.builtin.group:
     name: "haproxy"
     state: "present"
@@ -27,11 +27,11 @@
     - haproxy-group
 
 # NOTE(cloudnull):
-#  While the haproxy distro packages provide for an haproxy
+#  While the HAProxy distro packages provide for an HAProxy
 #  user this user is being created upfront to support
 #  log aggregation links as well as ensure common user
 #  functionality across various distros that we support.
-- name: Create the haproxy system user
+- name: Create the HAProxy system user
   ansible.builtin.user:
     name: "haproxy"
     group: "haproxy"
@@ -43,7 +43,7 @@
   tags:
     - haproxy-user
 
-- name: Create haproxy config directories
+- name: Create HAProxy config directories
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -89,7 +89,7 @@
     owner: haproxy
     group: haproxy
   when:
-    - (item.condition | default(True))
+    - (item.condition | default(true))
   loop: "{{ haproxy_static_files }}"
   no_log: true
   notify:
