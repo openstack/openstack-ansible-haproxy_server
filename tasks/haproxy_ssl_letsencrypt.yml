@@ -11,25 +11,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Import repository GPG keys for epel
-  ansible.builtin.rpm_key:
-    key: "{{ item.key }}"
-    state: present
-  loop: "{{ haproxy_package_repos_keys }}"
-  when: ansible_facts['os_family'] | lower == 'redhat'
+- name: Add required EL repositories for certbot
+  when:
+    - ansible_facts['os_family'] | lower == 'redhat'
+  block:
+    - name: If a keyfile is provided, copy the gpg keyfile to the key location
+      ansible.builtin.copy:
+        src: "{{ item.keyfile }}"
+        dest: "{{ item.key }}"
+        mode: "0644"
+      with_items: "{{ haproxy_package_repos_keys | selectattr('keyfile', 'defined') | list }}"
 
-- name: Configure epel repository for certbot
-  ansible.builtin.yum_repository:
-    name: "{{ item.name }}"
-    description: "{{ item.description }}"
-    baseurl: "{{ item.baseurl }}"
-    gpgkey: "{{ item.gpgkey }}"
-    gpgcheck: "{{ item.gpgcheck }}"
-    enabled: "{{ item.enabled }}"
-    state: "{{ item.state }}"
-    includepkgs: "{{ item.includepkgs }}"
-  loop: "{{ haproxy_repos }}"
-  when: ansible_facts['os_family'] | lower == 'redhat'
+    - name: Import repository GPG keys for epel
+      ansible.builtin.rpm_key:
+        key: "{{ item.key }}"
+        state: present
+      loop: "{{ haproxy_package_repos_keys }}"
+
+    - name: Configure epel repository for certbot
+      ansible.builtin.yum_repository:
+        name: "{{ item.name }}"
+        description: "{{ item.description }}"
+        baseurl: "{{ item.baseurl }}"
+        gpgkey: "{{ item.gpgkey }}"
+        gpgcheck: "{{ item.gpgcheck }}"
+        enabled: "{{ item.enabled }}"
+        state: "{{ item.state }}"
+        includepkgs: "{{ item.includepkgs }}"
+      loop: "{{ haproxy_repos }}"
 
 - name: Install certbot from distro package
   ansible.builtin.package:
