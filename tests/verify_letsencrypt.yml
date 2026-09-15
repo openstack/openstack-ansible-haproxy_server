@@ -1,0 +1,68 @@
+---
+- name: Verify Let's Encrypt / Step-CA deployment and certificates
+  hosts: service_hosts
+  tasks:
+    - name: Ensure HAProxy service is active
+      ansible.builtin.service:
+        name: haproxy
+        state: started
+      check_mode: true
+      register: haproxy_service_status
+      failed_when: haproxy_service_status.changed
+
+    - name: Verify certbot generated certificate files exist
+      ansible.builtin.stat:
+        path: /etc/letsencrypt/live/external.openstack.local/fullchain.pem
+      register: le_cert_stat
+      failed_when: not le_cert_stat.stat.exists
+
+    - name: Inspect generated certificate
+      community.crypto.x509_certificate_info:
+        path: /etc/letsencrypt/live/external.openstack.local/fullchain.pem
+      register: cert_info
+
+    - name: Assert certificate SAN and issuer
+      ansible.builtin.assert:
+        that:
+          - "'external.openstack.local' in cert_info.subject_alt_name | map('regex_replace', '^(DNS|IP):', '') | list"
+          - "'Molecule Test CA' in (cert_info.issuer.commonName | default('')) or 'Intermediate' in (cert_info.issuer.commonName | default('')) or 'Molecule Test CA' in (cert_info.issuer.organizationName | default(''))"
+        fail_msg: "Issued certificate does not have expected SAN or issuer: {{ cert_info }}"
+
+    - name: Verify HAProxy PEM bundle exists
+      ansible.builtin.stat:
+        path: "/etc/haproxy/ssl/haproxy_{{ ansible_facts['hostname'] }}-external.openstack.local.pem"
+      register: haproxy_pem_stat
+      failed_when: not haproxy_pem_stat.stat.exists
+
+    - name: Test HTTPS request using system CA trust store
+      ansible.builtin.uri:
+        url: https://external.openstack.local/
+        return_content: true
+        status_code: 200
+      register: uri_le_res
+      failed_when: uri_le_res.json.status != 'OK'
+
+    - name: Test HTTP to HTTPS redirect
+      ansible.builtin.uri:
+        url: http://external.openstack.local/test
+        follow_redirects: none
+        status_code:
+          - 301
+          - 302
+      register: redirect_res
+      failed_when: not (redirect_res.location | default('')).startswith('https://')
+
+    - name: Check certbot renewal hooks exist
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/letsencrypt/renewal-hooks/pre/haproxy-pre
+        - /etc/letsencrypt/renewal-hooks/post/haproxy-renew
+      register: hook_stats
+
+    - name: Assert renewal hooks are present and executable
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.executable
+      loop: "{{ hook_stats.results }}"

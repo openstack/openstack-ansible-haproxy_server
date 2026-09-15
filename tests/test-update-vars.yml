@@ -1,0 +1,37 @@
+---
+external_lb_vip_address: 127.0.0.1
+internal_lb_vip_address: 127.0.0.1
+haproxy_pki_setup_host: "{{ inventory_hostname }}"
+haproxy_ssl: true
+
+haproxy_service_configs:
+  # Service to be deleted
+  - haproxy_service_name: test_absent_service
+    state: absent
+
+  # Service updated: port changed to 8186 and custom header updated
+  - haproxy_service_name: test_overrides
+    haproxy_port: 8186
+    haproxy_balance_type: http
+    haproxy_timeout_client: "40s"
+    haproxy_timeout_server: "40s"
+    haproxy_balance_alg: roundrobin
+    haproxy_frontend_raw:
+      - 'http-response set-header X-Molecule-Test UPDATED'
+    haproxy_backend_port: 10080
+    haproxy_backend_nodes:
+      - name: "node-overrides"
+        ip_addr: "127.0.0.1"
+
+  # Map entries updated: delete map fragment for test_map_routing
+  - haproxy_service_name: test_map_routing
+    haproxy_port: 8184
+    haproxy_frontend_only: true
+    haproxy_balance_type: http
+    haproxy_map_entries:
+      - name: 'domain_routes'
+        order: 10
+        state: absent
+        entries:
+          - "app1.local test_map_app1-back"
+          - "app2.local test_map_app2-back"

@@ -1,0 +1,209 @@
+---
+# Copyright 2026, Cleura AB.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Prepare environment for Let's Encrypt testing with step-ca
+  hosts: service_hosts
+  environment:
+    STEPPATH: "{{ step_ca_config_dir }}"
+  vars:
+    procps_package_name:
+      redhat: procps-ng
+      debian: procps
+    step_arch: "{{ (ansible_facts['architecture'] in ['x86_64', 'amd64']) | ternary('amd64', 'arm64') }}"
+    step_version: "0.28.0"
+    step_cli_deb: "https://github.com/smallstep/cli/releases/download/v{{ step_version }}/step-cli_{{ step_version }}-1_{{ step_arch }}.deb"
+    step_ca_deb: "https://github.com/smallstep/certificates/releases/download/v{{ step_version }}/step-ca_{{ step_version }}_{{ step_arch }}.deb"
+    step_cli_rpm: "https://github.com/smallstep/cli/releases/download/v{{ step_version }}/step-cli-{{ step_version }}-1.{{ ansible_facts['architecture'] }}.rpm"
+    step_ca_rpm: "https://github.com/smallstep/certificates/releases/download/v{{ step_version }}/step-ca_{{ step_version }}_{{ step_arch }}.rpm"
+    step_ca_user: step
+    step_ca_group: step
+    step_ca_config_dir: /etc/step-ca
+  tasks:
+    - name: Install required test packages
+      ansible.builtin.package:
+        name:
+          - ca-certificates
+          - curl
+          - python3-cryptography
+          - "{{ procps_package_name[ansible_facts['os_family'] | lower] }}"
+          - tar
+          - socat
+          - sudo
+        update_cache: "{{ (ansible_facts['os_family'] | lower == 'debian') | ternary(true, omit) }}"
+
+    - name: Ensure step-ca user and group exist
+      block:
+        - name: Ensure step-ca group exists
+          ansible.builtin.group:
+            name: "{{ step_ca_group }}"
+            system: true
+
+        - name: Ensure step-ca user exists
+          ansible.builtin.user:
+            name: "{{ step_ca_user }}"
+            group: "{{ step_ca_group }}"
+            home: "{{ step_ca_config_dir }}"
+            system: true
+            create_home: true
+            shell: /bin/bash
+
+    - name: Install step-cli and step-ca packages (Debian family)
+      ansible.builtin.apt:
+        deb: "{{ item }}"
+      loop:
+        - "{{ step_cli_deb }}"
+        - "{{ step_ca_deb }}"
+      when: ansible_facts['os_family'] | lower == 'debian'
+
+    - name: Install step-cli and step-ca packages (RedHat family)
+      ansible.builtin.dnf:
+        name:
+          - "{{ step_cli_rpm }}"
+          - "{{ step_ca_rpm }}"
+        disable_gpg_check: true
+      when: ansible_facts['os_family'] | lower == 'redhat'
+
+    - name: Set STEPPATH environment variable
+      ansible.builtin.lineinfile:
+        dest: /etc/environment
+        line: 'STEPPATH="{{ step_ca_config_dir }}"'
+        state: present
+        mode: "0644"
+
+    - name: Ensure step-ca directories exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ step_ca_user }}"
+        group: "{{ step_ca_group }}"
+        mode: "0750"
+      loop:
+        - "{{ step_ca_config_dir }}"
+        - "{{ step_ca_config_dir }}/config"
+        - "{{ step_ca_config_dir }}/db"
+
+    - name: Create step-ca password file
+      ansible.builtin.copy:
+        content: "changeme\n"
+        dest: "{{ step_ca_config_dir }}/config/password.txt"
+        owner: "{{ step_ca_user }}"
+        group: "{{ step_ca_group }}"
+        mode: "0600"
+
+    - name: Initialize Step-CA
+      become: true
+      become_user: "{{ step_ca_user }}"
+      ansible.builtin.command: >
+        step ca init
+        --name="Molecule Test CA"
+        --dns="localhost,127.0.0.1,external.openstack.local"
+        --provisioner=delete-me
+        --password-file="{{ step_ca_config_dir }}/config/password.txt"
+        --address="127.0.0.1:8889"
+      args:
+        creates: "{{ step_ca_config_dir }}/config/ca.json"
+
+    - name: Add ACME provisioner to Step-CA
+      become: true
+      become_user: "{{ step_ca_user }}"
+      ansible.builtin.command: >
+        step ca provisioner add acme-osa --type ACME
+      register: acme_prov
+      changed_when: acme_prov.rc == 0
+      failed_when: acme_prov.rc != 0 and 'already exists' not in acme_prov.stderr
+
+    - name: Create systemd unit for step-ca
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/step-ca.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Step CA Server
+          After=network.target
+
+          [Service]
+          Type=simple
+          User={{ step_ca_user }}
+          Group={{ step_ca_group }}
+          Environment=STEPPATH={{ step_ca_config_dir }}
+          WorkingDirectory={{ step_ca_config_dir }}
+          ExecStart=/usr/bin/step-ca {{ step_ca_config_dir }}/config/ca.json --password-file={{ step_ca_config_dir }}/config/password.txt
+          Restart=on-failure
+          RestartSec=3
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Start step-ca service
+      ansible.builtin.systemd:
+        name: step-ca
+        state: started
+        enabled: true
+        daemon_reload: true
+
+    - name: Wait for Step-CA to listen on port 8889
+      ansible.builtin.wait_for:
+        port: 8889
+        host: 127.0.0.1
+        timeout: 20
+
+    - name: Retrieve Root CA certificate from Step-CA
+      ansible.builtin.get_url:
+        url: https://127.0.0.1:8889/roots.pem
+        dest: /opt/step_ca_roots.pem
+        validate_certs: false
+        mode: "0644"
+
+    - name: Install Step-CA Root into Debian trust store
+      when: ansible_facts['os_family'] | lower == 'debian'
+      block:
+        - name: Copy Step-CA root to ca-certificates directory
+          ansible.builtin.copy:
+            src: /opt/step_ca_roots.pem
+            dest: /usr/local/share/ca-certificates/step_ca.crt
+            remote_src: true
+            mode: "0644"
+
+        - name: Update CA certificates on Debian
+          ansible.builtin.command: update-ca-certificates
+          changed_when: false
+
+    - name: Install Step-CA Root into RedHat trust store
+      when: ansible_facts['os_family'] | lower == 'redhat'
+      block:
+        - name: Copy Step-CA root to trust anchors
+          ansible.builtin.copy:
+            src: /opt/step_ca_roots.pem
+            dest: /etc/pki/ca-trust/source/anchors/step_ca.crt
+            remote_src: true
+            mode: "0644"
+
+        - name: Update CA trust on RedHat
+          ansible.builtin.command: update-ca-trust extract
+          changed_when: false
+
+    - name: Add external domain mapping to /etc/hosts
+      ansible.builtin.lineinfile:
+        dest: /etc/hosts
+        line: "127.0.0.1 external.openstack.local"
+        state: present
+        unsafe_writes: true
+
+    - name: Include mock backends setup
+      ansible.builtin.include_tasks: common/mock_backends.yml
+      vars:
+        mock_backends_ports:
+          http:
+            - 10080

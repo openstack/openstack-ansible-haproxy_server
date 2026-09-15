@@ -206,7 +206,7 @@ certificates are renewed.
         - name: localhost
           ip_addr: {{ ansible_host }}                        #certbot binds to the internal IP
       backend_rise: 1                                        #quick rise and fall time for multinode deployment to succeed
-      backend_fall: 2
+      backend_fall: 5
       haproxy_bind:
         - 127.0.0.1                                          #bind to 127.0.0.1 as the local internal address  will be used by certbot
       haproxy_port: 8888                                     #certbot is configured with http-01-port to be 8888

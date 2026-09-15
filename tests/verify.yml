@@ -1,9 +1,251 @@
 ---
-- name: Testing result after role re-run
+- name: Verify HAProxy role deployment and functional behavior
   hosts: service_hosts
+  vars:
+    pki_ca_cert: >-
+      {{
+        '/etc/haproxy/ssl/haproxy_' ~ ansible_facts['hostname'] ~ '-127.0.0.1-ca.crt'
+      }}
   tasks:
-    - name: Ensure the absent service is present
+    - name: Ensure HAProxy service is active and running
+      ansible.builtin.service:
+        name: haproxy
+        state: started
+      check_mode: true
+      register: haproxy_service_status
+      failed_when: haproxy_service_status.changed
+
+    - name: Validate HAProxy configuration file syntax
+      ansible.builtin.command:
+        cmd: /usr/sbin/haproxy -c -f /etc/haproxy/haproxy.cfg
+      changed_when: false
+
+    # 1. Stats socket verification
+    - name: Query HAProxy stats socket # noqa: risky-shell-pipe
+      ansible.builtin.shell:
+        cmd: echo "show stat" | socat - /var/run/haproxy.stat
+      register: haproxy_stat_output
+      changed_when: false
+
+    - name: Verify expected backend states in stats socket
+      ansible.builtin.assert:
+        that:
+          - "'test_tcp_service-back,node-up,' in haproxy_stat_output.stdout"
+          - "haproxy_stat_output.stdout is regex('test_tcp_service-back,node-up,.*,UP,')"
+          - "'test_tcp_service-back,node-down,' in haproxy_stat_output.stdout"
+          - "haproxy_stat_output.stdout is regex('test_tcp_service-back,node-down,.*,DOWN,')"
+          - "'test_backend_ssl-back,node-https,' in haproxy_stat_output.stdout"
+          - "haproxy_stat_output.stdout is regex('test_backend_ssl-back,node-https,.*,UP,')"
+          - "'test_http_tls-back,node-http,' in haproxy_stat_output.stdout"
+          - "haproxy_stat_output.stdout is regex('test_http_tls-back,node-http,.*,UP,')"
+        fail_msg: "Stats socket did not report expected UP/DOWN statuses for backends"
+
+    # 2. L4 TCP traffic verification
+    - name: Test L4 TCP service response # noqa: risky-shell-pipe
+      ansible.builtin.shell:
+        cmd: echo "" | socat -t 2 - TCP:127.0.0.1:8180
+      register: tcp_res
+      changed_when: false
+      failed_when: "'OK-TCP' not in tcp_res.stdout"
+
+    # 3. L7 HTTP with Self-Signed TLS and HTTP/2 vs HTTP/1.1 verification
+    - name: Test TLS with HTTP/2 negotiation # noqa: command-instead-of-module
+      ansible.builtin.command:
+        cmd: >
+          curl -s -v --http2 --cacert {{ pki_ca_cert }}
+          -w "\nHTTP_VERSION:%{http_version} HTTP_CODE:%{http_code}"
+          https://127.0.0.1:8443/
+      register: curl_h2_res
+      changed_when: false
+
+    - name: Assert HTTP/2 was negotiated and forwarded proto header is set
+      ansible.builtin.assert:
+        that:
+          - "'HTTP/2 200' in curl_h2_res.stderr or 'HTTP_VERSION:2' in curl_h2_res.stdout"
+          - "'\"x-forwarded-proto\": \"https\"' in curl_h2_res.stdout"
+        fail_msg: "HTTP/2 negotiation or X-Forwarded-Proto header check failed"
+
+    - name: Test TLS with HTTP/1.1 negotiation # noqa: command-instead-of-module
+      ansible.builtin.command:
+        cmd: >
+          curl -s -v --http1.1 --cacert {{ pki_ca_cert }}
+          -w "\nHTTP_VERSION:%{http_version} HTTP_CODE:%{http_code}"
+          https://127.0.0.1:8443/
+      register: curl_h11_res
+      changed_when: false
+
+    - name: Assert HTTP/1.1 was negotiated when requested
+      ansible.builtin.assert:
+        that:
+          - "'HTTP/1.1 200' in curl_h11_res.stderr or 'HTTP_VERSION:1.1' in curl_h11_res.stdout or 'ALPN: server accepted http/1.1' in curl_h11_res.stderr"
+        fail_msg: "HTTP/1.1 negotiation failed: {{ curl_h11_res.stderr }} {{ curl_h11_res.stdout }}"
+
+    # - name: Test TLS on service with HTTP/2 disabled (noh2) # noqa: command-instead-of-module
+    #   ansible.builtin.command:
+    #     cmd: >
+    #       curl -s -v --http2 --cacert {{ pki_ca_cert }}
+    #       https://127.0.0.1:8445/
+    #   register: curl_noh2_res
+    #   changed_when: false
+
+    # - name: Assert fallback to HTTP/1.1 on service with haproxy_frontend_h2 false
+    #   ansible.builtin.assert:
+    #     that:
+    #       - "'HTTP/1.1 200' in curl_noh2_res.stderr or 'HTTP_VERSION:1.1' in curl_noh2_res.stdout"
+    #       - "'HTTP/2 200' not in curl_noh2_res.stderr and 'HTTP_VERSION:2' not in curl_noh2_res.stdout"
+    #     fail_msg: "Service with haproxy_frontend_h2: false did not fall back to HTTP/1.1: {{ curl_noh2_res.stderr }} {{ curl_noh2_res.stdout }}"
+
+    # 4. Backend SSL verification
+    - name: Test backend SSL service
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8182/
+        return_content: true
+        status_code: 200
+      register: backend_ssl_res
+      failed_when: backend_ssl_res.json.status != 'OK'
+
+    # 5. Dual protocol multiplexing verification (service-redirect.j2)
+    - name: Test HTTP request on dual-protocol port
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8183/
+        return_content: true
+        status_code: 200
+      register: dual_http_res
+      failed_when: dual_http_res.json.status != 'OK'
+
+    - name: Test HTTPS request on dual-protocol port
+      ansible.builtin.uri:
+        url: https://127.0.0.1:8183/
+        ca_path: "{{ pki_ca_cert }}"
+        return_content: true
+        status_code: 200
+      register: dual_https_res
+      failed_when: dual_https_res.json.status != 'OK'
+
+    # 6. HTTP to HTTPS redirect verification
+    - name: Test HTTP to HTTPS redirect
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8080/test
+        follow_redirects: none
+        status_code:
+          - 301
+          - 302
+      register: redirect_res
+      failed_when: not (redirect_res.location | default('')).startswith('https://')
+
+    # 7. Backend-only service verification
+    - name: Check backend-only service config file
+      ansible.builtin.slurp:
+        src: /etc/haproxy/conf.d/test_backend_only
+      register: backend_only_conf
+
+    - name: Assert backend-only config contains backend and no frontend
+      ansible.builtin.assert:
+        that:
+          - "'backend test_backend_only-back' in (backend_only_conf.content | b64decode)"
+          - "'frontend' not in (backend_only_conf.content | b64decode)"
+        fail_msg: "Backend-only service improperly configured"
+
+    # 8. Frontend-only service verification
+    - name: Test frontend-only service response
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8880/
+        return_content: true
+        status_code: 200
+      register: frontend_only_res
+      failed_when: "'FRONTEND-ONLY-OK' not in frontend_only_res.content"
+
+    # 9. Map file routing verification
+    - name: Verify map file existence
       ansible.builtin.stat:
-        path: "/etc/haproxy/conf.d/test_absent_service"
+        path: /etc/haproxy/domain_routes.map
+      register: map_file_stat
+      failed_when: not map_file_stat.stat.exists
+
+    - name: Test map routing to App1
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8184/
+        headers:
+          Host: app1.local
+        return_content: true
+        status_code: 200
+      register: map_app1_res
+      failed_when: (map_app1_res.json.app | lower) != 'app1'
+
+    - name: Test map routing to App2
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8184/
+        headers:
+          Host: app2.local
+        return_content: true
+        status_code: 200
+      register: map_app2_res
+      failed_when: (map_app2_res.json.app | lower) != 'app2'
+
+    # 10. Overrides verification
+    - name: Check overrides config file
+      ansible.builtin.slurp:
+        src: /etc/haproxy/conf.d/test_overrides
+      register: overrides_conf
+
+    - name: Assert overrides are present in service configuration
+      vars:
+        content: "{{ overrides_conf.content | b64decode }}"
+      ansible.builtin.assert:
+        that:
+          - "'timeout client 45s' in content"
+          - "'timeout server 45s' in content"
+          - "'balance roundrobin' in content"
+          - "'option forwardfor' in content"
+          - "'http-check GET /health' in content or 'httpchk GET /health' in content"
+          - "'maxconn 250' in content"
+        fail_msg: "Frontend/backend overrides missing from config"
+
+    - name: Test custom header override from frontend_raw
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8185/
+        method: HEAD
+        status_code: 200
+      register: overrides_res
+      failed_when: "'passed' not in (overrides_res.x_molecule_test | default(overrides_res.headers['x-molecule-test'] | default('')) | lower) and 'passed' not in (overrides_res.headers['X-Molecule-Test'] | default('') | lower)"
+
+    # 11. Stats web UI and Prometheus metrics
+    - name: Test Stats web UI with authentication
+      ansible.builtin.uri:
+        url: https://127.0.0.1:1936/
+        url_username: admin
+        url_password: testpassword
+        ca_path: "{{ pki_ca_cert }}"
+        return_content: true
+        status_code: 200
+      register: stats_ui_res
+      failed_when: "'HAProxy' not in stats_ui_res.content"
+
+    - name: Test Prometheus metrics endpoint
+      ansible.builtin.uri:
+        url: https://127.0.0.1:1936/metrics
+        ca_path: "{{ pki_ca_cert }}"
+        return_content: true
+        status_code: 200
+      register: prometheus_res
+      failed_when: "'haproxy_' not in prometheus_res.content"
+
+    # 12. Chroot logging mount
+    - name: Verify log socket bind mount in chroot
+      ansible.builtin.command:
+        cmd: mountpoint -q /var/lib/haproxy/dev/log
+      changed_when: false
+
+    # 13. Security.txt
+    - name: Verify security.txt exists and contains expected content
+      ansible.builtin.slurp:
+        src: /etc/haproxy/security.txt
+      register: security_txt_file
+      failed_when: "'mailto:security@example.com' not in (security_txt_file.content | b64decode)"
+
+    # 14. Absent service check before side_effect run
+    - name: Ensure the absent service is initially present
+      ansible.builtin.stat:
+        path: /etc/haproxy/conf.d/test_absent_service
       register: absent_services
       failed_when: not absent_services.stat.exists

@@ -1,0 +1,47 @@
+---
+external_lb_vip_address: external.openstack.local
+internal_lb_vip_address: 127.0.0.1
+haproxy_pki_setup_host: "{{ inventory_hostname }}"
+
+haproxy_ssl: true
+haproxy_ssl_letsencrypt_enable: true
+haproxy_ssl_letsencrypt_email: "test@example.com"
+haproxy_ssl_letsencrypt_certbot_server: "https://127.0.0.1:8889/acme/acme-osa/directory"
+haproxy_ssl_letsencrypt_certbot_bind_address: "127.0.0.1"
+haproxy_ssl_letsencrypt_domains:
+  - "external.openstack.local"
+
+haproxy_interval: 2000
+
+haproxy_service_configs:
+  # The external facing service with an ACL for LE requests
+  - haproxy_service_name: web_external
+    haproxy_bind:
+      - "external.openstack.local"
+    haproxy_port: 443
+    haproxy_redirect_http_port: 80
+    haproxy_redirect_scheme: "https if !{ ssl_fc } !{ path_beg /.well-known/acme-challenge/ }"
+    haproxy_ssl: true
+    haproxy_frontend_h2: true
+    haproxy_balance_type: http
+    haproxy_frontend_acls:
+      letsencrypt-acl:
+        rule: "path_beg /.well-known/acme-challenge/"
+        backend_name: letsencrypt
+    haproxy_backend_nodes:
+      - name: localhost
+        ip_addr: "127.0.0.1"
+    haproxy_backend_port: 10080
+    haproxy_backend_options:
+      - "httpchk HEAD /"
+
+  # The letsencrypt backend for acme-challenge where certbot listens
+  - haproxy_service_name: letsencrypt
+    haproxy_backend_only: true
+    haproxy_backend_port: 8888
+    haproxy_backend_nodes:
+      - name: localhost
+        ip_addr: "127.0.0.1"
+    backend_rise: 1
+    backend_fall: 5
+    haproxy_balance_type: http
