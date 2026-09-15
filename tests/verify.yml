@@ -80,20 +80,20 @@
           - "'HTTP/1.1 200' in curl_h11_res.stderr or 'HTTP_VERSION:1.1' in curl_h11_res.stdout or 'ALPN: server accepted http/1.1' in curl_h11_res.stderr"
         fail_msg: "HTTP/1.1 negotiation failed: {{ curl_h11_res.stderr }} {{ curl_h11_res.stdout }}"
 
-    # - name: Test TLS on service with HTTP/2 disabled (noh2) # noqa: command-instead-of-module
-    #   ansible.builtin.command:
-    #     cmd: >
-    #       curl -s -v --http2 --cacert {{ pki_ca_cert }}
-    #       https://127.0.0.1:8445/
-    #   register: curl_noh2_res
-    #   changed_when: false
+    - name: Test TLS on service with HTTP/2 disabled (noh2) # noqa: command-instead-of-module
+      ansible.builtin.command:
+        cmd: >
+          curl -s -v --http2 --cacert {{ pki_ca_cert }}
+          https://127.0.0.1:8445/
+      register: curl_noh2_res
+      changed_when: false
 
-    # - name: Assert fallback to HTTP/1.1 on service with haproxy_frontend_h2 false
-    #   ansible.builtin.assert:
-    #     that:
-    #       - "'HTTP/1.1 200' in curl_noh2_res.stderr or 'HTTP_VERSION:1.1' in curl_noh2_res.stdout"
-    #       - "'HTTP/2 200' not in curl_noh2_res.stderr and 'HTTP_VERSION:2' not in curl_noh2_res.stdout"
-    #     fail_msg: "Service with haproxy_frontend_h2: false did not fall back to HTTP/1.1: {{ curl_noh2_res.stderr }} {{ curl_noh2_res.stdout }}"
+    - name: Assert fallback to HTTP/1.1 on service with haproxy_frontend_h2 false
+      ansible.builtin.assert:
+        that:
+          - "'HTTP/1.1 200' in curl_noh2_res.stderr or 'HTTP_VERSION:1.1' in curl_noh2_res.stdout"
+          - "'HTTP/2 200' not in curl_noh2_res.stderr and 'HTTP_VERSION:2' not in curl_noh2_res.stdout"
+        fail_msg: "Service with haproxy_frontend_h2: false did not fall back to HTTP/1.1: {{ curl_noh2_res.stderr }} {{ curl_noh2_res.stdout }}"
 
     # 4. Backend SSL verification
     - name: Test backend SSL service
