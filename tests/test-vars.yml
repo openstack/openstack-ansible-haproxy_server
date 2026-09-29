@@ -2,37 +2,174 @@
 external_lb_vip_address: 127.0.0.1
 internal_lb_vip_address: 127.0.0.1
 haproxy_pki_setup_host: "{{ inventory_hostname }}"
+haproxy_ssl: true
+
+# Global and Stats features
+haproxy_stats_enabled: true
+haproxy_stats_bind_address: 127.0.0.1
+haproxy_stats_port: 1936
+haproxy_username: admin
+haproxy_stats_password: testpassword
+haproxy_stats_prometheus_enabled: true
+haproxy_tuning_params:
+  tune.bufsize: 32768
+haproxy_security_txt_content: |
+  Contact: mailto:security@example.com
+  Preferred-Languages: en
+
 haproxy_service_configs:
-  - haproxy_service_name: test_group
-    haproxy_backend_nodes: "{{ groups['haproxy_all'] | default([]) }}"
+  # L4 TCP Service: node-up (UP) and node-down (DOWN)
+  - haproxy_service_name: test_tcp_service
     haproxy_port: 8180
-    haproxy_backend_port: 22
+    haproxy_backend_port: 10022
     haproxy_ssl: false
     haproxy_balance_type: tcp
+    backend_fall: 1
+    interval: 1000
     haproxy_backend_options:
       - tcp-check
-  - haproxy_service_name: test_list
     haproxy_backend_nodes:
-      - name: "localhost"
+      - name: "node-up"
         ip_addr: "127.0.0.1"
-    haproxy_port: 8181
-    haproxy_backend_port: 22
-    haproxy_ssl: false
-    haproxy_balance_type: tcp
+        backend_port: 10022
+      - name: "node-down"
+        ip_addr: "127.0.0.1"
+        backend_port: 19999
+        check_port: 19999
+
+  # L7 HTTP with Self-Signed TLS & HTTP/2 enabled
+  - haproxy_service_name: test_http_tls
+    haproxy_port: 8443
+    haproxy_ssl: true
+    haproxy_frontend_h2: true
+    haproxy_balance_type: http
+    haproxy_backend_port: 10080
     haproxy_backend_options:
-      - tcp-check
+      - forwardfor
+      - "httpchk HEAD /"
+    haproxy_backend_nodes:
+      - name: "node-http"
+        ip_addr: "127.0.0.1"
+
+  # L7 HTTP with Self-Signed TLS & HTTP/2 disabled (HTTP/1.1 only)
+  - haproxy_service_name: test_http_tls_noh2
+    haproxy_port: 8445
+    haproxy_ssl: true
+    haproxy_frontend_h2: false
+    haproxy_balance_type: http
+    haproxy_backend_port: 10080
+    haproxy_backend_nodes:
+      - name: "node-http"
+        ip_addr: "127.0.0.1"
+
+  # L7 HTTP frontend with SSL backend
   - haproxy_service_name: test_backend_ssl
-    haproxy_backend_nodes: "{{ groups['haproxy_all'] | default([]) }}"
-    haproxy_port: 8180
-    haproxy_backend_port: 443
+    haproxy_port: 8182
+    haproxy_ssl: false
     haproxy_backend_ssl: true
     haproxy_backend_ca: false
-    haproxy_ssl: false
     haproxy_balance_type: http
+    haproxy_backend_port: 10443
+    haproxy_backend_nodes:
+      - name: "node-https"
+        ip_addr: "127.0.0.1"
+
+  # Protocol multiplexing: accepts both HTTP and HTTPS on same port
+  - haproxy_service_name: test_dual_protocol
+    haproxy_port: 8183
+    haproxy_accept_both_protocols: true
+    haproxy_ssl: true
+    haproxy_balance_type: http
+    haproxy_backend_port: 10080
+    haproxy_backend_nodes:
+      - name: "node-dual"
+        ip_addr: "127.0.0.1"
+
+  # HTTP to HTTPS redirect
+  - haproxy_service_name: test_http_redirect
+    haproxy_port: 8444
+    haproxy_redirect_http_port: 8080
+    haproxy_ssl: true
+    haproxy_balance_type: http
+    haproxy_backend_port: 10080
+    haproxy_backend_nodes:
+      - name: "node-redirect"
+        ip_addr: "127.0.0.1"
+
+  # Backend-only service
+  - haproxy_service_name: test_backend_only
+    haproxy_backend_only: true
+    haproxy_balance_type: http
+    haproxy_backend_port: 10080
+    haproxy_backend_nodes:
+      - name: "node-bo"
+        ip_addr: "127.0.0.1"
+
+  # Frontend-only service with raw responses
+  - haproxy_service_name: test_frontend_only
+    haproxy_frontend_only: true
+    haproxy_port: 8880
+    haproxy_balance_type: http
+    haproxy_frontend_raw:
+      - 'http-request return status 200 content-type text/plain lf-string "FRONTEND-ONLY-OK\n"'
+
+  # Map routing backends
+  - haproxy_service_name: test_map_app1
+    haproxy_backend_only: true
+    haproxy_balance_type: http
+    haproxy_backend_port: 10081
+    haproxy_backend_nodes:
+      - name: "node-app1"
+        ip_addr: "127.0.0.1"
+
+  - haproxy_service_name: test_map_app2
+    haproxy_backend_only: true
+    haproxy_balance_type: http
+    haproxy_backend_port: 10082
+    haproxy_backend_nodes:
+      - name: "node-app2"
+        ip_addr: "127.0.0.1"
+
+  # Frontend using map file
+  - haproxy_service_name: test_map_routing
+    haproxy_port: 8184
+    haproxy_frontend_only: true
+    haproxy_balance_type: http
+    haproxy_maps:
+      - 'use_backend %[req.hdr(host),lower,map(/etc/haproxy/domain_routes.map)]'
+    haproxy_map_entries:
+      - name: 'domain_routes'
+        order: 10
+        entries:
+          - "app1.local test_map_app1-back"
+          - "app2.local test_map_app2-back"
+
+  # Overrides testing
+  - haproxy_service_name: test_overrides
+    haproxy_port: 8185
+    haproxy_balance_type: http
+    haproxy_timeout_client: "45s"
+    haproxy_timeout_server: "45s"
+    haproxy_balance_alg: roundrobin
+    haproxy_allowlist_networks:
+      - "127.0.0.1/32"
+    haproxy_frontend_raw:
+      - 'http-response set-header X-Molecule-Test PASSED'
+    haproxy_backend_options:
+      - forwardfor
+      - "httpchk GET /health"
+    haproxy_backend_server_options:
+      - "maxconn 250"
+    haproxy_backend_port: 10080
+    haproxy_backend_nodes:
+      - name: "node-overrides"
+        ip_addr: "127.0.0.1"
+
+  # Service marked present, will be deleted in side_effects
   - haproxy_service_name: test_absent_service
+    haproxy_port: 65535
+    haproxy_balance_type: tcp
     haproxy_backend_nodes:
       - name: "localhost"
         ip_addr: "127.0.0.1"
-    haproxy_port: 65535
-    haproxy_balance_type: tcp
     state: present

@@ -217,7 +217,7 @@ haproxy_pki_create_certificates: "{{ haproxy_user_ssl_cert | length == 0 and hap
 # Installation details for SSL certificates
 haproxy_pki_install_certificates: "{{ _haproxy_pki_install_certificates }}"
 
-# Activate Let’s Encrypt option
+# Activate Let's Encrypt option
 haproxy_ssl_letsencrypt_enable: false
 haproxy_ssl_letsencrypt_certbot_binary: "certbot"
 haproxy_ssl_letsencrypt_certbot_backend_port: 8888

@@ -1,0 +1,7 @@
+---
+- name: Playbook for Let's Encrypt role testing
+  hosts: service_hosts
+  vars_files:
+    - test-letsencrypt-vars.yml
+  roles:
+    - haproxy_server

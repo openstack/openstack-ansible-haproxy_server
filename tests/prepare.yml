@@ -11,4 +11,52 @@
         name:
           - python3-cryptography
           - "{{ procps_package_name[ansible_facts['os_family'] | lower] }}"
+          - socat
+          - curl
+          - openssl
         update_cache: "{{ (ansible_facts['os_family'] | lower == 'debian') | ternary(true, omit) }}"
+
+    - name: Ensure SSL directories exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - /etc/ssl/certs
+        - /etc/ssl/private
+
+    - name: Generate private key for mock HTTPS backend
+      community.crypto.openssl_privatekey:
+        path: /etc/ssl/private/mock_backend.key
+        size: 2048
+        mode: "0600"
+
+    - name: Generate CSR for mock HTTPS backend
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: /etc/ssl/private/mock_backend.key
+        common_name: "127.0.0.1"
+        subject_alt_name:
+          - "IP:127.0.0.1"
+      register: mock_csr
+
+    - name: Generate self-signed certificate for mock HTTPS backend
+      community.crypto.x509_certificate:
+        path: /etc/ssl/certs/mock_backend.crt
+        csr_content: "{{ mock_csr.csr }}"
+        privatekey_path: /etc/ssl/private/mock_backend.key
+        provider: selfsigned
+        mode: "0644"
+
+    - name: Include mock backends setup
+      ansible.builtin.include_tasks: common/mock_backends.yml
+      vars:
+        mock_backends_ports:
+          http:
+            - 10080
+          https:
+            - 10443
+          tcp:
+            - 10022
+          app:
+            - "10081:APP1"
+            - "10082:APP2"

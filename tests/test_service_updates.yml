@@ -1,18 +1,47 @@
 ---
-- name: Playbook for role testing
+- name: Playbook for role testing service updates
   hosts: service_hosts
-  vars:
-    external_lb_vip_address: 127.0.0.1
-    internal_lb_vip_address: 127.0.0.1
-    haproxy_pki_setup_host: "{{ inventory_hostname }}"
-    haproxy_service_configs:
-      - haproxy_service_name: test_absent_service
-        state: absent
+  vars_files:
+    - test-update-vars.yml
   roles:
     - haproxy_server
   post_tasks:
-    - name: Ensure the absent service is missing
+    - name: Ensure the absent service config is deleted
       ansible.builtin.stat:
         path: "/etc/haproxy/conf.d/test_absent_service"
       register: absent_services
       failed_when: absent_services.stat.exists
+
+    - name: Ensure the absent map fragment is deleted
+      ansible.builtin.stat:
+        path: "/etc/haproxy/map.conf.d/domain_routes/10-test_map_routing.map"
+      register: absent_map
+      failed_when: absent_map.stat.exists
+
+    - name: Ensure updated service config has port 8186
+      ansible.builtin.slurp:
+        src: /etc/haproxy/conf.d/test_overrides
+      register: updated_conf
+
+    - name: Assert updated service configuration has been applied
+      ansible.builtin.assert:
+        that:
+          - "'8186' in (updated_conf.content | b64decode)"
+          - "'X-Molecule-Test UPDATED' in (updated_conf.content | b64decode)"
+        fail_msg: "Updated service configuration was not applied"
+
+    - name: Verify updated service is responsive on port 8186
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8186/
+        method: HEAD
+        status_code: 200
+      register: updated_res
+      failed_when: "'updated' not in (updated_res.x_molecule_test | default(updated_res.headers['x-molecule-test'] | default('')) | lower) and 'updated' not in (updated_res.headers['X-Molecule-Test'] | default('') | lower)"
+
+    - name: Verify HAProxy service is still running healthy after updates
+      ansible.builtin.service:
+        name: haproxy
+        state: started
+      check_mode: true
+      register: haproxy_status
+      failed_when: haproxy_status.changed

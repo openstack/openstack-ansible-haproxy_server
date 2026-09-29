@@ -1,0 +1,76 @@
+---
+# Copyright 2026, Cleura AB.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Install mock backends script
+  ansible.builtin.copy:
+    src: files/mock_backends.py
+    dest: /usr/local/bin/mock_backends.py
+    mode: "0755"
+
+- name: Build mock backend CLI arguments
+  ansible.builtin.copy:
+    dest: /usr/local/etc/mock-backends.env
+    mode: "0644"
+    content: |
+      {% set args = [] %}
+      {% for item in (mock_backends_ports | default({'http': [10080]})) | dict2items if item.value %}
+      {%   set _ = args.append('--' ~ item.key ~ '-ports ' ~ (item.value | join(' '))) %}
+      {% endfor %}
+      MOCK_BACKENDS_CLI_ARGS={{ args | join(' ') }}
+
+- name: Create systemd unit for mock backends
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/mock-backends.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Mock Backend Services for HAProxy Testing
+      After=network.target
+
+      [Service]
+      Type=simple
+      EnvironmentFile=-/usr/local/etc/mock-backends.env
+      ExecStart=/usr/bin/python3 /usr/local/bin/mock_backends.py $MOCK_BACKENDS_CLI_ARGS
+      Restart=always
+      RestartSec=1
+
+      [Install]
+      WantedBy=multi-user.target
+  register: mock_backends_service_file
+
+- name: Start or restart mock backends service
+  ansible.builtin.systemd:
+    name: mock-backends
+    state: "{{ mock_backends_service_file.changed | ternary('restarted', 'started') }}"
+    enabled: true
+    daemon_reload: "{{ mock_backends_service_file.changed }}"
+
+- name: Wait for mock backend listeners to be ready
+  vars:
+    _all_ports_to_wait: >-
+      {{
+        (mock_backends_ports | default({'http': [10080]})) | dict2items
+        | selectattr('value')
+        | map(attribute='value')
+        | flatten
+        | map('regex_replace', ':.*$', '')
+        | map('int')
+        | list
+      }}
+  ansible.builtin.wait_for:
+    port: "{{ item }}"
+    host: 127.0.0.1
+    timeout: 10
+  loop: "{{ _all_ports_to_wait | unique }}"
