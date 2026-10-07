@@ -22,7 +22,7 @@ provisioner:
   playbooks:
     prepare: ../../tests/prepare.yml
     converge: ../../tests/test.yml
-    side_effect: ../../tests/test_service_updates.yml
+    side_effect: ../../tests/side_effect.yml
     verify: ../../tests/verify.yml
   config_options:
     defaults:

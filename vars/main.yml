@@ -99,6 +99,8 @@ _haproxy_pki_install_certificates: |
   {% endfor %}
   {{ _pki_install }}
 
+_haproxy_service_backup_files: "{{ haproxy_service_change.results | default([]) | selectattr('backup_file', 'defined') }}"
+
 # In case CSP is enabled, on newer haproxy versions, header size
 # fill more than bufsize-maxrewrite, which results in 500
 # See: https://github.com/haproxy/haproxy/issues/1597

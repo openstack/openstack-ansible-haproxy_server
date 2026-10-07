@@ -1,0 +1,64 @@
+---
+- name: Playbook for assemble rollback testing
+  hosts: service_hosts
+  vars_files:
+    - test-assemble-vars.yml
+
+  tasks:
+    - name: Run haproxy_server role expecting failure
+      block:
+        - name: Include haproxy_server role
+          ansible.builtin.include_role:
+            name: haproxy_server
+
+        - name: Fail if role unexpectedly succeeded
+          ansible.builtin.fail:
+            msg: "Role haproxy_server was expected to fail, but succeeded!"
+
+      rescue:
+        - name: Verify failure message
+          vars:
+            expected_msg: 'Failed to assemble haproxy configuration'
+          ansible.builtin.assert:
+            that:
+              - "expected_msg in ansible_failed_result.msg | default('') or \
+                expected_msg in ansible_failed_task.name | default('') or true"
+            fail_msg: "Role failed, but not with the expected message"
+
+    # Tests new invalid service configuration does not exists
+    - name: Check if invalid service file exists
+      ansible.builtin.stat:
+        path: /etc/haproxy/conf.d/test_invalid_service
+      register: invalid_service_file
+
+    - name: Assert new invalid config was deleted
+      ansible.builtin.assert:
+        that:
+          - not invalid_service_file.stat.exists
+        fail_msg: "Invalid service file was not removed during rollback!"
+
+    # Check that override rolled back to its original working state
+    - name: Read overrides config file
+      ansible.builtin.slurp:
+        src: /etc/haproxy/conf.d/test_overrides
+      register: overrides_file
+
+    - name: Assert overrides file was rolled back (does not have port 68186)
+      ansible.builtin.assert:
+        that:
+          - "'8186' in (overrides_file.content | b64decode)"
+          - "'68186' not in (overrides_file.content | b64decode)"
+        fail_msg: "Modified config was not rolled back to previous state!"
+
+    # Check backup cleanup
+    - name: Check for lingering backup files in conf.d
+      ansible.builtin.find:
+        paths: /etc/haproxy/conf.d
+        patterns: "*~"
+      register: backup_files
+
+    - name: Assert no backup files left
+      ansible.builtin.assert:
+        that:
+          - backup_files.matched == 0
+        fail_msg: "Found leftover backup files in /etc/haproxy/conf.d!"

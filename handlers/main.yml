@@ -57,8 +57,26 @@
     mode: "0640"
     owner: haproxy
     group: haproxy
-  tags:
-    - haproxy-general-config
+    ignore_hidden: true
+    # backup files are excluded
+    regexp: '^(?!.*\.\d+\.\d{4}-\d{2}-\d{2}@\d{2}:\d{2}:\d{2}~$)'
+  ignore_errors: true
+  register: assemble_result
+
+- name: Include HAProxy configuration rollback tasks
+  ansible.builtin.include_tasks: handlers/haproxy_rollback.yml
+  listen:
+    - "Regenerate HAProxy configuration"
+  when:
+    - assemble_result is failed
+
+- name: Cleanup backup files
+  ansible.builtin.file:
+    path: "{{ item.backup_file }}"
+    state: absent
+  loop: "{{ _haproxy_service_backup_files }}"
+  listen:
+    - "Regenerate HAProxy configuration"
 
 - name: Get package facts
   ansible.builtin.package_facts:

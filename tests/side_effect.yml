@@ -1,0 +1,6 @@
+---
+
+- name: Import service updates test
+  ansible.builtin.import_playbook: test_service_updates.yml
+- name: Import service assemble test
+  ansible.builtin.import_playbook: test_service_assemble.yml
