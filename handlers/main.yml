@@ -82,5 +82,6 @@
     daemon_reload: true
   listen:
     - Regen pem
+    - haproxy cert installed
     - Regenerate maps
     - Regenerate HAProxy configuration
