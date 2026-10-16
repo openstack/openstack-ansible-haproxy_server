@@ -103,4 +103,4 @@ _haproxy_pki_install_certificates: |
 # fill more than bufsize-maxrewrite, which results in 500
 # See: https://github.com/haproxy/haproxy/issues/1597
 _haproxy_default_tuning_params:
-  tune.maxrewrite: 1280
+  tune.maxrewrite: 1408
