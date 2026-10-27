@@ -1,0 +1,6 @@
+---
+
+fixes:
+  - |
+    A HAProxy reload is properly triggered now when certificates are
+    regenerated.
