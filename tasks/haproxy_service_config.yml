@@ -24,6 +24,7 @@
     owner: root
     group: haproxy
     mode: "0640"
+    backup: true
   loop: "{{ haproxy_service_configs }}"
   loop_control:
     loop_var: service
@@ -36,6 +37,7 @@
     - (service.haproxy_service_enabled | default(true)) | bool
     - (service.state is not defined or service.state != 'absent')
   notify: Regenerate HAProxy configuration
+  register: haproxy_service_change
 
 - name: Remove HAProxy service config files for absent services
   ansible.builtin.file:

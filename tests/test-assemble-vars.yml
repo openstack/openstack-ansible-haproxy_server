@@ -1,0 +1,34 @@
+---
+external_lb_vip_address: 127.0.0.1
+internal_lb_vip_address: 127.0.0.1
+haproxy_pki_setup_host: "{{ inventory_hostname }}"
+haproxy_ssl: true
+
+haproxy_service_configs:
+  # Incorrect service defined
+  - haproxy_service_name: test_invalid_service
+    haproxy_port: 8443
+    haproxy_ssl: true
+    haproxy_frontend_h2: true
+    haproxy_balance_type: http
+    haproxy_backend_port: 10080
+    haproxy_backend_options:
+      - forwardfor
+      - "httpchk HEAD /"
+    haproxy_backend_nodes:
+      - name: "node-http"
+        ip_addr: "327.0.0.1"
+
+  # Service updated: port changed to 8186 and custom header updated
+  - haproxy_service_name: test_overrides
+    haproxy_port: 68186
+    haproxy_balance_type: http
+    haproxy_timeout_client: "40s"
+    haproxy_timeout_server: "40s"
+    haproxy_balance_alg: roundrobin
+    haproxy_frontend_raw:
+      - 'http-response set-header X-Molecule-Test UPDATED'
+    haproxy_backend_port: 10080
+    haproxy_backend_nodes:
+      - name: "node-overrides"
+        ip_addr: "127.0.0.1"
