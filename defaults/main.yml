@@ -237,6 +237,8 @@ haproxy_ssl_letsencrypt_domains:
   - "{{ external_lb_vip_address }}"
 
 haproxy_epel_mirror: "{{ centos_epel_mirror | default('http://dl.fedoraproject.org/pub/epel') }}"
+haproxy_epel_key: >-
+  {{ centos_epel_key | default('https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-' ~ ansible_facts['distribution_major_version']) }}
 
 # hatop extra package URL and checksum
 haproxy_hatop_download_url: "https://github.com/jhunt/hatop/archive/refs/tags/v0.8.2.tar.gz"

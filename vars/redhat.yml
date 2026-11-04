@@ -52,4 +52,4 @@ haproxy_repos:
 haproxy_package_repos_keys:
   - name: epel-10
     key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-10
-    keyfile: gpg/E37ED158
+    url: "{{ haproxy_epel_key }}"
